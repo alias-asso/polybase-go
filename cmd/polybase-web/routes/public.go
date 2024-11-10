@@ -1,22 +1,21 @@
 package routes
 
 import (
+	"log"
 	"net/http"
 )
 
-// Public route handlers
-func handleHome(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-	w.Write([]byte("Polybase Public View"))
+func getHome(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get home - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+	w.Write([]byte("Get home"))
 }
 
-func handleAuth(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Login Page"))
+func getLogin(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get login - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+	w.Write([]byte("Get login"))
 }
 
-func handleCoursesList(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Public Course Listing"))
+func postAuth(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	log.Printf("Post auth - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+	w.Write([]byte("Post auth"))
 }

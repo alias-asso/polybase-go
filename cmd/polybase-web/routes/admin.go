@@ -1,66 +1,114 @@
 package routes
 
 import (
+	"log"
 	"net/http"
-	"strings"
 )
 
-func handleAdmin(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Admin Dashboard"))
+// getAdmin
+func getAdmin(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+	w.Write([]byte("Get admin"))
 }
 
-func handleAdminMode(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	w.Write([]byte("Mode toggled"))
+// getAdminIndividual
+func getAdminIndividual(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin individual - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+	w.Write([]byte("Get admin individual"))
 }
 
-func handleNewCourse(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	w.Write([]byte("New course form"))
+// getAdminBulk
+func getAdminBulk(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin bulk - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+	w.Write([]byte("Get admin bulk"))
 }
 
-func handleBulkUpdate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	w.Write([]byte("Bulk update processed"))
+// getAdminCoursesNew
+func getAdminCoursesNew(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin courses new - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+	w.Write([]byte("Get admin courses new"))
 }
 
-func handleCourseOperations(w http.ResponseWriter, r *http.Request) {
-	path := strings.TrimPrefix(r.URL.Path, "/admin/courses/")
-	parts := strings.Split(path, "/")
-
-	if len(parts) < 1 {
+// getAdminCoursesEdit
+func getAdminCoursesEdit(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	code, kind, part, err := parseUrl("/admin/courses/edit/", r)
+	if err != nil {
+		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	switch r.Method {
-	case http.MethodGet:
-		if len(parts) == 2 && parts[1] == "edit" {
-			w.Write([]byte("Edit course form"))
-		}
-	case http.MethodPut:
-		if len(parts) == 3 {
-			switch parts[1] {
-			case "quantity":
-				w.Write([]byte("Update quantity"))
-			case "visibility":
-				w.Write([]byte("Toggle visibility"))
-			default:
-				http.NotFound(w, r)
-			}
-		}
-	case http.MethodDelete:
-		w.Write([]byte("Delete course"))
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	log.Printf("Get admin courses edit - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	w.Write([]byte("Get admin courses edit"))
+}
+
+// getAdminCoursesDelete
+func getAdminCoursesDelete(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	code, kind, part, err := parseUrl("/admin/courses/delete/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
 	}
+
+	log.Printf("Get admin courses delete - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	w.Write([]byte("Get admin courses delete"))
+}
+
+// putAdminCourses
+func putAdminCourses(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	code, kind, part, err := parseUrl("/admin/courses/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	log.Printf("Put admin courses - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	w.Write([]byte("Put admin courses"))
+}
+
+// deleteAdminCourses
+func deleteAdminCourses(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	code, kind, part, err := parseUrl("/admin/courses/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	log.Printf("Delete admin courses - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	w.Write([]byte("Delete admin courses"))
+}
+
+// patchAdminCoursesQuantity
+func patchAdminCoursesQuantity(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	code, kind, part, err := parseUrl("/admin/courses/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	log.Printf("Patch admin courses quantity - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	w.Write([]byte("Patch admin courses quantity"))
+}
+
+// patchAdminCoursesVisibility
+func patchAdminCoursesVisibility(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	code, kind, part, err := parseUrl("/admin/courses/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	log.Printf("Patch admin courses visibility - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	w.Write([]byte("Patch admin courses visibility"))
+}
+
+// patchAdminCoursesQuantities
+func patchAdminCoursesQuantities(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+	log.Printf("Patch admin courses quantities - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+	w.Write([]byte("Patch admin courses quantities"))
 }

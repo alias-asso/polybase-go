@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,33 +11,37 @@ import (
 
 // Server represents the HTTP server and its dependencies
 type Server struct {
-	config *config.Config
-	mux    *http.ServeMux
-	addr   string
+	ctx  *ServerContext
+	mux  *http.ServeMux
+	addr string
+}
+
+type ServerContext struct {
+	Config *config.Config
+	DB     *sql.DB
 }
 
 // New creates a new server instance
 func NewServer(cfg *config.Config) (*Server, error) {
+	ctx := &ServerContext{
+		Config: cfg,
+	}
+
 	srv := &Server{
-		config: cfg,
-		mux:    http.NewServeMux(),
-		addr:   fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
+		ctx:  ctx,
+		mux:  http.NewServeMux(),
+		addr: fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
 	}
 
 	// Register all routes
-	if err := register(srv.mux, cfg); err != nil {
-		return nil, err
-	}
+	register(srv.mux, srv.ctx)
 
 	return srv, nil
 }
 
-// Handler returns the HTTP handler for the server
-func (s *Server) Handler() http.Handler {
-	return s.mux
-}
-
 func (s *Server) Run() {
 	log.Printf("Starting server on %s", s.addr)
-	http.ListenAndServe(s.addr, s.mux)
+	if http.ListenAndServe(s.addr, s.mux) != nil {
+		log.Fatalf("Error when listening and serving")
+	}
 }
