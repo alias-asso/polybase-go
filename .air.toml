@@ -1,0 +1,12 @@
+root = "."
+tmp_dir = ".cache"
+[build]
+cmd = "go build -o ./.cache/polybase-web ./cmd/polybase-web"
+bin = "./.cache/polybase-web"
+include_ext = ["go", "templ"]
+exclude_dir = [".cache", "test-data"]
+delay = 1000
+[log]
+time = false
+[screen]
+clear_on_rebuild = true

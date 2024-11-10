@@ -1,0 +1,6 @@
+/polybase-web
+/polybase-cli
+*.db
+/.direnv
+/.cache
+roadmap.md
