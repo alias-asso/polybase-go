@@ -15,7 +15,7 @@ func main() {
 	flag.Parse()
 
 	if showVersion {
-		fmt.Println("polybase-cli version 0.1.0")
+		fmt.Println("polybase version 0.1.0")
 		return
 	}
 

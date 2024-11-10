@@ -7,8 +7,8 @@ dev:
 
 # Build both binaries
 build:
-    go build ./cmd/polybase-web
-    go build ./cmd/polybase-cli
+    go build -o polybase-web ./cmd/polybase-web
+    go build -o polybase ./cmd/polybase-cli
 
 # Setup test environment
 setup:
@@ -18,4 +18,4 @@ setup:
 clean:
     rm -rf .cache/
     rm -f polybase-web
-    rm -f polybase-cli
+    rm -f polybase
