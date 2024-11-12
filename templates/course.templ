@@ -23,13 +23,13 @@ templ CourseSection(kind string, courses []internal.Course, t RenderType) {
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
   for _, course := range courses {
   if t == Bulk {
-    <div class="bg-gray-100 hover:bg-gray-200 group flex h-32 flex-col rounded-lg p-2 transition-colors relative">
-      @CourseCard(course, t)
-    </div>
+  <div class="bg-gray-100 hover:bg-gray-200 group flex h-32 flex-col rounded-lg p-2 transition-colors relative">
+    @CourseCard(course, t)
+  </div>
   } else {
-    <div class="bg-gray-100 group flex h-32 flex-col rounded-lg p-2 transition-colors relative">
-      @CourseCard(course, t)
-    </div>
+  <div class="bg-gray-100 group flex h-32 flex-col rounded-lg p-2 transition-colors relative">
+    @CourseCard(course, t)
+  </div>
   }
   }
 </div>

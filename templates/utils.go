@@ -10,10 +10,11 @@ import (
 )
 
 type RenderType = int
+
 const (
-  Public RenderType = iota
-  Individual = iota
-  Bulk = iota
+	Public     RenderType = iota
+	Individual            = iota
+	Bulk                  = iota
 )
 
 // SemesterGroup represents a group of courses for a semester
