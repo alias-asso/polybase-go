@@ -8,9 +8,7 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "git.sr.ht/~alias/polybase/internal"
-
-func Index(courses []internal.Course) templ.Component {
+func Login() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,34 +41,13 @@ func Index(courses []internal.Course) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4\"><div><div class=\"bg-white absolute top-0 right-0 p-4\"><a href=\"/login\" class=\"hover:underline\">Connexion</a></div><div><h1 class=\"text-4xl font-bold\">Bienvenue sur Polybase ! <span></span><p class=\"inline text-xl\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(GetRandomMessage())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/index.templ`, Line: 16, Col: 52}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></h1><p>Un service créé par et pour l'ALIAS.</p></div></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = CourseGrid(GroupCoursesBySemesterAndKind(courses), Public).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"min-h-screen flex items-center justify-center\"><div class=\"bg-gray-100 rounded-lg p-8 w-112\"><h1 class=\"text-2xl mb-6 font-bold\">Bienvenue sur Polybase !</h1><div id=\"error-message\" class=\"text-red-500 mb-4 hidden\"></div><form class=\"space-y-4\" id=\"login-form\" hx-post=\"/auth\" hx-trigger=\"submit\" hx-swap=\"none\" hx-headers=\"{&#34;Content-Type&#34;: &#34;application/json&#34;}\"><div><label class=\"block mb-2\">Nom d'utilisateur</label> <input type=\"text\" name=\"username\" class=\"w-full border rounded p-2\" required></div><div><label class=\"block mb-2\">Mot de passe</label> <input type=\"password\" name=\"password\" class=\"w-full border rounded p-2\" required></div><button type=\"submit\" class=\"w-full rounded bg-blue-600 text-white p-2\">Se connecter</button></form><div class=\"mt-4 text-sm text-center\"><p>Pas encore de compte ?</p><p>Inscris-toi aux créneaux polys de l'ALIAS !</p></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = Base(false).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Base(true).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

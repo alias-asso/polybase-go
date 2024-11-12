@@ -1,0 +1,44 @@
+package templates
+
+import "git.sr.ht/~alias/polybase/internal"
+
+templ Admin(courses []internal.Course, bulk bool) {
+	@Base(true) {
+		<div class="flex flex-col gap-4 p-4">
+			<div>
+				@Toggle(bulk)
+				<div>
+					<h1 class="text-4xl font-bold">
+						Bienvenue sur Polybase !
+						<span></span>
+						<p class="inline text-xl">{ GetRandomMessage() }</p>
+					</h1>
+					<p>Un service créé par et pour l'ALIAS.</p>
+				</div>
+			</div>
+			@CourseGridContainer(courses, bulk)
+		</div>
+	}
+}
+
+templ CourseGridContainer(courses []internal.Course, bulk bool) {
+	<div id="course-grid-container">
+		if bulk {
+			@CourseGrid(GroupCoursesBySemesterAndKind(courses), Bulk)
+		} else {
+			@CourseGrid(GroupCoursesBySemesterAndKind(courses), Individual)
+		}
+	</div>
+}
+
+templ Toggle(bulk bool) {
+	<div class="fixed top-4 right-4 flex items-center gap-2">
+		<span class="text-sm text-gray-600">
+			Individual
+			<button class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out" hx-get="/courses-grid?bulk=false" hx-target="#course-grid-container" hx-swap="innerHTML">
+				<span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out" class="translate-x-1"></span>
+			</button>
+			<span class="text-sm text-gray-600">Bulk</span>
+		</span>
+	</div>
+}

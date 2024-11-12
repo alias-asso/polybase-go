@@ -3,12 +3,24 @@ package routes
 import (
 	"log"
 	"net/http"
+
+	"git.sr.ht/~alias/polybase/templates"
 )
 
 // getAdmin
 func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin - Config: %+v, Polybase: %+v", s.cfg, s.pb)
-	w.Write([]byte("Get admin"))
+	courses, err := s.pb.List(r.Context(), false)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = templates.Admin(courses, false).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // getAdminIndividual

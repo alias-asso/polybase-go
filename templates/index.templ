@@ -1,59 +1,24 @@
 package templates
 
-import (
-	"fmt"
-	"git.sr.ht/~alias/polybase/internal"
-)
+import "git.sr.ht/~alias/polybase/internal"
 
-// Base layout template
-templ Base() {
-	<!DOCTYPE html>
-	<html lang="en" class="h-full bg-gray-100">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>ALIAS Polybase</title>
-			<script src="/static/js/htmx.min.js"></script>
-			<link href="/static/css/styles.css" rel="stylesheet"/>
-		</head>
-		<body class="h-full">
-			{ children... }
-		</body>
-	</html>
-}
-
-// Course rows template for HTMX partial updates
-templ CourseRows(courses []internal.Course) {
-	for _, course := range courses {
-		@Course(course)
-	}
-}
-
-templ Course(course internal.Course) {
-	<tr class="hover:bg-gray-50">
-		<td class="px-4 py-2">{ course.Code }</td>
-		<td class="px-4 py-2">{ course.Name }</td>
-		<td class="px-4 py-2">{ course.Kind }</td>
-		<td class="px-4 py-2 text-center">{ fmt.Sprint(course.Part) } / { fmt.Sprint(course.Parts) }</td>
-		<td class="px-4 py-2 text-right">{ fmt.Sprint(course.Quantity) }</td>
-		<td class="px-4 py-2 text-right">{ fmt.Sprint(course.Total) }</td>
-		<td class="px-4 py-2 text-center">
-			if course.Shown {
-				<span class="text-blue-600 font-medium">Yes</span>
-			} else {
-				<span class="text-red-600 font-medium">No</span>
-			}
-		</td>
-	</tr>
-}
-
-// Main index template
 templ Index(courses []internal.Course) {
-	@Base() {
-		<div class="min-h-full bg-white">
-			<table>
-				@CourseRows(courses)
-			</table>
+	@Base(false) {
+		<div class="flex flex-col gap-4 p-4">
+			<div>
+				<div class="bg-white absolute top-0 right-0 p-4">
+					<a href="/login" class="hover:underline">Connexion</a>
+				</div>
+				<div>
+					<h1 class="text-4xl font-bold">
+						Bienvenue sur Polybase !
+						<span></span>
+						<p class="inline text-xl">{ GetRandomMessage() }</p>
+					</h1>
+					<p>Un service créé par et pour l'ALIAS.</p>
+				</div>
+			</div>
+			@CourseGrid(GroupCoursesBySemesterAndKind(courses), Public)
 		</div>
 	}
 }
