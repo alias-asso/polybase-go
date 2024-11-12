@@ -7,9 +7,9 @@ import (
 // Config represents server configuration
 type Config struct {
 	Server struct {
-		Host string
-		Port string
-    Static string
+		Host   string
+		Port   string
+		Static string
 	}
 	Database struct {
 		Path string
