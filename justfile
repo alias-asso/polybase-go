@@ -7,7 +7,7 @@ dev:
 
 # Build both binaries
 build:
-    go build -o polybase-web ./cmd/polybase-web
+    go build -o polybase-http ./cmd/polybase-web
     go build -o polybase ./cmd/polybase-cli
 
 # Setup test environment

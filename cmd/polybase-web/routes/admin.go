@@ -6,31 +6,31 @@ import (
 )
 
 // getAdmin
-func getAdmin(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin - Config: %+v, Polybase: %+v", s.cfg, s.pb)
 	w.Write([]byte("Get admin"))
 }
 
 // getAdminIndividual
-func getAdminIndividual(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin individual - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+func (s *Server) getAdminIndividual(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin individual - Config: %+v, Polybase: %+v", s.cfg, s.pb)
 	w.Write([]byte("Get admin individual"))
 }
 
 // getAdminBulk
-func getAdminBulk(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin bulk - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+func (s *Server) getAdminBulk(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin bulk - Config: %+v, Polybase: %+v", s.cfg, s.pb)
 	w.Write([]byte("Get admin bulk"))
 }
 
 // getAdminCoursesNew
-func getAdminCoursesNew(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin courses new - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+func (s *Server) getAdminCoursesNew(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin courses new - Config: %+v, Polybase: %+v", s.cfg, s.pb)
 	w.Write([]byte("Get admin courses new"))
 }
 
 // getAdminCoursesEdit
-func getAdminCoursesEdit(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+func (s *Server) getAdminCoursesEdit(w http.ResponseWriter, r *http.Request) {
 	code, kind, part, err := parseUrl("/admin/courses/edit/", r)
 	if err != nil {
 		log.Println(err)
@@ -38,12 +38,12 @@ func getAdminCoursesEdit(ctx *ServerContext, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	log.Printf("Get admin courses edit - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	log.Printf("Get admin courses edit - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
 	w.Write([]byte("Get admin courses edit"))
 }
 
 // getAdminCoursesDelete
-func getAdminCoursesDelete(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
 	code, kind, part, err := parseUrl("/admin/courses/delete/", r)
 	if err != nil {
 		log.Println(err)
@@ -51,12 +51,12 @@ func getAdminCoursesDelete(ctx *ServerContext, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	log.Printf("Get admin courses delete - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	log.Printf("Get admin courses delete - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
 	w.Write([]byte("Get admin courses delete"))
 }
 
 // putAdminCourses
-func putAdminCourses(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 	code, kind, part, err := parseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
@@ -64,12 +64,12 @@ func putAdminCourses(ctx *ServerContext, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	log.Printf("Put admin courses - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	log.Printf("Put admin courses - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
 	w.Write([]byte("Put admin courses"))
 }
 
 // deleteAdminCourses
-func deleteAdminCourses(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 	code, kind, part, err := parseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
@@ -77,12 +77,12 @@ func deleteAdminCourses(ctx *ServerContext, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	log.Printf("Delete admin courses - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	log.Printf("Delete admin courses - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
 	w.Write([]byte("Delete admin courses"))
 }
 
 // patchAdminCoursesQuantity
-func patchAdminCoursesQuantity(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Request) {
 	code, kind, part, err := parseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
@@ -90,12 +90,12 @@ func patchAdminCoursesQuantity(ctx *ServerContext, w http.ResponseWriter, r *htt
 		return
 	}
 
-	log.Printf("Patch admin courses quantity - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	log.Printf("Patch admin courses quantity - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
 	w.Write([]byte("Patch admin courses quantity"))
 }
 
 // patchAdminCoursesVisibility
-func patchAdminCoursesVisibility(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
+func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Request) {
 	code, kind, part, err := parseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
@@ -103,12 +103,12 @@ func patchAdminCoursesVisibility(ctx *ServerContext, w http.ResponseWriter, r *h
 		return
 	}
 
-	log.Printf("Patch admin courses visibility - Config: %+v, DB: %+v, Code: %+v, Kind: %+v, Part: %+v", ctx.Config, ctx.DB, code, kind, part)
+	log.Printf("Patch admin courses visibility - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
 	w.Write([]byte("Patch admin courses visibility"))
 }
 
 // patchAdminCoursesQuantities
-func patchAdminCoursesQuantities(ctx *ServerContext, w http.ResponseWriter, r *http.Request) {
-	log.Printf("Patch admin courses quantities - Config: %+v, DB: %+v", ctx.Config, ctx.DB)
+func (s *Server) patchAdminCoursesQuantities(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Patch admin courses quantities - Config: %+v, Polybase: %+v", s.cfg, s.pb)
 	w.Write([]byte("Patch admin courses quantities"))
 }

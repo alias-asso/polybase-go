@@ -7,34 +7,36 @@ import (
 	"net/http"
 
 	"git.sr.ht/~alias/polybase/cmd/polybase-web/config"
+	"git.sr.ht/~alias/polybase/internal"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // Server represents the HTTP server and its dependencies
 type Server struct {
-	ctx  *ServerContext
 	mux  *http.ServeMux
 	addr string
-}
-
-type ServerContext struct {
-	Config *config.Config
-	DB     *sql.DB
+	cfg  *config.Config
+	pb   internal.Polybase
 }
 
 // New creates a new server instance
 func NewServer(cfg *config.Config) (*Server, error) {
-	ctx := &ServerContext{
-		Config: cfg,
+	db, err := sql.Open("sqlite3", cfg.Database.Path)
+	if err != nil {
+		return nil, fmt.Errorf("open database: %w", err)
 	}
 
+	pb := internal.New(db)
+
 	srv := &Server{
-		ctx:  ctx,
 		mux:  http.NewServeMux(),
 		addr: fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
+		cfg:  cfg,
+		pb:   pb,
 	}
 
 	// Register all routes
-	register(srv.mux, srv.ctx)
+	srv.registerRoutes()
 
 	return srv, nil
 }

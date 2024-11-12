@@ -14,7 +14,7 @@ type Args struct {
 
 func parseArgs() (*Args, error) {
 	args := &Args{
-		ConfigPath: "/etc/polybase/config.cfg",
+		ConfigPath: "/etc/polybase/polybase.cfg",
 	}
 
 	// If no arguments provided, return defaults

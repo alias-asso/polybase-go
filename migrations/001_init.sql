@@ -1,4 +1,4 @@
-CREATE TABLE courses (
+CREATE TABLE IF NOT EXISTS courses (
 	code TEXT,
 	kind TEXT,
 	part INTEGER DEFAULT 1,

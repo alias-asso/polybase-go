@@ -26,6 +26,8 @@
         just
         air
         sqlite
+        templ
+        tailwindcss
         glauth
         openldap
       ];

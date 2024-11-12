@@ -9,6 +9,7 @@ type Config struct {
 	Server struct {
 		Host string
 		Port string
+    Static string
 	}
 	Database struct {
 		Path string
