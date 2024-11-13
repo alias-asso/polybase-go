@@ -14,6 +14,10 @@ func New(db *sql.DB) *PB {
 	return &PB{db: db}
 }
 
+func (c Course) ID() string {
+  return fmt.Sprintf("%s/%s/%d", c.Code, c.Kind, c.Part)
+}
+
 func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {
 	shown := 0
 	if course.Shown {

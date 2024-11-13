@@ -9,6 +9,8 @@ import (
 
 // getAdmin
 func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
+	username := r.Context().Value("username").(string)
+
 	courses, err := s.pb.List(r.Context(), false)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
@@ -16,7 +18,7 @@ func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.Admin(courses, false).Render(r.Context(), w)
+	err = templates.Admin(courses, username, false).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)

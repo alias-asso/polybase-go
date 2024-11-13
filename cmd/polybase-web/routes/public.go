@@ -7,6 +7,7 @@ import (
 	"git.sr.ht/~alias/polybase/templates"
 )
 
+// getHome
 func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 	courses, err := s.pb.List(r.Context(), false)
 	if err != nil {
@@ -22,6 +23,7 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// getLogin
 func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 	err := templates.Login().Render(r.Context(), w)
 	if err != nil {
@@ -30,43 +32,42 @@ func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// postAuth
 func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
-	creds := struct {
-		Username string
-		Password string
-	}{
-		Username: r.FormValue("username"),
-		Password: r.FormValue("password"),
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	authorized, err := authenticate(username, password, s.cfg)
+	if err != nil {
+		http.Error(w, "Service Unavailable", http.StatusInternalServerError)
+		return
+	}
+	if !authorized {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
 	}
 
-	log.Printf("Post auth - Username: %s", creds.Username)
-
-	switch creds.Username {
-	case "success":
-		token := "dummy-jwt-token-123"
-
-		http.SetCookie(w, &http.Cookie{
-			Name:     "X-Auth-Token",
-			Value:    token,
-			Path:     "/",
-			HttpOnly: true,
-			Secure:   false,
-			SameSite: http.SameSiteStrictMode,
-			MaxAge:   3600 * 24,
-		})
-
-		w.Header().Set("HX-Redirect", "/admin")
-		w.WriteHeader(http.StatusOK)
-
-	case "error":
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-
-	default:
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+	token, err := generateToken(username, s.cfg)
+	if err != nil {
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		return
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "X-Auth-Token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   3600 * 24,
+	})
+
+	w.Header().Set("HX-Redirect", "/admin")
+	w.WriteHeader(http.StatusOK)
 }

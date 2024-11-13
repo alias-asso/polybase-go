@@ -2,14 +2,14 @@ package templates
 
 import "git.sr.ht/~alias/polybase/internal"
 
-templ Admin(courses []internal.Course, bulk bool) {
+templ Admin(courses []internal.Course, username string, bulk bool) {
 	@Base(true) {
 		<div class="flex flex-col gap-4 p-4">
 			<div>
 				@Toggle(bulk)
 				<div>
 					<h1 class="text-4xl font-bold">
-						Bienvenue sur Polybase !
+						Bienvenue sur Polybase { username } !
 						<span></span>
 						<p class="inline text-xl">{ GetRandomMessage() }</p>
 					</h1>
