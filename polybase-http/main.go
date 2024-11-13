@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"git.sr.ht/~alias/polybase/cmd/polybase-web/config"
-	"git.sr.ht/~alias/polybase/cmd/polybase-web/routes"
+	"git.sr.ht/~alias/polybase/polybase-http/config"
+	"git.sr.ht/~alias/polybase/polybase-http/routes"
 )
 
 func main() {

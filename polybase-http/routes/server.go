@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"git.sr.ht/~alias/polybase/cmd/polybase-web/config"
 	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase/polybase-http/config"
 	_ "github.com/mattn/go-sqlite3"
 )
 

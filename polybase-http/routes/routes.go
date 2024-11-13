@@ -15,6 +15,19 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("POST /auth", s.postAuth)
 
 	s.mux.HandleFunc("GET /admin", s.withAuth(s.getAdmin))
+
+	s.mux.HandleFunc("GET /admin/individual", s.withAuth(s.getAdminIndividual))
+	s.mux.HandleFunc("GET /admin/bulk", s.withAuth(s.getAdminBulk))
+
+	s.mux.HandleFunc("GET /admin/courses/new", s.withAuth(s.getAdminCoursesNew))
+	s.mux.HandleFunc("GET /admin/courses/edit/{code}/{kind}/{part}", s.withAuth(s.getAdminCoursesEdit))
+	s.mux.HandleFunc("GET /admin/courses/delete/{code}/{kind}/{part}", s.withAuth(s.getAdminCoursesDelete))
+
+	s.mux.HandleFunc("PUT /admin/courses/{code}/{kind}/{part}", s.withAuth(s.putAdminCourses))
+	s.mux.HandleFunc("DELETE /admin/courses/{code}/{kind}/{part}", s.withAuth(s.deleteAdminCourses))
+
+	s.mux.HandleFunc("PATCH /admin/courses/{code}/{kind}/{part}/quantity", s.withAuth(s.patchAdminCoursesQuantity))
+	s.mux.HandleFunc("PATCH /admin/courses/{code}/{kind}/{part}/visibility", s.withAuth(s.patchAdminCoursesQuantity))
 }
 
 func (s *Server) registerStatic() {
@@ -33,16 +46,7 @@ func (s *Server) registerStatic() {
 	s.mux.Handle("GET /static/", staticHandler)
 }
 
-// func registerPublicRoutes(mux *http.ServeMux, ctx *ServerContext) {
-// 	mux.HandleFunc("GET /", withContext(ctx, getHome))
-// 	mux.HandleFunc("GET /login", withContext(ctx, getLogin))
-// 	mux.HandleFunc("POST /auth", withContext(ctx, postAuth))
-// }
-//
 // func registerAdminRoutes(mux *http.ServeMux, ctx *ServerContext) {
-// 	// Admin dashboard
-// 	mux.HandleFunc("GET /admin", adminAuth(ctx, getAdmin))
-//
 // 	// Admin mode management
 // 	mux.HandleFunc("GET /admin/individual", adminAuth(ctx, getAdminIndividual))
 // 	mux.HandleFunc("GET /admin/bulk", adminAuth(ctx, getAdminBulk))

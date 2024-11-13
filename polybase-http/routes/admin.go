@@ -45,79 +45,93 @@ func (s *Server) getAdminCoursesNew(w http.ResponseWriter, r *http.Request) {
 
 // getAdminCoursesEdit
 func (s *Server) getAdminCoursesEdit(w http.ResponseWriter, r *http.Request) {
-	code, kind, part, err := parseUrl("/admin/courses/edit/", r)
+	id, err := parseUrl("/admin/courses/edit/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	log.Printf("Get admin courses edit - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
+	log.Printf("Get admin courses edit - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
 	w.Write([]byte("Get admin courses edit"))
 }
 
 // getAdminCoursesDelete
 func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
-	code, kind, part, err := parseUrl("/admin/courses/delete/", r)
+	id, err := parseUrl("/admin/courses/delete/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	log.Printf("Get admin courses delete - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
+	log.Printf("Get admin courses delete - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
 	w.Write([]byte("Get admin courses delete"))
 }
 
 // putAdminCourses
 func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
-	code, kind, part, err := parseUrl("/admin/courses/", r)
+	id, err := parseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	log.Printf("Put admin courses - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
+	log.Printf("Put admin courses - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
 	w.Write([]byte("Put admin courses"))
 }
 
 // deleteAdminCourses
 func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
-	code, kind, part, err := parseUrl("/admin/courses/", r)
+	id, err := parseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	log.Printf("Delete admin courses - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
+	log.Printf("Delete admin courses - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
 	w.Write([]byte("Delete admin courses"))
 }
 
 // patchAdminCoursesQuantity
 func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Request) {
-	code, kind, part, err := parseUrl("/admin/courses/", r)
+	id, err := parseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	log.Printf("Patch admin courses quantity - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
-	w.Write([]byte("Patch admin courses quantity"))
+	course, err := s.pb.Get(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to get course", http.StatusInternalServerError)
+		log.Println("Patch admin course quantity - error:", err)
+		return
+	}
+
+  log.Println(course)
+
+	// err = templates.
+
+	// err = templates.Admin(courses, username, false).Render(r.Context(), w)
+	// if err != nil {
+	// 	http.Error(w, "Failed to render template", http.StatusInternalServerError)
+	// 	log.Printf("Failed to render template: %v", err)
+	// }
 }
 
 // patchAdminCoursesVisibility
 func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Request) {
-	code, kind, part, err := parseUrl("/admin/courses/", r)
+	id, err := parseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	log.Printf("Patch admin courses visibility - Config: %+v, Polybase: %+v, Code: %+v, Kind: %+v, Part: %+v", s.cfg, s.pb, code, kind, part)
+	log.Printf("Patch admin courses visibility - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
 	w.Write([]byte("Patch admin courses visibility"))
 }
 

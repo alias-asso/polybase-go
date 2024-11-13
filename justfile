@@ -1,21 +1,23 @@
 default:
-    @just --list
+  @just --list
 
 # Run development server with air
 dev:
-    air
+  air
 
 # Build both binaries
 build:
-    go build -o polybase-http ./cmd/polybase-web
-    go build -o polybase ./cmd/polybase-cli
+  mkdir -p target
+  tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
+  templ generate
+  go build -o target/polybase-http ./polybase-http
+  go build -o target/polybase ./polybase
 
 # Setup test environment
 setup:
-    sqlite3 polybase.db < migrations/001_init.sql
+  sqlite3 polybase.db < migrations/001_init.sql
 
 # Clean test data
 clean:
-    rm -rf .cache/
-    rm -f polybase-web
-    rm -f polybase
+  rm -fr .cache/
+  rm -fr target/
