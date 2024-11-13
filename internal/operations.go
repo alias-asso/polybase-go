@@ -2,8 +2,11 @@ package internal
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/base32"
 	"fmt"
+	"strings"
 )
 
 type PB struct {
@@ -23,7 +26,18 @@ func (c Course) ID() string {
 }
 
 func (c Course) SID() string {
-	return fmt.Sprintf("%s-%s-%d", c.Code, c.Kind, c.Part)
+	fullID := fmt.Sprintf("%s-%s-%d", c.Code, c.Kind, c.Part)
+	hasher := sha256.New()
+	hasher.Write([]byte(fullID))
+	hash := hasher.Sum(nil)
+	encoded := strings.ToLower(base32.StdEncoding.EncodeToString(hash))
+
+	// If the first character is a number (2-7 in base32), prepend 'a'
+	if encoded[0] >= '2' && encoded[0] <= '7' {
+		return "a" + encoded[:7]
+	}
+
+	return encoded[:8]
 }
 
 func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {
@@ -127,47 +141,6 @@ func (pb *PB) UpdateQuantity(ctx context.Context, id CourseID, delta int) (Cours
 		return Course{}, fmt.Errorf("update quantity: %w", err)
 	}
 	return pb.Get(ctx, id)
-}
-
-func (pb *PB) UpdateQuantities(ctx context.Context, ids []CourseID, delta int) ([]Course, error) {
-	tx, err := pb.db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, fmt.Errorf("begin transaction: %w", err)
-	}
-	defer tx.Rollback()
-
-	updatedCourses := make([]Course, 0, len(ids))
-	for _, id := range ids {
-		_, err := tx.ExecContext(ctx, `
-            UPDATE courses 
-            SET quantity = quantity + ?
-            WHERE code = ? AND kind = ? AND part = ?`,
-			delta, id.Code, id.Kind, id.Part,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("update quantities: %w", err)
-		}
-
-		var course Course
-		var shown int
-		err = tx.QueryRowContext(ctx, `
-            SELECT code, kind, part, parts, name, quantity, total, shown, semester
-            FROM courses
-            WHERE code = ? AND kind = ? AND part = ?`,
-			id.Code, id.Kind, id.Part).Scan(
-			&course.Code, &course.Kind, &course.Part, &course.Parts,
-			&course.Name, &course.Quantity, &course.Total, &shown, &course.Semester)
-		if err != nil {
-			return nil, fmt.Errorf("fetch updated course: %w", err)
-		}
-		course.Shown = shown == 1
-		updatedCourses = append(updatedCourses, course)
-	}
-
-	if err := tx.Commit(); err != nil {
-		return nil, fmt.Errorf("commit transaction: %w", err)
-	}
-	return updatedCourses, nil
 }
 
 func (pb *PB) UpdateShown(ctx context.Context, id CourseID, shown bool) (Course, error) {

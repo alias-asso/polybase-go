@@ -1,0 +1,29 @@
+package templates
+
+import "git.sr.ht/~alias/polybase/internal"
+
+templ Grid(semesterGroups []SemesterGroup, cardTempl func(course internal.Course) templ.Component) {
+  for _, semester := range semesterGroups {
+  <div class="mt-8">
+    <h2 class="text-3xl font-bold mb-4">{ semester.Name }</h2>
+    <div class="flex flex-col gap-6">
+      for _, kindGroup := range semester.Kinds {
+      if len(kindGroup.Courses) > 0 {
+      @Section(kindGroup.Name, kindGroup.Courses, cardTempl)
+      }
+      }
+    </div>
+  </div>
+  }
+}
+
+templ Section(kind string, courses []internal.Course, cardTempl func(course internal.Course) templ.Component) {
+    <section>
+        <h3 class="text-2xl font-semibold mb-3">{ kind }</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+            for _, course := range courses {
+                @cardTempl(course)
+            }
+        </div>
+    </section>
+}

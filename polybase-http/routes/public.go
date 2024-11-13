@@ -16,7 +16,7 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.Index(courses).Render(r.Context(), w)
+	err = templates.Public(courses).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -35,7 +35,7 @@ func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 // postAuth
 func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		http.Error(w, "Échec de l'analyse du formulaire", http.StatusBadRequest)
 		return
 	}
 
@@ -44,17 +44,20 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 
 	authorized, err := authenticate(username, password, s.cfg)
 	if err != nil {
-		http.Error(w, "Service Unavailable", http.StatusInternalServerError)
+		log.Print(err)
+		http.Error(w, "Service LDAP temporairement indisponible", http.StatusInternalServerError)
 		return
 	}
+
 	if !authorized {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		log.Print("Ldap wrong username or password")
+		http.Error(w, "Nom d'utilisateur ou mot de passe incorrect", http.StatusUnauthorized)
 		return
 	}
 
 	token, err := generateToken(username, s.cfg)
 	if err != nil {
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 		return
 	}
 

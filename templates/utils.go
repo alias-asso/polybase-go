@@ -9,19 +9,11 @@ import (
 	"git.sr.ht/~alias/polybase/internal"
 )
 
-type RenderType = int
-
-const (
-	Public     RenderType = iota
-	Individual            = iota
-	Bulk                  = iota
-)
-
 // SemesterGroup represents a group of courses for a semester
 type SemesterGroup struct {
 	Name    string
 	Kinds   []KindGroup
-	KindMap map[string]int // Maps kind name to index in Kinds slice for quick lookup
+	KindMap map[string]int
 }
 
 // KindGroup represents a group of courses of the same kind

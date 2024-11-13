@@ -23,7 +23,7 @@ func parseUrl(filter string, r *http.Request) (internal.CourseID, error) {
 	partStr := strings.TrimSpace(parts[2])
 
 	// Validate code: only uppercase, numbers, dashes, and curly braces
-	if !regexp.MustCompile(`^[A-Z0-9\-{}]+$`).MatchString(code) {
+	if !regexp.MustCompile(`^[A-Z0-9\-{},]+$`).MatchString(code) {
 		return internal.CourseID{}, fmt.Errorf("invalid code format: must only contain uppercase letters, numbers, dashes, and curly braces")
 	}
 

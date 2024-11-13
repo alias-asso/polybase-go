@@ -3,6 +3,7 @@ package routes
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"git.sr.ht/~alias/polybase/templates"
 )
@@ -11,30 +12,18 @@ import (
 func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
-	courses, err := s.pb.List(r.Context(), false)
+	courses, err := s.pb.List(r.Context(), true)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
 		log.Printf("%s", err)
 		return
 	}
 
-	err = templates.Admin(courses, username, false).Render(r.Context(), w)
+	err = templates.Admin(courses, username).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
 	}
-}
-
-// getAdminIndividual
-func (s *Server) getAdminIndividual(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin individual - Config: %+v, Polybase: %+v", s.cfg, s.pb)
-	w.Write([]byte("Get admin individual"))
-}
-
-// getAdminBulk
-func (s *Server) getAdminBulk(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin bulk - Config: %+v, Polybase: %+v", s.cfg, s.pb)
-	w.Write([]byte("Get admin bulk"))
 }
 
 // getAdminCoursesNew
@@ -104,22 +93,25 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	course, err := s.pb.Get(r.Context(), id)
+	delta, err := strconv.Atoi(r.URL.Query().Get("delta"))
 	if err != nil {
-		http.Error(w, "Failed to get course", http.StatusInternalServerError)
-		log.Println("Patch admin course quantity - error:", err)
+		log.Printf("Invalid delta parameter: %v", err)
+		http.Error(w, "Invalid delta parameter", http.StatusBadRequest)
 		return
 	}
 
-  log.Println(course)
+	course, err := s.pb.UpdateQuantity(r.Context(), id, delta)
+	if err != nil {
+		log.Println("Patch admin course quantity - error:", err)
+		http.Error(w, "Failed to update quantity", http.StatusInternalServerError)
+		return
+	}
 
-	// err = templates.
-
-	// err = templates.Admin(courses, username, false).Render(r.Context(), w)
-	// if err != nil {
-	// 	http.Error(w, "Failed to render template", http.StatusInternalServerError)
-	// 	log.Printf("Failed to render template: %v", err)
-	// }
+	err = templates.AdminCard(course).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Failed to render template: %v", err)
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+	}
 }
 
 // patchAdminCoursesVisibility
@@ -131,12 +123,25 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	log.Printf("Patch admin courses visibility - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
-	w.Write([]byte("Patch admin courses visibility"))
-}
+	visibility, err := strconv.ParseBool(r.URL.Query().Get("visibility"))
+	if err != nil {
+		log.Printf("Invalid delta parameter: %v", err)
+		http.Error(w, "Invalid delta parameter", http.StatusBadRequest)
+		return
+	}
 
-// patchAdminCoursesQuantities
-func (s *Server) patchAdminCoursesQuantities(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Patch admin courses quantities - Config: %+v, Polybase: %+v", s.cfg, s.pb)
-	w.Write([]byte("Patch admin courses quantities"))
+	course, err := s.pb.UpdateShown(r.Context(), id, visibility)
+	if err != nil {
+		log.Println("Patch admin course quantity - error:", err)
+		http.Error(w, "Failed to update quantity", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println(course)
+
+	err = templates.AdminCard(course).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Failed to render template: %v", err)
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+	}
 }

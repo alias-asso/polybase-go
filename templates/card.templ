@@ -1,0 +1,60 @@
+package templates
+
+import (
+"fmt"
+"git.sr.ht/~alias/polybase/internal"
+)
+
+// Core display components
+templ PublicCard(course internal.Course) {
+<div class="bg-gray-100 flex h-32 flex-col rounded-lg p-2 transition-colors relative">
+  <div class="flex w-full gap-1">
+    <p class="text-xl font-bold">{ course.Code }</p>
+    <p class="ml-auto">Part. { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
+  </div>
+  <p class="text-left text-lg leading-6">{ course.Name }</p>
+  <div class="absolute inset-x-0 bottom-2 flex justify-end items-center gap-4 px-2">
+    <p class="text-xl">
+      <span class="text-2xl font-bold">{ fmt.Sprint(course.Quantity) }</span>/{ fmt.Sprint(course.Total) }
+    </p>
+  </div>
+</div>
+}
+
+templ AdminCard(course internal.Course) {
+<div id={ course.SID() } class="bg-gray-100 group flex h-32 flex-col rounded-lg p-2 transition-colors relative">
+  <div class="flex w-full gap-1">
+    <div class="flex items-center gap-2">
+      <p class="text-xl font-bold">{ course.Code }</p>
+      if course.Shown {
+      <button hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=false", course.ID()) } hx-target={
+        fmt.Sprintf("#%s", course.SID()) } hx-swap="outerHTML" class="text-sm hover:underline">
+        hide
+      </button>
+      } else {
+      <button hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=true", course.ID()) } hx-target={
+        fmt.Sprintf("#%s", course.SID()) } hx-swap="outerHTML" class="text-sm hover:underline">
+        show
+      </button>
+      }
+    </div>
+    <p class="ml-auto">Part. { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
+  </div>
+  <p class="text-left text-lg leading-6">{ course.Name }</p>
+  <div class="absolute inset-x-0 bottom-2 flex justify-between items-center gap-4 px-2">
+    <button hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=-1", course.ID()) } hx-target={ fmt.Sprintf("#%s",
+      course.SID()) } hx-swap="outerHTML"
+      class="bg-blue-400 size-10 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity">
+      <span class="text-xl font-bold">-</span>
+    </button>
+    <p class="text-xl">
+      <span class="text-2xl font-bold">{ fmt.Sprint(course.Quantity) }</span>/{ fmt.Sprint(course.Total) }
+    </p>
+    <button hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=1", course.ID()) } hx-target={ fmt.Sprintf("#%s",
+      course.SID()) } hx-swap="outerHTML"
+      class="bg-blue-400 size-10 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity">
+      <span class="text-xl font-bold">+</span>
+    </button>
+  </div>
+</div>
+}

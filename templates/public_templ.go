@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "git.sr.ht/~alias/polybase/internal"
 
-func Index(courses []internal.Course) templ.Component {
+func Public(courses []internal.Course) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,7 +43,7 @@ func Index(courses []internal.Course) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4\"><div><div class=\"bg-white absolute top-0 right-0 p-4\"><a href=\"/login\" class=\"hover:underline\">Connexion</a></div><div><h1 class=\"text-4xl font-bold\">Bienvenue sur Polybase ! <span></span><p class=\"inline text-xl\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4\"><header><div class=\"bg-white absolute top-0 right-0 p-4\"><a href=\"/login\" class=\"hover:underline\">Connexion</a></div><div><h1 class=\"text-4xl font-bold\">Bienvenue sur Polybase ! <span></span><p class=\"inline text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -56,11 +56,11 @@ func Index(courses []internal.Course) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></h1><p>Un service créé par et pour l'ALIAS.</p></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></h1><p>Un service créé par et pour l'ALIAS.</p></div></header>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = CourseGrid(GroupCoursesBySemesterAndKind(courses), Public).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = Grid(GroupCoursesBySemesterAndKind(courses), PublicCard).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

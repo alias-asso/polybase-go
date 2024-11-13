@@ -1,0 +1,49 @@
+image: openbsd/latest
+packages:
+  - go
+  - nodejs
+  - npm
+  - scdoc
+sources:
+  - https://git.sr.ht/~alias/polybase
+environment:
+  GO111MODULE: on
+tasks:
+  - setup: |
+      cd polybase
+      npm install -g tailwindcss
+      go install github.com/a-h/templ/cmd/templ@latest
+      
+  - test: |
+      cd polybase
+      go test ./...
+
+  - build: |
+      cd polybase
+      mkdir -p target
+      
+      tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
+      
+      templ generate
+      
+      scdoc < polybase.1.scd > target/polybase.1
+      
+      go build -o target/polybase-http ./polybase-http
+      go build -o target/polybase ./polybase
+
+  - package: |
+      cd polybase
+      # Create distribution structure
+      mkdir -p dist/{bin,share/man/man1,etc/polybase,var/www/polybase}
+      
+      cp target/polybase-http dist/bin/
+      cp target/polybase dist/bin/
+      
+      cp target/polybase.1 dist/share/man/man1/
+      
+      cp -r static dist/var/www/polybase/
+      
+      touch dist/etc/polybase/polybase.cfg
+
+artifacts:
+  - polybase/dist

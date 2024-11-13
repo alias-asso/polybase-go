@@ -30,6 +30,5 @@ type Polybase interface {
 	List(ctx context.Context, showHidden bool) ([]Course, error)
 
 	UpdateQuantity(ctx context.Context, id CourseID, delta int) (Course, error)
-	UpdateQuantities(ctx context.Context, ids []CourseID, delta int) ([]Course, error)
 	UpdateShown(ctx context.Context, id CourseID, shown bool) (Course, error)
 }
