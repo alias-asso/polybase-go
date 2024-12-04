@@ -16,7 +16,7 @@ func main() {
 	}
 
 	if args.ShowHelp {
-		printHelp()
+		printUsage()
 		os.Exit(0)
 	}
 

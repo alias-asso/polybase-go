@@ -25,8 +25,7 @@ func parseArgs() (*Args, error) {
 	// First pass: check for help flag
 	for _, arg := range os.Args[1:] {
 		if arg == "-h" || arg == "--help" {
-			args.ShowHelp = true
-			printHelp()
+			printUsage()
 			os.Exit(0)
 		}
 	}
@@ -37,17 +36,17 @@ func parseArgs() (*Args, error) {
 		arg := osArgs[i]
 
 		switch arg {
-		case "-v", "--version":
+		case "-v":
 			args.ShowVersion = true
 			return args, nil
 
-		case "-c", "--config":
+		case "-c":
 			if i+1 >= len(osArgs) {
-				return nil, fmt.Errorf("error: --config requires a path argument")
+				return nil, fmt.Errorf("error: -c requires a path argument")
 			}
 			nextArg := osArgs[i+1]
 			if strings.HasPrefix(nextArg, "-") {
-				return nil, fmt.Errorf("error: --config requires a path argument")
+				return nil, fmt.Errorf("error: -c requires a path argument")
 			}
 			args.ConfigPath = nextArg
 			i++
@@ -62,13 +61,15 @@ func parseArgs() (*Args, error) {
 	return args, nil
 }
 
-func printHelp() {
-	fmt.Printf(`Usage: polybase-web [OPTIONS]
+func printUsage() {
+	fmt.Printf(`Usage: polybased [OPTIONS]
+
+Manage polybase database from the web browser.
 
 Options:
-  -c, --config <path>   Path to config file (default: /etc/polybase/config.cfg)
-  -v, --version         Print version information
-  -h, --help            Print this help message
+  -c <path>   Path to config file (default: /etc/polybase/config.cfg)
+  -v          Print version information
+  -h          Print this help message
 
 For bug reporting and more information, please see:
 https://git.sr.ht/~alias/polybase

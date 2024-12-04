@@ -17,9 +17,9 @@ type Config struct {
 	LDAP struct {
 		Host       string
 		Port       string
-		BaseDN     string
-		UserDN     string
-		AdminGroup string
+		BaseDN     string `toml:"base_dn"`
+		UserDN     string `toml:"user_dn"`
+		AdminGroup string `toml:"admin_group"`
 	}
 	Auth struct {
 		JWTSecret string `toml:"jwt_secret"`
