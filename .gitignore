@@ -1,6 +1,5 @@
-/polybase-web
-/polybase-cli
 *.db
 *.db.bak
 /.direnv
 /.cache
+/target

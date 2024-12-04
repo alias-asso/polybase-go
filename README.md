@@ -5,7 +5,7 @@ Self-hosted user database with LDAP authentication.
 ## Components
 
 - `polybase/`: CLI frontend
-- `polybase-http/`: Web interface (Go + HTMX)
+- `polybased/`: Web interface (Go + HTMX)
 - `internal/`: Core backend logic with tests
 
 ## Requirements

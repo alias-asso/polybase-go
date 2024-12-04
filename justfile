@@ -5,13 +5,11 @@ default:
 dev:
   air
 
+auth-server:
+  glauth -c glauth.cfg
+
 # Build both binaries
-build:
-  mkdir -p target
-  tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
-  templ generate
-  go build -o target/polybase-http ./polybase-http
-  go build -o target/polybase ./polybase
+build: build-server build-cli
 
 # Setup test environment
 setup:
@@ -21,3 +19,14 @@ setup:
 clean:
   rm -fr .cache/
   rm -fr target/
+
+# Build server binaries
+build-server:
+  mkdir -p target
+  tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
+  templ generate
+  go build -o target/polybased ./polybased
+
+# Build cli binaries
+build-cli:
+  go build -o target/polybase ./polybase
