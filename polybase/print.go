@@ -96,9 +96,9 @@ func printVisibilityUsage() {
 func printCourse(c internal.Course) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintf(w, "Code:\t%s\n", c.Code)
-	fmt.Fprintf(w, "Name:\t%s\n", c.Name)
 	fmt.Fprintf(w, "Kind:\t%s\n", c.Kind)
 	fmt.Fprintf(w, "Part:\t%d/%d\n", c.Part, c.Parts)
+	fmt.Fprintf(w, "Name:\t%s\n", c.Name)
 	fmt.Fprintf(w, "Quantity:\t%d/%d\n", c.Quantity, c.Total)
 	fmt.Fprintf(w, "Semester:\t%s\n", c.Semester)
 	fmt.Fprintf(w, "Visible:\t%v\n", c.Shown)

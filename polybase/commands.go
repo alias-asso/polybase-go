@@ -130,6 +130,7 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		Semester: *semester,
 	}
 
+	// TODO: currently, the default values are set to random arbitrary values, BUT that should not be the case. instead the default values should be set by the _previous_ values of the course. that way we can never miss it
 	updated, err := pb.Update(ctx, id, course)
 	if err != nil {
 		return err
