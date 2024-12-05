@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/base32"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -41,22 +42,45 @@ func (c Course) SID() string {
 }
 
 func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {
+	course.Code = strings.TrimSpace(course.Code)
+	course.Kind = strings.TrimSpace(course.Kind)
+	course.Name = strings.TrimSpace(course.Name)
+	course.Semester = strings.TrimSpace(course.Semester)
+
+	if err := validateSemester(course.Semester); err != nil {
+		return Course{}, fmt.Errorf("invalid semester: %w", err)
+	}
+
+	exists, err := pb.exists(ctx, CourseID{course.Code, course.Kind, course.Part})
+	if err != nil {
+		return Course{}, fmt.Errorf("failed to check course existence: %w", err)
+	}
+	if exists {
+		return Course{}, fmt.Errorf("course already exists")
+	}
+
 	shown := 0
 	if course.Shown {
 		shown = 1
 	}
+
 	if _, err := pb.db.ExecContext(ctx, `
     INSERT INTO courses (code, kind, part, parts, name, quantity, total, shown, semester)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		course.Code, course.Kind, course.Part, course.Parts, course.Name, course.Quantity, course.Total, shown, course.Semester); err != nil {
 		return Course{}, fmt.Errorf("create course: %w", err)
 	}
+
 	return course, nil
 }
 
 func (pb *PB) Get(ctx context.Context, id CourseID) (Course, error) {
 	var course Course
 	var shown int
+
+	id.Code = strings.TrimSpace(id.Code)
+	id.Kind = strings.TrimSpace(id.Kind)
+
 	err := pb.db.QueryRowContext(ctx, `
     SELECT code, kind, part, parts, name, quantity, total, shown, semester
     FROM courses
@@ -64,18 +88,43 @@ func (pb *PB) Get(ctx context.Context, id CourseID) (Course, error) {
 		id.Code, id.Kind, id.Part).Scan(
 		&course.Code, &course.Kind, &course.Part, &course.Parts,
 		&course.Name, &course.Quantity, &course.Total, &shown, &course.Semester)
-	if err != nil {
-		return Course{}, fmt.Errorf("get course: %w", err)
+
+	if err == sql.ErrNoRows {
+		return Course{}, fmt.Errorf("course not found")
 	}
+
+	if err != nil {
+		return Course{}, fmt.Errorf("failed to retrieve course: %w", err)
+	}
+
 	course.Shown = shown == 1
+
 	return course, nil
 }
 
 func (pb *PB) Update(ctx context.Context, id CourseID, course Course) (Course, error) {
+	course.Code = strings.TrimSpace(course.Code)
+	course.Kind = strings.TrimSpace(course.Kind)
+	course.Name = strings.TrimSpace(course.Name)
+	course.Semester = strings.TrimSpace(course.Semester)
+
+	if err := validateSemester(course.Semester); err != nil {
+		return Course{}, fmt.Errorf("invalid semester: %w", err)
+	}
+
+	exists, err := pb.exists(ctx, CourseID{course.Code, course.Kind, course.Part})
+	if err != nil {
+		return Course{}, fmt.Errorf("failed to check course existence: %w", err)
+	}
+	if !exists {
+		return Course{}, fmt.Errorf("course does not exists")
+	}
+
 	shown := 0
 	if course.Shown {
 		shown = 1
 	}
+
 	if _, err := pb.db.ExecContext(ctx, `
         UPDATE courses 
         SET code = ?, kind = ?, part = ?, parts = ?, name = ?, quantity = ?, total = ?, shown = ?, semester = ?
@@ -86,6 +135,7 @@ func (pb *PB) Update(ctx context.Context, id CourseID, course Course) (Course, e
 	); err != nil {
 		return Course{}, fmt.Errorf("update course: %w", err)
 	}
+
 	return course, nil
 }
 
@@ -158,4 +208,42 @@ func (pb *PB) UpdateShown(ctx context.Context, id CourseID, shown bool) (Course,
 		return Course{}, fmt.Errorf("update shown: %w", err)
 	}
 	return pb.Get(ctx, id)
+}
+
+func validateSemester(semester string) error {
+	if semester == "" {
+		return fmt.Errorf("semester cannot be empty")
+	}
+
+	if !strings.HasPrefix(semester, "S") {
+		return fmt.Errorf("semester must start with 'S'")
+	}
+
+	n, err := strconv.Atoi(semester[1:])
+	if err != nil {
+		return fmt.Errorf("invalid semester format: must be S followed by a number")
+	}
+
+	if n != 1 && n != 2 {
+		return fmt.Errorf("invalid semester format: semester number must be either 1 or 2")
+	}
+
+	return nil
+}
+
+func (pb *PB) exists(ctx context.Context, id CourseID) (bool, error) {
+	var exists int
+	err := pb.db.QueryRowContext(ctx, `
+    SELECT 1 FROM courses WHERE code = ? AND kind = ? AND part = ?`,
+		id.Code, id.Kind, id.Part).Scan(&exists)
+
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
