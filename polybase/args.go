@@ -19,8 +19,7 @@ func parseArgs() (string, []string, error) {
 	flags.Usage = func() {}
 
 	for i, arg := range os.Args[1:] {
-		switch arg {
-		case "-h", "help":
+		if arg == "-h" || arg == "help" {
 			if err := flags.Parse(os.Args[i+2:]); err != nil {
 				printUsage()
 				return "", nil, err
@@ -32,7 +31,11 @@ func parseArgs() (string, []string, error) {
 				return "", nil, err
 			}
 			os.Exit(0)
-		case "-v", "version":
+		}
+	}
+
+	for _, arg := range os.Args[1:] {
+		if arg == "-v" || arg == "version" {
 			fmt.Printf("polybase version %s\n", version)
 			os.Exit(0)
 		}
