@@ -266,6 +266,7 @@ func runHelp(args []string) error {
 	case "visibility":
 		printVisibilityUsage()
 	default:
+		printUsage()
 		return fmt.Errorf("unknown command %q", args[0])
 	}
 	return nil
