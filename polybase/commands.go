@@ -24,6 +24,7 @@ func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {
 	quantity := flags.Int("q", -1, "initial quantity")
 	total := flags.Int("t", 0, "total quantity")
 	semester := flags.String("s", "", "semester")
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
 	if err := flags.Parse(args[3:]); err != nil {
 		return err
@@ -60,8 +61,7 @@ func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {
 		return err
 	}
 
-	printCourse(created)
-	return nil
+	return printCourse(created, *jsonOutput)
 }
 
 func runGet(pb internal.Polybase, ctx context.Context, args []string) error {
@@ -75,6 +75,13 @@ func runGet(pb internal.Polybase, ctx context.Context, args []string) error {
 		return fmt.Errorf("invalid part number: %s", args[2])
 	}
 
+	flags := flag.NewFlagSet("get", flag.ContinueOnError)
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
+
+	if err := flags.Parse(args[3:]); err != nil {
+		return err
+	}
+
 	id := internal.CourseID{
 		Code: args[0],
 		Kind: args[1],
@@ -86,8 +93,7 @@ func runGet(pb internal.Polybase, ctx context.Context, args []string) error {
 		return err
 	}
 
-	printCourse(course)
-	return nil
+	return printCourse(course, *jsonOutput)
 }
 
 func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
@@ -103,16 +109,17 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		return fmt.Errorf("invalid part number: %s", args[2])
 	}
 
-	fs := flag.NewFlagSet("update", flag.ContinueOnError)
-	newCode := fs.String("c", "", "update code")
-	newKind := fs.String("k", "", "update kind")
-	newPart := fs.Int("p", 0, "update part")
-	newName := fs.String("n", "", "update name")
-	newQuantity := fs.Int("q", 0, "update quantity")
-	newTotal := fs.Int("t", 0, "update total")
-	newSemester := fs.String("s", "", "update semester")
+	flags := flag.NewFlagSet("update", flag.ContinueOnError)
+	newCode := flags.String("c", "", "update code")
+	newKind := flags.String("k", "", "update kind")
+	newPart := flags.Int("p", 0, "update part")
+	newName := flags.String("n", "", "update name")
+	newQuantity := flags.Int("q", 0, "update quantity")
+	newTotal := flags.Int("t", 0, "update total")
+	newSemester := flags.String("s", "", "update semester")
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
-	if err := fs.Parse(args[3:]); err != nil {
+	if err := flags.Parse(args[3:]); err != nil {
 		return err
 	}
 
@@ -137,8 +144,7 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		return err
 	}
 
-	printCourse(updated)
-	return nil
+	return printCourse(updated, *jsonOutput)
 }
 
 func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
@@ -162,14 +168,15 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 }
 
 func runList(pb internal.Polybase, ctx context.Context, args []string) error {
-	fs := flag.NewFlagSet("list", flag.ContinueOnError)
-	showHidden := fs.Bool("a", false, "show hidden courses")
-	semester := fs.String("s", "", "filter by semester")
-	code := fs.String("c", "", "filter by course code")
-	kind := fs.String("k", "", "filter by kind")
-	part := fs.Int("p", 0, "filter by part number")
+	flags := flag.NewFlagSet("list", flag.ContinueOnError)
+	showHidden := flags.Bool("a", false, "show hidden courses")
+	semester := flags.String("s", "", "filter by semester")
+	code := flags.String("c", "", "filter by course code")
+	kind := flags.String("k", "", "filter by kind")
+	part := flags.Int("p", 0, "filter by part number")
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
-	if err := fs.Parse(args); err != nil {
+	if err := flags.Parse(args); err != nil {
 		return err
 	}
 
@@ -194,14 +201,7 @@ func runList(pb internal.Polybase, ctx context.Context, args []string) error {
 		return err
 	}
 
-	for i, course := range courses {
-		printCourse(course)
-
-		if i != len(courses)-1 {
-			fmt.Println()
-		}
-	}
-	return nil
+	return printCourses(courses, *jsonOutput)
 }
 
 func runQuantity(pb internal.Polybase, ctx context.Context, args []string) error {
@@ -220,6 +220,13 @@ func runQuantity(pb internal.Polybase, ctx context.Context, args []string) error
 		return fmt.Errorf("invalid delta value: %s", args[3])
 	}
 
+	flags := flag.NewFlagSet("get", flag.ContinueOnError)
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
+
+	if err := flags.Parse(args[4:]); err != nil {
+		return err
+	}
+
 	id := internal.CourseID{
 		Code: args[0],
 		Kind: args[1],
@@ -231,8 +238,7 @@ func runQuantity(pb internal.Polybase, ctx context.Context, args []string) error
 		return err
 	}
 
-	printCourse(updated)
-	return nil
+	return printCourse(updated, *jsonOutput)
 }
 
 func runVisibility(pb internal.Polybase, ctx context.Context, args []string) error {
@@ -241,10 +247,11 @@ func runVisibility(pb internal.Polybase, ctx context.Context, args []string) err
 		return fmt.Errorf("CODE, KIND and PART are required")
 	}
 
-	fs := flag.NewFlagSet("visibility", flag.ContinueOnError)
-	shown := fs.Bool("s", true, "visibility state")
+	flags := flag.NewFlagSet("visibility", flag.ContinueOnError)
+	shown := flags.Bool("s", true, "visibility state")
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
-	if err := fs.Parse(args[3:]); err != nil {
+	if err := flags.Parse(args[3:]); err != nil {
 		return err
 	}
 
@@ -264,8 +271,7 @@ func runVisibility(pb internal.Polybase, ctx context.Context, args []string) err
 		return err
 	}
 
-	printCourse(updated)
-	return nil
+	return printCourse(updated, *jsonOutput)
 }
 
 func runHelp(args []string) error {
