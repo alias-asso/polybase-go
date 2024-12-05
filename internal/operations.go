@@ -263,7 +263,7 @@ func validateQuantity(quantity int, total int) error {
 		return fmt.Errorf("total cannot be negative or nil")
 	}
 
-	if quantity >= total {
+	if quantity > total {
 		return fmt.Errorf("quantity (%d) cannot exceed total (%d)", quantity, total)
 	}
 

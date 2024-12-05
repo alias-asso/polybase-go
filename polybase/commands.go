@@ -109,6 +109,12 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		return fmt.Errorf("invalid part number: %s", args[2])
 	}
 
+	id := internal.CourseID{
+		Code: code,
+		Kind: kind,
+		Part: part,
+	}
+
 	flags := flag.NewFlagSet("update", flag.ContinueOnError)
 	newCode := flags.String("c", "", "update code")
 	newKind := flags.String("k", "", "update kind")
@@ -123,21 +129,25 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		return err
 	}
 
-	id := internal.CourseID{
-		Code: code,
-		Kind: kind,
-		Part: part,
-	}
-
-	partial := internal.PartialCourse{
-		Code:     newCode,
-		Kind:     newKind,
-		Part:     newPart,
-		Name:     newName,
-		Quantity: newQuantity,
-		Total:    newTotal,
-		Semester: newSemester,
-	}
+	partial := internal.PartialCourse{}
+	flags.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "c":
+			partial.Code = newCode
+		case "k":
+			partial.Kind = newKind
+		case "p":
+			partial.Part = newPart
+		case "n":
+			partial.Name = newName
+		case "q":
+			partial.Quantity = newQuantity
+		case "t":
+			partial.Total = newTotal
+		case "s":
+			partial.Semester = newSemester
+		}
+	})
 
 	updated, err := pb.Update(ctx, id, partial)
 	if err != nil {
@@ -164,6 +174,14 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 		Part: part,
 	}
 
+	course, err := pb.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Are you sure you want to delete this course?\n %s %s %d", course.Code, course.Kind, course.Part)
+	fmt.Print("Type 'yes' to confirm: ")
+
 	return pb.Delete(ctx, id)
 }
 
@@ -182,19 +200,18 @@ func runList(pb internal.Polybase, ctx context.Context, args []string) error {
 
 	var filterSemester, filterCode, filterKind *string
 	var filterPart *int
-
-	if *semester != "" {
-		filterSemester = semester
-	}
-	if *code != "" {
-		filterCode = code
-	}
-	if *kind != "" {
-		filterKind = kind
-	}
-	if *part != 0 {
-		filterPart = part
-	}
+	flags.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "s":
+			filterSemester = semester
+		case "c":
+			filterCode = code
+		case "k":
+			filterKind = kind
+		case "p":
+			filterPart = part
+		}
+	})
 
 	courses, err := pb.List(ctx, *showHidden, filterSemester, filterCode, filterKind, filterPart)
 	if err != nil {

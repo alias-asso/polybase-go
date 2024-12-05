@@ -12,7 +12,7 @@ import (
 func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
-	courses, err := s.pb.List(r.Context(), true)
+	courses, err := s.pb.List(r.Context(), true, nil, nil, nil, nil)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
 		log.Printf("%s", err)
