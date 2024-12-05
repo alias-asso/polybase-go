@@ -16,7 +16,6 @@ OPTIONS
     -db PATH    Path to database file (default: %s)
     -h          Print help information
     -v          Print version information
-    -json       Output in JSON format (available for most commands)
 
 COMMANDS
     create      Create a new course entry

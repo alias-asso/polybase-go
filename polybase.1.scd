@@ -30,6 +30,7 @@ course entries, as well as managing course quantities and visibility states.
 	- *-q* <QUANTITY>  Initial quantity (required)
 	- *-t* <TOTAL>     Total quantity (default: same as quantity)
 	- *-s* <SEMESTER>  Semester (required)
+	- *-json*          Output in JSON format
 
 *get* <CODE> <KIND> <PART>
 	Display details for a specific course
@@ -46,6 +47,7 @@ course entries, as well as managing course quantities and visibility states.
 	- *-q* <QUANTITY>  Update quantity
 	- *-t* <TOTAL>     Update total quantity
 	- *-s* <SEMESTER>  Update semester
+	- *-json*          Output in JSON format
 
 *delete* <CODE> <KIND> <PART>
 	Remove a course from the database
@@ -59,15 +61,20 @@ course entries, as well as managing course quantities and visibility states.
 	- *-c* <CODE>      Filter by code prefix
 	- *-k* <KIND>      Filter by kind
 	- *-p* <PART>      Filter by part number
+	- *-json*          Output in JSON format
 
 *quantity* <CODE> <KIND> <PART> <DELTA>
 	Update course quantity by adding DELTA (can be negative)
+
+	Options:
+	- *-json*          Output in JSON format
 
 *visibility* <CODE> <KIND> <PART> [-s STATE]
 	Set course visibility
 
 	Options:
 	- *-s*             Set visibility state (default: true)
+	- *-json*          Output in JSON format
 
 *help* [COMMAND]
 	Show help message for a specific command
@@ -84,6 +91,11 @@ Get course details:
 $ polybase get LU2IN018 Memento 1
 ```
 
+Get course details in JSON format:
+```
+$ polybase get LU2IN018 Memento 1 -json
+```
+
 Update course properties:
 ```
 $ polybase update LU2IN018 TME 1 -q 20 -t 230
@@ -97,6 +109,11 @@ $ polybase update LU2IN005 TD 1 -c LU2IN006 -k TD -p 2
 List all courses including hidden:
 ```
 $ polybase list -a
+```
+
+List all courses in JSON format:
+```
+$ polybase list -json
 ```
 
 Set course visibility:
