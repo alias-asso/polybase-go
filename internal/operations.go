@@ -42,13 +42,9 @@ func (c Course) SID() string {
 }
 
 func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {
-	course.Code = strings.TrimSpace(course.Code)
-	course.Kind = strings.TrimSpace(course.Kind)
-	course.Name = strings.TrimSpace(course.Name)
-	course.Semester = strings.TrimSpace(course.Semester)
-
-	if err := validateSemester(course.Semester); err != nil {
-		return Course{}, fmt.Errorf("invalid semester: %w", err)
+	course, err := validateCourse(course)
+	if err != nil {
+		return Course{}, err
 	}
 
 	exists, err := pb.exists(ctx, CourseID{course.Code, course.Kind, course.Part})
@@ -59,15 +55,12 @@ func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {
 		return Course{}, fmt.Errorf("course already exists")
 	}
 
-	shown := 0
-	if course.Shown {
-		shown = 1
-	}
+	course.Shown = true
 
 	if _, err := pb.db.ExecContext(ctx, `
     INSERT INTO courses (code, kind, part, parts, name, quantity, total, shown, semester)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		course.Code, course.Kind, course.Part, course.Parts, course.Name, course.Quantity, course.Total, shown, course.Semester); err != nil {
+		course.Code, course.Kind, course.Part, course.Parts, course.Name, course.Quantity, course.Total, course.Shown, course.Semester); err != nil {
 		return Course{}, fmt.Errorf("create course: %w", err)
 	}
 
@@ -77,9 +70,6 @@ func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {
 func (pb *PB) Get(ctx context.Context, id CourseID) (Course, error) {
 	var course Course
 	var shown int
-
-	id.Code = strings.TrimSpace(id.Code)
-	id.Kind = strings.TrimSpace(id.Kind)
 
 	err := pb.db.QueryRowContext(ctx, `
     SELECT code, kind, part, parts, name, quantity, total, shown, semester
@@ -102,17 +92,13 @@ func (pb *PB) Get(ctx context.Context, id CourseID) (Course, error) {
 	return course, nil
 }
 
-func (pb *PB) Update(ctx context.Context, id CourseID, course Course) (Course, error) {
-	course.Code = strings.TrimSpace(course.Code)
-	course.Kind = strings.TrimSpace(course.Kind)
-	course.Name = strings.TrimSpace(course.Name)
-	course.Semester = strings.TrimSpace(course.Semester)
-
-	if err := validateSemester(course.Semester); err != nil {
-		return Course{}, fmt.Errorf("invalid semester: %w", err)
+func (pb *PB) Update(ctx context.Context, id CourseID, partial PartialCourse) (Course, error) {
+	course, err := pb.mergeCourse(ctx, id, partial)
+	if err != nil {
+		return Course{}, err
 	}
 
-	exists, err := pb.exists(ctx, CourseID{course.Code, course.Kind, course.Part})
+	exists, err := pb.exists(ctx, id)
 	if err != nil {
 		return Course{}, fmt.Errorf("failed to check course existence: %w", err)
 	}
@@ -120,17 +106,12 @@ func (pb *PB) Update(ctx context.Context, id CourseID, course Course) (Course, e
 		return Course{}, fmt.Errorf("course does not exists")
 	}
 
-	shown := 0
-	if course.Shown {
-		shown = 1
-	}
-
 	if _, err := pb.db.ExecContext(ctx, `
         UPDATE courses 
         SET code = ?, kind = ?, part = ?, parts = ?, name = ?, quantity = ?, total = ?, shown = ?, semester = ?
         WHERE code = ? AND kind = ? AND part = ?`,
 		course.Code, course.Kind, course.Part, course.Parts,
-		course.Name, course.Quantity, course.Total, shown, course.Semester,
+		course.Name, course.Quantity, course.Total, course.Shown, course.Semester,
 		id.Code, id.Kind, id.Part,
 	); err != nil {
 		return Course{}, fmt.Errorf("update course: %w", err)
@@ -140,6 +121,14 @@ func (pb *PB) Update(ctx context.Context, id CourseID, course Course) (Course, e
 }
 
 func (pb *PB) Delete(ctx context.Context, id CourseID) error {
+	exists, err := pb.exists(ctx, id)
+	if err != nil {
+		return fmt.Errorf("failed to check course existence: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("course does not exists")
+	}
+
 	if _, err := pb.db.ExecContext(ctx, `
     DELETE FROM courses
     WHERE code = ? AND KIND = ? AND part = ?`,
@@ -150,14 +139,42 @@ func (pb *PB) Delete(ctx context.Context, id CourseID) error {
 	return nil
 }
 
-func (pb *PB) List(ctx context.Context, showHidden bool) ([]Course, error) {
+func (pb *PB) List(ctx context.Context, showHidden bool, filterSemester *string, filterCode *string, filterKind *string, filterPart *int) ([]Course, error) {
 	var courses []Course
-	query := `SELECT code, kind, part, parts, name, quantity, total, shown, semester FROM courses`
+	var conditions []string
+	var args []interface{}
+
 	if !showHidden {
-		query += ` WHERE shown = 1`
+		conditions = append(conditions, "shown = 1")
 	}
 
-	rows, err := pb.db.QueryContext(ctx, query)
+	if filterSemester != nil {
+		conditions = append(conditions, "semester = ?")
+		args = append(args, *filterSemester)
+	}
+
+	if filterCode != nil {
+		conditions = append(conditions, "code = ?")
+		args = append(args, *filterCode)
+	}
+
+	if filterKind != nil {
+		conditions = append(conditions, "kind = ?")
+		args = append(args, *filterKind)
+	}
+
+	if filterPart != nil {
+		conditions = append(conditions, "part = ?")
+		args = append(args, *filterPart)
+	}
+
+	query := `SELECT code, kind, part, parts, name, quantity, total, shown, semester FROM courses`
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+	query += " ORDER BY semester DESC, code ASC, kind ASC, part ASC"
+
+	rows, err := pb.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("list courses: %w", err)
 	}
@@ -165,11 +182,12 @@ func (pb *PB) List(ctx context.Context, showHidden bool) ([]Course, error) {
 
 	for rows.Next() {
 		var c Course
-		err := rows.Scan(&c.Code, &c.Kind, &c.Part, &c.Parts, &c.Name,
-			&c.Quantity, &c.Total, &c.Shown, &c.Semester)
-		if err != nil {
+
+		if err := rows.Scan(&c.Code, &c.Kind, &c.Part, &c.Parts, &c.Name,
+			&c.Quantity, &c.Total, &c.Shown, &c.Semester); err != nil {
 			return nil, fmt.Errorf("scan course: %w", err)
 		}
+
 		courses = append(courses, c)
 	}
 
@@ -181,15 +199,20 @@ func (pb *PB) List(ctx context.Context, showHidden bool) ([]Course, error) {
 }
 
 func (pb *PB) UpdateQuantity(ctx context.Context, id CourseID, delta int) (Course, error) {
-	_, err := pb.db.ExecContext(ctx, `
-        UPDATE courses 
-        SET quantity = quantity + ?
-        WHERE code = ? AND kind = ? AND part = ?`,
-		delta, id.Code, id.Kind, id.Part,
-	)
+	current, err := pb.Get(ctx, id)
 	if err != nil {
+		return Course{}, fmt.Errorf("failed to get current course: %w", err)
+	}
+
+	newQuantity := clampQuantity(current.Quantity+delta, current.Total)
+
+	if _, err = pb.db.ExecContext(ctx, ` UPDATE courses 
+        SET quantity = ?
+        WHERE code = ? AND kind = ? AND part = ?`,
+		newQuantity, id.Code, id.Kind, id.Part); err != nil {
 		return Course{}, fmt.Errorf("update quantity: %w", err)
 	}
+
 	return pb.Get(ctx, id)
 }
 
@@ -231,6 +254,32 @@ func validateSemester(semester string) error {
 	return nil
 }
 
+func validateQuantity(quantity int, total int) error {
+	if quantity < 0 {
+		return fmt.Errorf("quantity cannot be negative")
+	}
+
+	if total <= 0 {
+		return fmt.Errorf("total cannot be negative or nil")
+	}
+
+	if quantity >= total {
+		return fmt.Errorf("quantity (%d) cannot exceed total (%d)", quantity, total)
+	}
+
+	return nil
+}
+
+func clampQuantity(quantity, total int) int {
+	if quantity < 0 {
+		return 0
+	}
+	if quantity > total {
+		return total
+	}
+	return quantity
+}
+
 func (pb *PB) exists(ctx context.Context, id CourseID) (bool, error) {
 	var exists int
 	err := pb.db.QueryRowContext(ctx, `
@@ -246,4 +295,90 @@ func (pb *PB) exists(ctx context.Context, id CourseID) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func validateCourse(course Course) (Course, error) {
+	course.Code = strings.TrimSpace(course.Code)
+	if course.Code == "" {
+		return Course{}, fmt.Errorf("CODE cannot be empty")
+	}
+
+	course.Kind = strings.TrimSpace(course.Kind)
+	if course.Kind == "" {
+		return Course{}, fmt.Errorf("KIND cannot be empty")
+	}
+
+	course.Name = strings.TrimSpace(course.Name)
+
+	if err := validateQuantity(course.Quantity, course.Total); err != nil {
+		return Course{}, fmt.Errorf("invalid quantities: %w", err)
+	}
+
+	course.Semester = strings.TrimSpace(course.Semester)
+	if err := validateSemester(course.Semester); err != nil {
+		return Course{}, fmt.Errorf("invalid semester: %w", err)
+	}
+
+	return course, nil
+}
+
+func (pb *PB) mergeCourse(ctx context.Context, id CourseID, partial PartialCourse) (Course, error) {
+	if partial.Code == nil &&
+		partial.Kind == nil &&
+		partial.Part == nil &&
+		partial.Parts == nil &&
+		partial.Name == nil &&
+		partial.Quantity == nil &&
+		partial.Total == nil &&
+		partial.Shown == nil &&
+		partial.Semester == nil {
+		return Course{}, fmt.Errorf("at least one field must be updated")
+	}
+
+	current, err := pb.Get(ctx, id)
+	if err != nil {
+		return Course{}, fmt.Errorf("get current course: %w", err)
+	}
+
+	course := Course{
+		Code:     current.Code,
+		Kind:     current.Kind,
+		Part:     current.Part,
+		Parts:    current.Parts,
+		Name:     current.Name,
+		Quantity: current.Quantity,
+		Total:    current.Total,
+		Shown:    current.Shown,
+		Semester: current.Semester,
+	}
+
+	if partial.Code != nil {
+		course.Code = *partial.Code
+	}
+	if partial.Kind != nil {
+		course.Kind = *partial.Kind
+	}
+	if partial.Part != nil {
+		course.Part = *partial.Part
+	}
+	if partial.Parts != nil {
+		course.Parts = *partial.Parts
+	}
+	if partial.Name != nil {
+		course.Name = *partial.Name
+	}
+	if partial.Quantity != nil {
+		course.Quantity = *partial.Quantity
+	}
+	if partial.Total != nil {
+		course.Total = *partial.Total
+	}
+	if partial.Shown != nil {
+		course.Shown = *partial.Shown
+	}
+	if partial.Semester != nil {
+		course.Semester = *partial.Semester
+	}
+
+	return validateCourse(course)
 }

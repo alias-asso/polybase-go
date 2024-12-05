@@ -4,6 +4,12 @@ import (
 	"context"
 )
 
+type CourseID struct {
+	Code string
+	Kind string
+	Part int
+}
+
 type Course struct {
 	Code     string
 	Kind     string
@@ -16,18 +22,24 @@ type Course struct {
 	Semester string
 }
 
-type CourseID struct {
-	Code string
-	Kind string
-	Part int
+type PartialCourse struct {
+	Code     *string
+	Kind     *string
+	Part     *int
+	Parts    *int
+	Name     *string
+	Quantity *int
+	Total    *int
+	Shown    *bool
+	Semester *string
 }
 
 type Polybase interface {
-	Create(ctx context.Context, course Course) (Course, error)
+	Create(ctx context.Context, cours Course) (Course, error)
 	Get(ctx context.Context, id CourseID) (Course, error)
-	Update(ctx context.Context, id CourseID, course Course) (Course, error)
+	Update(ctx context.Context, id CourseID, partial PartialCourse) (Course, error)
 	Delete(ctx context.Context, id CourseID) error
-	List(ctx context.Context, showHidden bool) ([]Course, error)
+	List(ctx context.Context, showHidden bool, filterSemester *string, filterCode *string, filterKind *string, filterPart *int) ([]Course, error)
 
 	UpdateQuantity(ctx context.Context, id CourseID, delta int) (Course, error)
 	UpdateShown(ctx context.Context, id CourseID, shown bool) (Course, error)

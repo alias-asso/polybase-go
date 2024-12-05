@@ -74,7 +74,11 @@ func printListUsage() {
     List all courses
 
     Options:
-    -a          Show hidden courses
+    -a              Show hidden courses
+    -s SEMESTER     Filter by semester
+    -c CODE         Filter by code prefix
+    -k KIND         Filter by kind
+    -p PART         Filter by part number
 `)
 }
 

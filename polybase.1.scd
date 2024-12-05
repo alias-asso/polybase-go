@@ -55,7 +55,10 @@ course entries, as well as managing course quantities and visibility states.
 
 	Options:
 	- *-a*             Show hidden courses
-
+	- *-s* <SEMESTER>  Filter by semester
+	- *-c* <CODE>      Filter by code prefix
+	- *-k* <KIND>      Filter by kind
+	- *-p* <PART>      Filter by part number
 
 *quantity* <CODE> <KIND> <PART> <DELTA>
 	Update course quantity by adding DELTA (can be negative)

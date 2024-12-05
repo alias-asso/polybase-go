@@ -96,42 +96,43 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		return fmt.Errorf("CODE, KIND and PART are required")
 	}
 
+	code := args[0]
+	kind := args[1]
 	part, err := strconv.Atoi(args[2])
 	if err != nil {
 		return fmt.Errorf("invalid part number: %s", args[2])
 	}
 
 	fs := flag.NewFlagSet("update", flag.ContinueOnError)
-	code := fs.String("c", "", "update code")
-	kind := fs.String("k", "", "update kind")
+	newCode := fs.String("c", "", "update code")
+	newKind := fs.String("k", "", "update kind")
 	newPart := fs.Int("p", 0, "update part")
-	name := fs.String("n", "", "update name")
-	quantity := fs.Int("q", 0, "update quantity")
-	total := fs.Int("t", 0, "update total")
-	semester := fs.String("s", "", "update semester")
+	newName := fs.String("n", "", "update name")
+	newQuantity := fs.Int("q", 0, "update quantity")
+	newTotal := fs.Int("t", 0, "update total")
+	newSemester := fs.String("s", "", "update semester")
 
 	if err := fs.Parse(args[3:]); err != nil {
 		return err
 	}
 
 	id := internal.CourseID{
-		Code: args[0],
-		Kind: args[1],
+		Code: code,
+		Kind: kind,
 		Part: part,
 	}
 
-	course := internal.Course{
-		Code:     *code,
-		Kind:     *kind,
-		Part:     *newPart,
-		Name:     *name,
-		Quantity: *quantity,
-		Total:    *total,
-		Semester: *semester,
+	partial := internal.PartialCourse{
+		Code:     newCode,
+		Kind:     newKind,
+		Part:     newPart,
+		Name:     newName,
+		Quantity: newQuantity,
+		Total:    newTotal,
+		Semester: newSemester,
 	}
 
-	// TODO: currently, the default values are set to random arbitrary values, BUT that should not be the case. instead the default values should be set by the _previous_ values of the course. that way we can never miss it
-	updated, err := pb.Update(ctx, id, course)
+	updated, err := pb.Update(ctx, id, partial)
 	if err != nil {
 		return err
 	}
@@ -163,19 +164,42 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 func runList(pb internal.Polybase, ctx context.Context, args []string) error {
 	fs := flag.NewFlagSet("list", flag.ContinueOnError)
 	showHidden := fs.Bool("a", false, "show hidden courses")
+	semester := fs.String("s", "", "filter by semester")
+	code := fs.String("c", "", "filter by course code")
+	kind := fs.String("k", "", "filter by kind")
+	part := fs.Int("p", 0, "filter by part number")
 
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 
-	courses, err := pb.List(ctx, *showHidden)
+	var filterSemester, filterCode, filterKind *string
+	var filterPart *int
+
+	if *semester != "" {
+		filterSemester = semester
+	}
+	if *code != "" {
+		filterCode = code
+	}
+	if *kind != "" {
+		filterKind = kind
+	}
+	if *part != 0 {
+		filterPart = part
+	}
+
+	courses, err := pb.List(ctx, *showHidden, filterSemester, filterCode, filterKind, filterPart)
 	if err != nil {
 		return err
 	}
 
-	for _, course := range courses {
+	for i, course := range courses {
 		printCourse(course)
-		fmt.Println()
+
+		if i != len(courses)-1 {
+			fmt.Println()
+		}
 	}
 	return nil
 }
