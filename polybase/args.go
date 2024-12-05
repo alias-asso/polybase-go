@@ -13,28 +13,30 @@ import (
 const defaultDBPath = "/var/lib/polybase/polybase.db"
 const version = "0.1.0"
 
-type command struct {
-	usage string
-	run   func(pb internal.Polybase, ctx context.Context, args []string) error
-}
-
 func parseArgs() (string, []string, error) {
-	// Quick check for help and version
-	for _, arg := range os.Args[1:] {
+	flags := flag.NewFlagSet("polybase", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	flags.Usage = func() {}
+
+	for i, arg := range os.Args[1:] {
 		switch arg {
 		case "-h", "help":
-			printUsage()
+			if err := flags.Parse(os.Args[i+2:]); err != nil {
+				printUsage()
+				return "", nil, err
+			}
+
+			args := flags.Args()
+
+			if err := runHelp(args); err != nil {
+				return "", nil, err
+			}
 			os.Exit(0)
 		case "-v", "version":
 			fmt.Printf("polybase version %s\n", version)
 			os.Exit(0)
 		}
 	}
-
-	// Parse database path
-	flags := flag.NewFlagSet("polybase", flag.ContinueOnError)
-	flags.SetOutput(io.Discard)
-	flags.Usage = func() {}
 
 	dbPath := flags.String("db", defaultDBPath, "Database path")
 
