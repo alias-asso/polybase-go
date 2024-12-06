@@ -5,7 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
+
+	"golang.org/x/term"
 
 	"git.sr.ht/~alias/polybase/internal"
 )
@@ -179,8 +182,29 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Are you sure you want to delete this course?\n %s %s %d", course.Code, course.Kind, course.Part)
-	fmt.Print("Type 'yes' to confirm: ")
+	fmt.Println("Are you sure you want to delete this course?")
+	fmt.Printf("  %s %s %d [y/N]: ", course.Code, course.Kind, course.Part)
+
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	if err != nil {
+		return err
+	}
+
+	buffer := make([]byte, 1)
+	_, err = os.Stdin.Read(buffer)
+	if err != nil {
+		return err
+	}
+
+	if err := term.Restore(int(os.Stdin.Fd()), oldState); err != nil {
+		return fmt.Errorf("failed to restore terminal: %w", err)
+	}
+
+	fmt.Printf("\n")
+
+	if buffer[0] != 'y' && buffer[0] != 'Y' {
+		return nil
+	}
 
 	return pb.Delete(ctx, id)
 }

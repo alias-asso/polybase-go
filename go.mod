@@ -10,6 +10,11 @@ require (
 )
 
 require (
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+)
+
+require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/a-h/templ v0.2.793
 	github.com/go-asn1-ber/asn1-ber v1.5.5 // indirect
