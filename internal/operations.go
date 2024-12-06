@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/base32"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -20,6 +21,20 @@ func New(db *sql.DB) *PB {
 
 func NewCourseID(code string, kind string, part int) CourseID {
 	return CourseID{code, kind, part}
+}
+
+func ValidateCourseID(id CourseID) (CourseID, error) {
+	// Validate code: only uppercase, numbers, dashes, and curly braces
+	if !regexp.MustCompile(`^[A-Z0-9\-{},]+$`).MatchString(id.Code) {
+		return CourseID{}, fmt.Errorf("invalid code format: must only contain uppercase letters, numbers, dashes, and curly braces")
+	}
+
+	// Validate kind: only letters (upper and lowercase)
+	if !regexp.MustCompile(`^[a-zA-Z]+$`).MatchString(id.Kind) {
+		return CourseID{}, fmt.Errorf("invalid kind format: must only contain letters")
+	}
+
+	return id, nil
 }
 
 func (c Course) ID() string {
@@ -55,6 +70,11 @@ func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {
 		return Course{}, fmt.Errorf("course already exists")
 	}
 
+	_, err = ValidateCourseID(NewCourseID(course.Code, course.Kind, course.Part))
+	if err != nil {
+		return Course{}, fmt.Errorf("invalid course id")
+	}
+
 	course.Shown = true
 
 	if _, err := pb.db.ExecContext(ctx, `
@@ -68,10 +88,15 @@ func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {
 }
 
 func (pb *PB) Get(ctx context.Context, id CourseID) (Course, error) {
+	id, err := ValidateCourseID(id)
+	if err != nil {
+		return Course{}, err
+	}
+
 	var course Course
 	var shown int
 
-	err := pb.db.QueryRowContext(ctx, `
+	err = pb.db.QueryRowContext(ctx, `
     SELECT code, kind, part, parts, name, quantity, total, shown, semester
     FROM courses
     WHERE code = ? AND kind = ? AND part = ?`,
@@ -93,6 +118,11 @@ func (pb *PB) Get(ctx context.Context, id CourseID) (Course, error) {
 }
 
 func (pb *PB) Update(ctx context.Context, id CourseID, partial PartialCourse) (Course, error) {
+	id, err := ValidateCourseID(id)
+	if err != nil {
+		return Course{}, err
+	}
+
 	course, err := pb.mergeCourse(ctx, id, partial)
 	if err != nil {
 		return Course{}, err
@@ -121,6 +151,11 @@ func (pb *PB) Update(ctx context.Context, id CourseID, partial PartialCourse) (C
 }
 
 func (pb *PB) Delete(ctx context.Context, id CourseID) error {
+	id, err := ValidateCourseID(id)
+	if err != nil {
+		return err
+	}
+
 	exists, err := pb.exists(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to check course existence: %w", err)
@@ -199,6 +234,11 @@ func (pb *PB) List(ctx context.Context, showHidden bool, filterSemester *string,
 }
 
 func (pb *PB) UpdateQuantity(ctx context.Context, id CourseID, delta int) (Course, error) {
+	id, err := ValidateCourseID(id)
+	if err != nil {
+		return Course{}, err
+	}
+
 	current, err := pb.Get(ctx, id)
 	if err != nil {
 		return Course{}, fmt.Errorf("failed to get current course: %w", err)
@@ -217,11 +257,16 @@ func (pb *PB) UpdateQuantity(ctx context.Context, id CourseID, delta int) (Cours
 }
 
 func (pb *PB) UpdateShown(ctx context.Context, id CourseID, shown bool) (Course, error) {
+	id, err := ValidateCourseID(id)
+	if err != nil {
+		return Course{}, err
+	}
+
 	shownInt := 0
 	if shown {
 		shownInt = 1
 	}
-	_, err := pb.db.ExecContext(ctx, `
+	_, err = pb.db.ExecContext(ctx, `
         UPDATE courses 
         SET shown = ?
         WHERE code = ? AND kind = ? AND part = ?`,
