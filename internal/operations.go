@@ -2,9 +2,7 @@ package internal
 
 import (
 	"context"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/base32"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -42,18 +40,10 @@ func (c Course) ID() string {
 }
 
 func (c Course) SID() string {
-	fullID := fmt.Sprintf("%s-%s-%d", c.Code, c.Kind, c.Part)
-	hasher := sha256.New()
-	hasher.Write([]byte(fullID))
-	hash := hasher.Sum(nil)
-	encoded := strings.ToLower(base32.StdEncoding.EncodeToString(hash))
-
-	// If the first character is a number (2-7 in base32), prepend 'a'
-	if encoded[0] >= '2' && encoded[0] <= '7' {
-		return "a" + encoded[:7]
-	}
-
-	return encoded[:8]
+	sid := fmt.Sprintf("course-%s-%s-%d", c.Code, c.Kind, c.Part)
+	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+	sid = reg.ReplaceAllString(sid, "-")
+	return strings.ToLower(sid)
 }
 
 func (pb *PB) Create(ctx context.Context, course Course) (Course, error) {

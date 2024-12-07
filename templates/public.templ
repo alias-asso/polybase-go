@@ -3,22 +3,22 @@ package templates
 import "git.sr.ht/~alias/polybase/internal"
 
 templ Public(courses []internal.Course) {
-@Base(false) {
-<div class="flex flex-col gap-4 p-4">
-  <header>
-    <div class="bg-white absolute top-0 right-0 p-4">
-      <a href="/login" class="hover:underline">Connexion</a>
-    </div>
-    <div>
-      <h1 class="text-4xl font-bold">
-        Bienvenue sur Polybase !
-        <span></span>
-        <p class="inline text-xl">{ GetRandomMessage() }</p>
-      </h1>
-      <p>Un service créé par et pour l'ALIAS.</p>
-    </div>
-  </header>
-  @Grid(GroupCoursesBySemesterAndKind(courses), PublicCard)
-</div>
-}
+	@Base(false) {
+		<div class="flex flex-col gap-4 p-4">
+			<header>
+				<div class="bg-white absolute top-0 right-0 p-4">
+					<a href="/login" class="hover:underline">Connexion</a>
+				</div>
+				<div>
+					<h1 class="text-4xl font-bold">
+						Bienvenue sur Polybase !
+						<span></span>
+						<p class="inline text-xl">{ GetRandomMessage() }</p>
+					</h1>
+					<p>Un service créé par et pour l'ALIAS.</p>
+				</div>
+			</header>
+			@Grid(GroupCoursesBySemesterAndKind(courses), PublicCard)
+		</div>
+	}
 }

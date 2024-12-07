@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .icon-base {
+    @apply inline-block size-4 bg-current;
+  }
+
+  .icon-show {
+    @apply icon-base;
+    mask: url(/static/svg/show.svg) no-repeat center / contain;
+  }
+
+  .icon-hide {
+    @apply icon-base;
+    mask: url(/static/svg/hide.svg) no-repeat center / contain;
+  }
+
+  .icon-plus {
+    @apply icon-base;
+    mask: url(/static/svg/plus.svg) no-repeat center / contain;
+  }
+
+  .icon-minus {
+    @apply icon-base;
+    mask: url(/static/svg/minus.svg) no-repeat center / contain;
+  }
+
+  .icon-check {
+    @apply icon-base;
+    mask: url(/static/svg/check.svg) no-repeat center / contain;
+  }
+}

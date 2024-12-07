@@ -107,7 +107,7 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = templates.AdminCard(course).Render(r.Context(), w)
+	err = templates.CardQuantity(course.Quantity).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Failed to render template: %v", err)
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
