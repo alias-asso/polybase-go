@@ -32,7 +32,7 @@ func Grid(semesterGroups []SemesterGroup, cardTempl func(course internal.Course)
 		}
 		ctx = templ.ClearChildren(ctx)
 		for _, semester := range semesterGroups {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mt-8\"><h2 class=\"text-3xl font-bold mb-4\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"px-4\"><h2 class=\"text-3xl font-bold mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

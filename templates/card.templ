@@ -1,67 +1,72 @@
 package templates
 
 import (
-"fmt"
-"git.sr.ht/~alias/polybase/internal"
+	"fmt"
+	"git.sr.ht/~alias/polybase/internal"
 )
 
-// Core display components
 templ PublicCard(course internal.Course) {
-<div class="bg-gray-100 flex h-32 flex-col rounded-lg p-2 transition-colors relative">
-  <div class="flex w-full gap-1">
-    <p class="text-xl font-bold">{ course.Code }</p>
-    <p class="ml-auto">Part. { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
-  </div>
-  <p class="text-left text-lg leading-6">{ course.Name }</p>
-  <div class="absolute inset-x-0 bottom-2 flex justify-end items-center gap-4 px-2">
-    <p class="text-xl">
-      <span class="text-2xl font-bold">{ fmt.Sprint(course.Quantity) }</span>/{ fmt.Sprint(course.Total) }
-    </p>
-  </div>
-</div>
+	<div class="bg-gray-100 flex h-32 flex-col rounded-lg px-6 py-3 transition-colors relative">
+		<div class="flex w-full gap-4 min-w-0">
+			<p class="text-lg font-bold truncate" title={ course.Code }>{ course.Code }</p>
+			<p class="ml-auto shrink-0">Part. { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
+		</div>
+		<p class="text-left leading-6 line-clamp-2" title={ course.Name }>{ course.Name }</p>
+		<div class="mt-auto flex justify-end items-baseline">
+			<span class="text-lg font-bold leading-none">{ fmt.Sprint(course.Quantity) }</span>
+			<span class="leading-none">/{ fmt.Sprint(course.Total) }</span>
+		</div>
+	</div>
 }
 
 templ AdminCard(course internal.Course) {
-<div id={ course.SID() } class="bg-white group flex h-32 flex-col rounded-lg p-2 transition-colors relative">
-  <div class="flex w-full gap-1">
-    <div class="flex items-center gap-2">
-      <p class="text-xl font-bold">{ course.Code }</p>
-      <button hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", course.ID(), !course.Shown) }
-        hx-target={ fmt.Sprintf("#%s", course.SID()) } hx-swap="outerHTML" class="hover:underline flex items-center">
-        if course.Shown {
-        <span class="icon-show bg-gray-400 hover:bg-red-400"></span>
-        } else {
-        <span class="icon-hide hover:bg-blue-400"></span>
-        }
-      </button>
-    </div>
-    <p class="ml-auto">Part. { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
-  </div>
-  <p class="text-left text-lg leading-6">{ course.Name }</p>
-  <div class="absolute inset-x-0 bottom-2 flex justify-between items-center gap-4 px-2">
-    @QuantityButton(course.ID(), course.SID(), -1)
-    <p class="text-xl">
-      <span id={ fmt.Sprintf("%s-quantity", course.SID()) } class="text-2xl font-bold">
-        @CardQuantity(course.Quantity)
-      </span>/{ fmt.Sprint(course.Total) }
-    </p>
-    @QuantityButton(course.ID(), course.SID(), 1)
-  </div>
-</div>
+	<div id={ course.SID() } class="bg-gray-100 group flex h-32 flex-col rounded-lg px-6 py-3 transition-colors relative">
+		<div class="flex w-full gap-4 min-w-0">
+			<div class="flex items-center gap-2 min-w-0">
+				<p class="text-lg font-bold truncate" title={ course.Code }>{ course.Code }</p>
+				<button
+					hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", course.ID(), !course.Shown) }
+					hx-target={ fmt.Sprintf("#%s", course.SID()) }
+					hx-swap="outerHTML"
+					class="hover:underline flex items-center shrink-0"
+				>
+					if course.Shown {
+						<span class="icon-show bg-gray-400 hover:bg-red-400"></span>
+					} else {
+						<span class="icon-hide hover:bg-blue-400"></span>
+					}
+				</button>
+			</div>
+			<p class="ml-auto shrink-0">Part. { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
+		</div>
+		<p class="text-left leading-6 line-clamp-2" title={ course.Name }>{ course.Name }</p>
+		<div class="mt-auto flex justify-between items-center gap-4">
+			@QuantityButton(course.ID(), course.SID(), -1)
+			<div class="flex items-baseline">
+				<span id={ fmt.Sprintf("%s-quantity", course.SID()) } class="text-lg font-bold leading-none">
+					@CardQuantity(course.Quantity)
+				</span>
+				<span class="leading-none">/{ fmt.Sprint(course.Total) }</span>
+			</div>
+			@QuantityButton(course.ID(), course.SID(), 1)
+		</div>
+	</div>
 }
 
 templ CardQuantity(quantity int) {
-{ fmt.Sprintf("%d", quantity) }
+	{ fmt.Sprintf("%d", quantity) }
 }
 
 templ QuantityButton(courseID string, courseStableID string, delta int) {
-<button hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=%d", courseID, delta) } hx-target={
-  fmt.Sprintf("#%s-quantity", courseStableID) }
-  class="bg-gray-400 size-10 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity">
-  if delta > 0 {
-  <span class="icon-plus size-5 bg-white"></span>
-  } else {
-  <span class="icon-minus size-5 bg-white"></span>
-  }
-</button>
+	<button
+		hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=%d", courseID, delta) }
+		hx-target={ fmt.Sprintf("#%s-quantity", courseStableID) }
+		class="bg-gray-400 size-8 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity"
+	>
+		if delta > 0 {
+			<span class="icon-plus size-5 bg-white"></span>
+		} else {
+			<span class="icon-minus size-5 bg-white"></span>
+		}
+	</button>
 }

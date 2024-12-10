@@ -43,7 +43,7 @@ func Public(courses []internal.Course) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4\"><header><div class=\"bg-white absolute top-0 right-0 p-4\"><a href=\"/login\" class=\"hover:underline\">Connexion</a></div><div><h1 class=\"text-4xl font-bold\">Bienvenue sur Polybase ! <span></span><p class=\"inline text-xl\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\"><header class=\"p-4\"><div class=\"bg-white absolute top-0 right-0 p-4\"><a href=\"/login\" class=\"hover:underline\">Connexion</a></div><div><h1 class=\"text-4xl font-bold\">Bienvenue sur Polybase ! <span></span><p class=\"inline text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

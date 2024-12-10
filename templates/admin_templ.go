@@ -43,7 +43,7 @@ func Admin(courses []internal.Course, username string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col gap-4 p-4\"><header><h1 class=\"text-4xl font-bold\">Bienvenue sur Polybase ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\"><header class=\"p-4\"><h1 class=\"text-4xl font-bold\">Bienvenue sur Polybase ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -4,7 +4,7 @@ import "git.sr.ht/~alias/polybase/internal"
 
 templ Grid(semesterGroups []SemesterGroup, cardTempl func(course internal.Course) templ.Component) {
   for _, semester := range semesterGroups {
-  <div class="mt-8">
+  <div class="px-4">
     <h2 class="text-3xl font-bold mb-4">{ semester.Name }</h2>
     <div class="flex flex-col gap-6">
       for _, kindGroup := range semester.Kinds {
