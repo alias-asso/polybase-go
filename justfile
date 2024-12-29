@@ -1,6 +1,3 @@
-default:
-  @just --list
-
 # Run development server with air
 dev:
   air
