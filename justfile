@@ -26,4 +26,5 @@ build-server:
 
 # Build cli binaries
 build-cli:
+  mkdir -p target
   go build -o target/polybase ./polybase

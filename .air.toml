@@ -2,7 +2,7 @@ root = "."
 tmp_dir = ".cache"
 
 [build]
-cmd = "tailwindcss -i main.css -o static/css/styles.css -m && templ generate && go build -o ./.cache/polybased ./polybased"
+cmd = "tailwindcss -i static/css/main.css -o static/css/styles.css -m && templ generate && go build -o ./.cache/polybased ./polybased"
 bin = "./.cache/polybased -c polybase.cfg"
 include_ext = ["go", "templ"]
 exclude_dir = [".cache"]
