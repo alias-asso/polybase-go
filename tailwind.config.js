@@ -1,7 +1,1 @@
-module.exports = {
-  content: ["./templates/**/*.templ"],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
+export default { content: ["./views/**/*.templ"] };
