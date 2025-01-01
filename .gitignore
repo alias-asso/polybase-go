@@ -3,3 +3,4 @@
 /.direnv
 /.cache
 /target
+/views/*_templ.go

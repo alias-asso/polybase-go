@@ -37,10 +37,14 @@ func (s *Server) registerRoutes() {
 }
 
 func (s *Server) registerStatic() {
-    fs := http.FileServer(static.FileSystem())
-    staticHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Cache-Control", "public, max-age=63072000")
-        http.StripPrefix("/static/", fs).ServeHTTP(w, r)
-    })
-    s.mux.Handle("GET /static/", staticHandler)
+	fs := http.FileServer(static.FileSystem())
+	staticHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if s.cfg.Server.Mode == "dev" {
+			w.Header().Set("Cache-Control", "public, max-age=0")
+		} else {
+			w.Header().Set("Cache-Control", "public, max-age=63072000")
+		}
+		http.StripPrefix("/static/", fs).ServeHTTP(w, r)
+	})
+	s.mux.Handle("GET /static/", staticHandler)
 }

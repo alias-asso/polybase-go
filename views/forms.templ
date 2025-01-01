@@ -6,8 +6,8 @@ import (
 )
 
 templ Modal() {
-	<div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-		<div class="bg-white rounded-lg max-w-4xl p-6 relative">
+	<div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+		<div class="bg-white rounded-lg w-full max-w-4xl p-6 sm:p-4 relative">
 			<button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
 				<span class="icon-cross size-6"></span>
 			</button>
@@ -133,7 +133,6 @@ templ NewCourseForm() {
 					<div>
 						<label class="block text-gray-700 mb-2" for="total">
 							Quantité totale
-							<span class="text-sm text-gray-500 ml-1">(optionnel)</span>
 						</label>
 						<input
 							type="number"
@@ -148,13 +147,13 @@ templ NewCourseForm() {
 					<button
 						type="button"
 						onclick="closeModal()"
-						class="w-32 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
+						class="border border-gray-300 text-gray-700 px-3 sm:px-6 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
 					>
 						Annuler
 					</button>
 					<button
 						type="submit"
-						class="w-32 bg-accent-500 text-accent-100 py-2 rounded-lg hover:bg-accent-700 active:bg-accent-800 transition-colors"
+						class="bg-accent-500 text-accent-100 px-3 sm:px-6 py-2 rounded-lg hover:bg-accent-700 active:bg-accent-800 transition-colors"
 					>
 						Ajouter
 					</button>
@@ -281,7 +280,6 @@ templ EditCourseForm(course internal.Course) {
 					<div>
 						<label class="block text-gray-700 mb-2" for="total">
 							Quantité totale
-							<span class="text-sm text-gray-500 ml-1">(optionnel)</span>
 						</label>
 						<input
 							type="number"
@@ -297,7 +295,7 @@ templ EditCourseForm(course internal.Course) {
 					<div class="flex gap-x-4">
 						<button
 							type="button"
-							class="w-32 border border-gray-300 text-red-500 py-2 rounded-lg hover:text-white hover:bg-red-600 hover:border-none active:text-white active:bg-red-700 active:border-none transition-colors"
+							class="border border-gray-300 text-red-500 py-2 px-3 sm:px-6 rounded-lg hover:text-white hover:bg-red-600 hover:border-none active:text-white active:bg-red-700 active:border-none transition-colors"
 							hx-get={ fmt.Sprintf("/admin/courses/delete/%s", course.ID()) }
 							hx-target="#modal-container"
 						>
@@ -308,13 +306,13 @@ templ EditCourseForm(course internal.Course) {
 						<button
 							type="button"
 							onclick="closeModal()"
-							class="w-32 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
+							class="border border-gray-300 text-gray-700 p-3 sm:px-6 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
 						>
 							Annuler
 						</button>
 						<button
 							type="submit"
-							class="w-32 bg-accent-500 text-accent-100 py-2 rounded-lg hover:bg-accent-700 active:bg-accent-800 transition-colors"
+							class="bg-accent-500 text-accent-100 px-3 sm:px-6 py-2 rounded-lg hover:bg-accent-700 active:bg-accent-800 transition-colors"
 						>
 							Modifier
 						</button>
@@ -346,14 +344,14 @@ templ DeleteConfirm(course internal.Course) {
 				<button
 					type="button"
 					onclick="closeModal()"
-					class="w-32 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
+					class="border border-gray-300 text-gray-700 px-3 sm:px-6 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
 				>
 					Annuler
 				</button>
 				<button
 					id="delete-course-button"
 					type="button"
-					class="w-32 border border-gray-300 text-red-500 py-2 rounded-lg hover:text-white hover:bg-red-600 hover:border-none active:text-white active:bg-red-700 active:border-none transition-colors"
+					class="border border-gray-300 text-red-500 px-3 sm:px-6 py-2 rounded-lg hover:text-white hover:bg-red-600 hover:border-none active:text-white active:bg-red-700 active:border-none transition-colors"
 					hx-delete={ fmt.Sprintf("/admin/courses/%s", course.ID()) }
 					hx-target="#courses-grid"
 				>
