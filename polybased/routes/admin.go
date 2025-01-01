@@ -160,8 +160,7 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 	kind := id.Kind
 	part := id.Part
 
-	// TODO: add the logic of proper parts update
-	parts := 1
+	parts := 0
 
 	name := r.Form.Get("name")
 
@@ -264,8 +263,7 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: add the logic of proper parts update
-	parts := 1
+	parts := 0
 
 	name := r.Form.Get("name")
 
@@ -351,7 +349,6 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to edit course: course does not exists")
 		return
 	}
-
 
 	err = s.pb.Delete(r.Context(), id)
 	if err != nil {

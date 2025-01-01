@@ -51,7 +51,7 @@ func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {
 		Code:     args[0],
 		Kind:     args[1],
 		Part:     part,
-		Parts:    1,
+		Parts:    0,
 		Name:     *name,
 		Quantity: *quantity,
 		Total:    *total,

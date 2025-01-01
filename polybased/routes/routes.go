@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"log"
 	"net/http"
+
+	"git.sr.ht/~alias/polybase/static"
 )
 
 // Register sets up all routes for the application
@@ -36,17 +37,10 @@ func (s *Server) registerRoutes() {
 }
 
 func (s *Server) registerStatic() {
-	if s.cfg.Server.Static == "" {
-		log.Fatalf("Warning: Static file path not configured, static assets will not be served")
-		return
-	}
-
-	fs := http.FileServer(http.Dir(s.cfg.Server.Static))
-
-	staticHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=0")
-		http.StripPrefix("/static/", fs).ServeHTTP(w, r)
-	})
-
-	s.mux.Handle("GET /static/", staticHandler)
+    fs := http.FileServer(static.FileSystem())
+    staticHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Cache-Control", "public, max-age=63072000")
+        http.StripPrefix("/static/", fs).ServeHTTP(w, r)
+    })
+    s.mux.Handle("GET /static/", staticHandler)
 }
