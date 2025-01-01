@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -29,8 +28,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
-
-	fmt.Println(config)
 
 	srv, err := routes.NewServer(&config)
 	if err != nil {
