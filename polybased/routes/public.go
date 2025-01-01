@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"git.sr.ht/~alias/polybase/templates"
+	"git.sr.ht/~alias/polybase/views"
 )
 
 // getHome
@@ -16,7 +16,9 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.Public(courses).Render(r.Context(), w)
+	s.count += 1
+
+	err = views.Public(courses, s.count).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -25,7 +27,7 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 
 // getLogin
 func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
-	err := templates.Login().Render(r.Context(), w)
+	err := views.Login().Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -73,4 +75,12 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("HX-Redirect", "/admin")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (s *Server) getNotFound(w http.ResponseWriter, r *http.Request) {
+	err := views.NotFound().Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }

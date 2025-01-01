@@ -4,6 +4,8 @@ import (
 	"context"
 )
 
+type CourseNotFound struct{}
+
 type CourseID struct {
 	Code string
 	Kind string

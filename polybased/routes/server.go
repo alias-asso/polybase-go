@@ -13,10 +13,11 @@ import (
 
 // Server represents the HTTP server and its dependencies
 type Server struct {
-	mux  *http.ServeMux
-	addr string
-	cfg  *config.Config
-	pb   internal.Polybase
+	mux   *http.ServeMux
+	addr  string
+	cfg   *config.Config
+	pb    internal.Polybase
+	count int
 }
 
 // New creates a new server instance
@@ -29,10 +30,11 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	pb := internal.New(db)
 
 	srv := &Server{
-		mux:  http.NewServeMux(),
-		addr: fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
-		cfg:  cfg,
-		pb:   pb,
+		mux:   http.NewServeMux(),
+		addr:  fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
+		cfg:   cfg,
+		pb:    pb,
+		count: 0,
 	}
 
 	// Register all routes
@@ -43,7 +45,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 
 func (s *Server) Run() {
 	log.Printf("Starting server on %s", s.addr)
-	if http.ListenAndServe(s.addr, s.mux) != nil {
-		log.Fatalf("Error when listening and serving")
+	if err := http.ListenAndServe(s.addr, s.mux); err != nil {
+		log.Fatalf("Error when listening and serving %s", err)
 	}
 }

@@ -21,6 +21,10 @@ func NewCourseID(code string, kind string, part int) CourseID {
 	return CourseID{code, kind, part}
 }
 
+func (e *CourseNotFound) Error() string {
+    return "course not found"
+}
+
 func ValidateCourseID(id CourseID) (CourseID, error) {
 	// Validate code: only uppercase, numbers, dashes, and curly braces
 	if !regexp.MustCompile(`^[A-Z0-9\-{},]+$`).MatchString(id.Code) {
@@ -94,9 +98,10 @@ func (pb *PB) Get(ctx context.Context, id CourseID) (Course, error) {
 		&course.Code, &course.Kind, &course.Part, &course.Parts,
 		&course.Name, &course.Quantity, &course.Total, &shown, &course.Semester)
 
-	if err == sql.ErrNoRows {
-		return Course{}, fmt.Errorf("course not found")
-	}
+
+  if err == sql.ErrNoRows {
+    return Course{}, &CourseNotFound{}
+  }
 
 	if err != nil {
 		return Course{}, fmt.Errorf("failed to retrieve course: %w", err)

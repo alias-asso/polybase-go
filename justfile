@@ -1,6 +1,6 @@
 # Run development server with air
 dev:
-  air
+  hivemind
 
 auth-server:
   glauth -c glauth.cfg
@@ -20,7 +20,7 @@ clean:
 # Build server binaries
 build-server:
   mkdir -p target
-  tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
+  tailwindcss -i static/css/main.css -o static/css/styles.css -m
   templ generate
   go build -o target/polybased ./polybased
 

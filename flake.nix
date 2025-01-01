@@ -30,6 +30,7 @@
         tailwindcss
         glauth
         openldap
+        hivemind
       ];
     in {
       packages.default = pkgs.buildGoModule {

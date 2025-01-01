@@ -1,0 +1,45 @@
+package views
+
+import "git.sr.ht/~alias/polybase/internal"
+
+templ Admin(courses []internal.Course, username string) {
+	@Base(true) {
+		<div class="flex flex-col">
+			<header class="mb-4 drop-shadow-lg">
+				<div class="px-4 py-2 drop-shadow-none">
+					<div class="flex items-center">
+						<a href="/" class="text-accent-500 flex items-center gap-x-2">
+							<img class="size-12" src="/static/svg/logo.svg"/>
+							<h1 class="text-3xl font-bold">Polybase</h1>
+						</a>
+					</div>
+				</div>
+				<div class="bg-accent-500 text-accent-100 flex items-center justify-between drop-shadown-none">
+					<p class="px-4 py-2 truncate">
+						<span class="capitalize">{ username },</span>
+						<span class="lowercase">{ GetRandomMessage() }</span>
+					</p>
+            <div class="mr-2 whitespace-nowrap">
+              <a class="hover:bg-accent-700 px-2 py-2" href="/admin/statistics">Statistiques</a>
+              <a class="hover:bg-accent-700 px-2 py-2" href="/admin/packs/new">Ajouter pack</a>
+              <button
+                  class="hover:bg-accent-700 px-2 py-2"
+                  hx-get="/admin/courses/new"
+                  hx-target="#modal-container"
+              >
+                  Ajouter poly
+              </button>
+            </div>
+				</div>
+			</header>
+			<div id="courses-grid" class="flex-grow">
+				@Grid(GroupCoursesBySemesterAndKind(courses), AdminCard)
+			</div>
+			<div class="flex items-center justify-between border-t px-12 py-4 mt-12">
+				<span></span>
+				<span>Fait par et pour l'ALIAS avec ❤️ </span>
+			</div>
+		</div>
+		<div id="modal-container"></div>
+	}
+}

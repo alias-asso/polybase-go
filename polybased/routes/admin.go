@@ -1,11 +1,13 @@
 package routes
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
-	"git.sr.ht/~alias/polybase/templates"
+	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase/views"
 )
 
 // getAdmin
@@ -19,7 +21,7 @@ func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templates.Admin(courses, username).Render(r.Context(), w)
+	err = views.Admin(courses, username).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -28,8 +30,11 @@ func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
 
 // getAdminCoursesNew
 func (s *Server) getAdminCoursesNew(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin courses new - Config: %+v, Polybase: %+v", s.cfg, s.pb)
-	w.Write([]byte("Get admin courses new"))
+	err := views.NewCourseForm().Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // getAdminCoursesEdit
@@ -41,8 +46,17 @@ func (s *Server) getAdminCoursesEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Get admin courses edit - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
-	w.Write([]byte("Get admin courses edit"))
+	course, err := s.pb.Get(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to get course", http.StatusInternalServerError)
+		log.Printf("Failed to get course: %v", err)
+	}
+
+	err = views.EditCourseForm(course).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // getAdminCoursesDelete
@@ -54,8 +68,155 @@ func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Get admin courses delete - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
-	w.Write([]byte("Get admin courses delete"))
+	course, err := s.pb.Get(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to get course", http.StatusInternalServerError)
+		log.Printf("Failed to get course: %v", err)
+	}
+
+	err = views.DeleteConfirm(course).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
+}
+
+// getAdminPacksNew
+func (s *Server) getAdminPacksNew(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin packs new - Config: %+v, Polybase: %+v", s.cfg, s.pb)
+	w.Write([]byte("Get admin packs new"))
+}
+
+// getAdminPacksEdit
+func (s *Server) getAdminPacksEdit(w http.ResponseWriter, r *http.Request) {
+	id, err := parseUrl("/admin/packs/edit/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	log.Printf("Get admin packs edit - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
+	w.Write([]byte("Get admin packs edit"))
+}
+
+// getAdminPacksDelete
+func (s *Server) getAdminPacksDelete(w http.ResponseWriter, r *http.Request) {
+	id, err := parseUrl("/admin/packs/delete/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	log.Printf("Get admin packs delete - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
+	w.Write([]byte("Get admin packs delete"))
+}
+
+// getAdminPacksNew
+func (s *Server) getAdminStatistics(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get admin statistics - Config: %+v, Polybase: %+v", s.cfg, s.pb)
+	w.Write([]byte("Get admin statistics"))
+}
+
+// postAdminCourses
+func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
+	id, err := parseUrl("/admin/courses/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		log.Printf("Failed to parse form: %v", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("New Course submission - Form data: %+v", r.Form)
+
+	_, err = s.pb.Get(r.Context(), id)
+	exists := true
+	if err != nil {
+		if _, ok := err.(*internal.CourseNotFound); ok {
+			log.Println("does not exists")
+			exists = false
+		} else {
+			http.Error(w, "Failed to get course", http.StatusInternalServerError)
+			log.Printf("%s", err)
+			return
+		}
+	}
+
+	if exists {
+		http.Error(w, "Course already exists", http.StatusBadRequest)
+		log.Printf("Failed to add course: course already exists")
+		return
+	}
+
+	code := id.Code
+	kind := id.Kind
+	part := id.Part
+
+	// TODO: add the logic of proper parts update
+	parts := 1
+
+	name := r.Form.Get("name")
+
+	quantity, err := strconv.Atoi(r.Form.Get("quantity"))
+	if err != nil {
+		http.Error(w, "Failed to get quantity", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	totalStr := r.Form.Get("total")
+	total := quantity
+	if totalStr != "" {
+		total, err = strconv.Atoi(totalStr)
+		if err != nil {
+			http.Error(w, "Invalid total parameter", http.StatusBadRequest)
+			log.Printf("Failed to parse total: %s", err)
+			return
+		}
+	}
+
+	shown := true
+	semester := r.Form.Get("semester")
+
+	course := internal.Course{
+		Code:     code,
+		Kind:     kind,
+		Part:     part,
+		Parts:    parts,
+		Name:     name,
+		Quantity: quantity,
+		Total:    total,
+		Shown:    shown,
+		Semester: semester,
+	}
+
+	_, err = s.pb.Create(r.Context(), course)
+	if err != nil {
+		http.Error(w, "Failed to add course", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	courses, err := s.pb.List(r.Context(), true, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), views.AdminCard).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // putAdminCourses
@@ -67,8 +228,100 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Put admin courses - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
-	w.Write([]byte("Put admin courses"))
+	err = r.ParseForm()
+	if err != nil {
+		log.Printf("Failed to parse form: %v", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("Edit Course submission - Form data: %+v", r.Form)
+
+	_, err = s.pb.Get(r.Context(), id)
+	exists := true
+	if err != nil {
+		if err == fmt.Errorf("course not found") {
+			exists = false
+		} else {
+			http.Error(w, "Failed to get course", http.StatusInternalServerError)
+			log.Printf("%s", err)
+			return
+		}
+	}
+
+	if !exists {
+		http.Error(w, "Course does not exists", http.StatusBadRequest)
+		log.Printf("Failed to edit course: course does not exists")
+		return
+	}
+
+	code := r.Form.Get("code")
+	kind := r.Form.Get("kind")
+	part, err := strconv.Atoi(r.Form.Get("part"))
+	if err != nil {
+		http.Error(w, "Failed to get part", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	// TODO: add the logic of proper parts update
+	parts := 1
+
+	name := r.Form.Get("name")
+
+	quantity, err := strconv.Atoi(r.Form.Get("quantity"))
+	if err != nil {
+		http.Error(w, "Failed to get quantity", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	totalStr := r.Form.Get("total")
+	total := quantity
+	if totalStr != "" {
+		total, err = strconv.Atoi(totalStr)
+		if err != nil {
+			http.Error(w, "Invalid total parameter", http.StatusBadRequest)
+			log.Printf("Failed to parse total: %s", err)
+			return
+		}
+	}
+
+	shown := true
+
+	semester := r.Form.Get("semester")
+
+	course := internal.PartialCourse{
+		Code:     &code,
+		Kind:     &kind,
+		Part:     &part,
+		Parts:    &parts,
+		Name:     &name,
+		Quantity: &quantity,
+		Total:    &total,
+		Shown:    &shown,
+		Semester: &semester,
+	}
+
+	_, err = s.pb.Update(r.Context(), id, course)
+	if err != nil {
+		http.Error(w, "Failed to add course", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	courses, err := s.pb.List(r.Context(), true, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), views.AdminCard).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // deleteAdminCourses
@@ -79,9 +332,46 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	log.Printf("Delete Course submission - Form data: %+v", r.Form)
 
-	log.Printf("Delete admin courses - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
-	w.Write([]byte("Delete admin courses"))
+	_, err = s.pb.Get(r.Context(), id)
+	exists := true
+	if err != nil {
+		if err == fmt.Errorf("course not found") {
+			exists = false
+		} else {
+			http.Error(w, "Failed to get course", http.StatusInternalServerError)
+			log.Printf("%s", err)
+			return
+		}
+	}
+
+	if !exists {
+		http.Error(w, "Course does not exists", http.StatusBadRequest)
+		log.Printf("Failed to edit course: course does not exists")
+		return
+	}
+
+
+	err = s.pb.Delete(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to add course", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	courses, err := s.pb.List(r.Context(), true, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), views.AdminCard).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // patchAdminCoursesQuantity
@@ -107,7 +397,7 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = templates.CardQuantity(course.Quantity).Render(r.Context(), w)
+	err = views.CardQuantity(course.Quantity).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Failed to render template: %v", err)
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
@@ -139,7 +429,7 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 
 	log.Println(course)
 
-	err = templates.AdminCard(course).Render(r.Context(), w)
+	err = views.AdminCard(course).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Failed to render template: %v", err)
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)

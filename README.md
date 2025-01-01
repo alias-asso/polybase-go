@@ -57,3 +57,7 @@ Test accounts:
 - `paul:paul*`
 - `ionys:ionys*`
 - `lydia:lydia*`
+
+## Icons
+
+Icons are selected from the [Tabler icon set](https://tabler.io/icons), a MIT-licensed icon set.

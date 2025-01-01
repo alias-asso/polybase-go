@@ -7,9 +7,11 @@ import (
 
 // Register sets up all routes for the application
 func (s *Server) registerRoutes() {
+	s.mux.HandleFunc("/", s.getNotFound)
+
 	s.registerStatic()
 
-	s.mux.HandleFunc("GET /", s.getHome)
+	s.mux.HandleFunc("GET /{$}", s.getHome)
 	s.mux.HandleFunc("GET /login", s.getLogin)
 	s.mux.HandleFunc("POST /auth", s.postAuth)
 
@@ -19,6 +21,13 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("GET /admin/courses/edit/{code}/{kind}/{part}", s.withAuth(s.getAdminCoursesEdit))
 	s.mux.HandleFunc("GET /admin/courses/delete/{code}/{kind}/{part}", s.withAuth(s.getAdminCoursesDelete))
 
+	// s.mux.HandleFunc("GET /admin/packs/new", s.withAuth(s.getAdminPacksNew))
+	// s.mux.HandleFunc("GET /admin/packs/edit/{id}", s.withAuth(s.getAdminPacksEdit))
+	// s.mux.HandleFunc("GET /admin/packs/delete/{id}", s.withAuth(s.getAdminPacksDelete))
+	//
+	// s.mux.HandleFunc("GET /admin/statistics", s.withAuth(s.getAdminStatistics))
+
+	s.mux.HandleFunc("POST /admin/courses/{code}/{kind}/{part}", s.withAuth(s.postAdminCourses))
 	s.mux.HandleFunc("PUT /admin/courses/{code}/{kind}/{part}", s.withAuth(s.putAdminCourses))
 	s.mux.HandleFunc("DELETE /admin/courses/{code}/{kind}/{part}", s.withAuth(s.deleteAdminCourses))
 
@@ -35,7 +44,7 @@ func (s *Server) registerStatic() {
 	fs := http.FileServer(http.Dir(s.cfg.Server.Static))
 
 	staticHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=31536000")
+		w.Header().Set("Cache-Control", "public, max-age=0")
 		http.StripPrefix("/static/", fs).ServeHTTP(w, r)
 	})
 

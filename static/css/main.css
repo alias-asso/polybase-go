@@ -27,8 +27,13 @@
     mask: url(/static/svg/minus.svg) no-repeat center / contain;
   }
 
-  .icon-check {
+  .icon-pencil {
     @apply icon-base;
-    mask: url(/static/svg/check.svg) no-repeat center / contain;
+    mask: url(/static/svg/pencil.svg) no-repeat center / contain;
+  }
+
+  .icon-cross {
+    @apply icon-base;
+    mask: url(/static/svg/cross.svg) no-repeat center / contain;
   }
 }
