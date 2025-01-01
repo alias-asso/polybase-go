@@ -35,15 +35,13 @@ tasks:
   - package: |
       cd polybase
       # Create distribution structure
-      mkdir -p dist/{bin,share/man/man1,etc/polybase,var/www/polybase}
+      mkdir -p dist/{bin,share/man/man1,etc/polybase}
 
       cp target/polybase-http dist/bin/
       cp target/polybase dist/bin/
 
       cp target/polybase.1 dist/share/man/man1/
       cp target/polybased.1 dist/share/man/man1/
-
-      cp -r static dist/var/www/polybase/
 
       touch dist/etc/polybase/polybase.cfg
 
