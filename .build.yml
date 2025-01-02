@@ -10,16 +10,16 @@ environment:
   GO111MODULE: on
 tasks:
   - setup: |
-      cd polybase
+      cd polybase-go
       npm install -g tailwindcss
       go install github.com/a-h/templ/cmd/templ@latest
 
   - test: |
-      cd polybase
+      cd polybase-go
       go test ./...
 
   - build: |
-      cd polybase
+      cd polybase-go
       mkdir -p target
 
       tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
