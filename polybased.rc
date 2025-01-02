@@ -1,0 +1,11 @@
+#!/bin/ksh
+
+daemon="/usr/local/bin/polybased"
+daemon_user="_polybase"
+
+. /etc/rc.d/rc.subr
+
+rc_bg=YES
+rc_reload=NO
+
+rc_cmd $1

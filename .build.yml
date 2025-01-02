@@ -33,17 +33,21 @@ tasks:
       go build -o target/polybase ./polybase
 
   - package: |
-      cd polybase
-      # Create distribution structure
-      mkdir -p dist/{bin,usr/share/man/man1,etc/polybase}
+      cd polybase-go
+
+      mkdir -p dist/{bin,usr/local/man/man1,etc/polybase}
+
+      cp install.sh dist/
 
       cp target/polybased dist/usr/local/bin/
       cp target/polybase dist/usr/local/bin/
 
-      cp target/polybase.1 dist/usr/share/man/man1/
-      cp target/polybased.1 dist/usr/share/man/man1/
+      cp target/polybase.1 dist/usr/local/man/man1/
+      cp target/polybased.1 dist/usr/local/man/man1/
 
       touch dist/etc/polybase/polybase.cfg
+
+      cp polybased.rc dist/etc/rc.d/polybased
 
 artifacts:
   - polybase/dist

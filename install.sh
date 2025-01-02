@@ -1,10 +1,15 @@
 #!/bin/sh
-
 set -e
 
-cp dist/usr/share/man/man1/polybase.1 dist/usr/share/man/man1/polybased.1 /usr/share/man/man1
+install -d -m 755 /etc/polybase
+
+install -m 644 dist/usr/share/man/man1/polybase.1 /usr/share/man/man1/
+install -m 644 dist/usr/share/man/man1/polybased.1 /usr/share/man/man1/
 makewhatis /usr/share/man
 
-cp -r dist/etc/polybase /etc
+install -m 644 dist/etc/polybase/* /etc/polybase/
 
-cp dist/usr/local/bin/polybase dist/usr/local/bin/polybased /usr/local/bin
+install -m 555 dist/etc/rc.d/polybased /etc/rc.d/
+
+install -m 555 dist/usr/local/bin/polybase /usr/local/bin/
+install -m 555 dist/usr/local/bin/polybased /usr/local/bin/
