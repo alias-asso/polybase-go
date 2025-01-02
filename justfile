@@ -5,7 +5,7 @@ dev:
 # Build both binaries
 build: clean build-server build-cli
 
-publish: build
+publish: test build
   mkdir -p target/dist/{bin,share/man/man1,etc/polybase}
   cp target/polybased target/dist/bin
   cp target/polybase target/dist/bin
