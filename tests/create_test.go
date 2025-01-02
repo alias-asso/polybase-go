@@ -7,6 +7,12 @@ import (
 	"git.sr.ht/~alias/polybase/internal"
 )
 
+// create single course
+// create duplicate course
+// create with invalid course data
+// create course with max values
+// create with minimum valid values
+
 func TestCreateCourse(t *testing.T) {
 	db := NewDB(t)
 	pb := internal.New(db.DB)
@@ -23,13 +29,11 @@ func TestCreateCourse(t *testing.T) {
 		Semester: "S1",
 	}
 
-	// Create course
 	_, err := pb.Create(context.Background(), course)
 	if err != nil {
 		t.Fatalf("failed to create course: %v", err)
 	}
 
-	// Verify using test helpers
 	db.AssertCount(1)
 	db.AssertExists(internal.CourseID{Code: "CS101", Kind: "Notes", Part: 1})
 	db.AssertCourseEqual(internal.CourseID{Code: "CS101", Kind: "Notes", Part: 1}, course)
