@@ -5,6 +5,9 @@ dev:
 # Build both binaries
 build: build-server build-cli
 
+test:
+  go test ./tests/...
+
 # Setup test environment
 setup:
   sqlite3 polybase.db < migrations/001_init.sql
