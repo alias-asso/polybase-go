@@ -12,7 +12,7 @@ publish: test build
   cp target/polybase.1 target/dist/share/man/man1/
   cp target/polybased.1 target/dist/share/man/man1/
   touch target/dist/etc/polybase/polybase.cfg
-  tar czf target/dist.tar.gz target/dist
+  cd target && tar czf dist.tar.gz dist
 
 test:
   go test -cover ./...
