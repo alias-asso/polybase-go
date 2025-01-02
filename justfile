@@ -2,9 +2,6 @@
 dev:
   hivemind
 
-auth-server:
-  glauth -c glauth.cfg
-
 # Build both binaries
 build: build-server build-cli
 
