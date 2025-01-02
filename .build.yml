@@ -10,7 +10,6 @@ environment:
 tasks:
   - setup: |
       cd polybase-go
-      npm install -g tailwindcss
       go install github.com/a-h/templ/cmd/templ@latest
 
   - test: |
@@ -21,7 +20,7 @@ tasks:
       cd polybase-go
       mkdir -p target
 
-      tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
+      npx tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
 
       templ generate
 
