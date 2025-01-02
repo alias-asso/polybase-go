@@ -1,4 +1,4 @@
-POLYBASE(1) "git.sr.ht/~alias/polybase" "General Commands Manual"
+POLYBASE(1) "git.sr.ht/~alias/polybase-go" "General Commands Manual"
 
 # NAME
 
@@ -139,7 +139,7 @@ $ polybase delete MU4IN600 TD 2
 # BUGS
 
 Bug reports and feature requests should be submitted to:
-https://git.sr.ht/~alias/polybase
+https://git.sr.ht/~alias/polybase-go
 
 # AUTHORS
 

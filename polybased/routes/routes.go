@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"git.sr.ht/~alias/polybase/static"
+	"git.sr.ht/~alias/polybase-go/static"
 )
 
 // Register sets up all routes for the application

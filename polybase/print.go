@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase-go/internal"
 )
 
 func printUsage() {

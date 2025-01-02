@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase-go/internal"
 )
 
 // create single course

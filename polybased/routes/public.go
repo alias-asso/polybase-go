@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"git.sr.ht/~alias/polybase/views"
+	"git.sr.ht/~alias/polybase-go/views"
 )
 
 // getHome

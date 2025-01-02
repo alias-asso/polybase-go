@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"git.sr.ht/~alias/polybase/internal"
-	"git.sr.ht/~alias/polybase/views"
+	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/views"
 )
 
 // getAdmin

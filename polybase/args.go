@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase-go/internal"
 )
 
 const defaultDBPath = "/var/lib/polybase/polybase.db"

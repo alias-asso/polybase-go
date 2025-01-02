@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase-go/internal"
 )
 
 // SemesterGroup represents a group of courses for a semester

@@ -1,4 +1,4 @@
-POLYBASED(1) "git.sr.ht/~alias/polybase" "General Commands Manual"
+POLYBASED(1) "git.sr.ht/~alias/polybase-go" "General Commands Manual"
 
 # NAME
 
@@ -165,7 +165,7 @@ The authentication flow is as follows:
 # BUGS
 
 Bug reports and feature requests should be submitted to:
-https://git.sr.ht/~alias/polybase
+https://git.sr.ht/~alias/polybase-go
 
 # AUTHORS
 

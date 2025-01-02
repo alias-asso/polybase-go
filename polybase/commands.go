@@ -10,7 +10,7 @@ import (
 
 	"golang.org/x/term"
 
-	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase-go/internal"
 )
 
 func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {

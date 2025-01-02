@@ -5,7 +5,7 @@ packages:
   - npm
   - scdoc
 sources:
-  - https://git.sr.ht/~alias/polybase
+  - https://git.sr.ht/~alias/polybase-go
 environment:
   GO111MODULE: on
 tasks:

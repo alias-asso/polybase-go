@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase-go/internal"
 	_ "github.com/mattn/go-sqlite3"
 )
 

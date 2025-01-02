@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.sr.ht/~alias/polybase/internal"
+	"git.sr.ht/~alias/polybase-go/internal"
 )
 
 func parseUrl(filter string, r *http.Request) (internal.CourseID, error) {

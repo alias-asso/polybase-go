@@ -72,6 +72,6 @@ Options:
   -h          Print this help message
 
 For bug reporting and more information, please see:
-https://git.sr.ht/~alias/polybase
+https://git.sr.ht/~alias/polybase-go
 `)
 }
