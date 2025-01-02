@@ -5,3 +5,4 @@
 /target
 /views/*_templ.go
 /views/*_templ.txt
+/static/css/styles.css
