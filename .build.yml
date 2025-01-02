@@ -5,8 +5,6 @@ packages:
   - scdoc
 sources:
   - https://git.sr.ht/~alias/polybase-go
-environment:
-  GO111MODULE: on
 tasks:
   - setup: |
       cd polybase-go
