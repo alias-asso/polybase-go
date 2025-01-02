@@ -4,3 +4,4 @@
 /.cache
 /target
 /views/*_templ.go
+/views/*_templ.txt
