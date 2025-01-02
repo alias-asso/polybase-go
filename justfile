@@ -7,11 +7,12 @@ build: clean build-server build-cli
 
 publish: test build
   mkdir -p target/dist/{bin,share/man/man1,etc/polybase}
-  cp target/polybased target/dist/bin
-  cp target/polybase target/dist/bin
-  cp target/polybase.1 target/dist/share/man/man1/
-  cp target/polybased.1 target/dist/share/man/man1/
+  cp target/polybased target/dist/usr/local/bin
+  cp target/polybase target/dist/usr/local/bin
+  cp target/polybase.1 target/dist/usr/share/man/man1/
+  cp target/polybased.1 target/dist/usr/share/man/man1/
   touch target/dist/etc/polybase/polybase.cfg
+  cp install.sh target/dist/
   cd target && tar czf dist.tar.gz dist
 
 test:
