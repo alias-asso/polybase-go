@@ -5,6 +5,15 @@ dev:
 # Build both binaries
 build: clean build-server build-cli
 
+publish: build
+  mkdir -p target/dist/{bin,share/man/man1,etc/polybase}
+  cp target/polybased target/dist/bin
+  cp target/polybase target/dist/bin
+  cp target/polybase.1 target/dist/share/man/man1/
+  cp target/polybased.1 target/dist/share/man/man1/
+  touch target/dist/etc/polybase/polybase.cfg
+  tar czf target/dist.tar.gz target/dist
+
 test:
   go test -cover ./...
 
