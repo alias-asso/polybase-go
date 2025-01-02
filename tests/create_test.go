@@ -15,6 +15,7 @@ func TestCreateCourse(t *testing.T) {
 		Code:     "CS101",
 		Kind:     "Notes",
 		Part:     1,
+		Parts:    1,
 		Name:     "Introduction to CS",
 		Quantity: 50,
 		Total:    100,
