@@ -6,7 +6,7 @@ dev:
 build: build-server build-cli
 
 test:
-  go test ./tests/...
+  go test -cover ./...
 
 # Setup test environment
 setup:
