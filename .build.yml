@@ -1,8 +1,7 @@
 image: openbsd/latest
 packages:
   - go
-  - nodejs
-  - npm
+  - node
   - scdoc
 sources:
   - https://git.sr.ht/~alias/polybase-go
@@ -50,4 +49,4 @@ tasks:
       cp polybased.rc dist/etc/rc.d/polybased
 
 artifacts:
-  - polybase/dist
+  - polybase-go/dist
