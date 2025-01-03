@@ -12,7 +12,7 @@ tasks:
 
   - test: |
       cd polybase-go
-      npx tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
+      npx tailwindcss -i static/css/main.css -o static/css/styles.css --minify
       templ generate
       go test ./...
 
@@ -20,7 +20,7 @@ tasks:
       cd polybase-go
       mkdir -p target
 
-      npx tailwindcss -i static/css/tailwind.css -o static/css/styles.css --minify
+      npx tailwindcss -i static/css/main.css -o static/css/styles.css --minify
 
       templ generate
 
