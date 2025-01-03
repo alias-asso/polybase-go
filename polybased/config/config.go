@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -21,11 +22,9 @@ type Database struct {
 }
 
 type LDAP struct {
-	Host       string `toml:"host"`
-	Port       string `toml:"port"`
-	BaseDN     string `toml:"base_dn"`
-	UserDN     string `toml:"user_dn"`
-	AdminGroup string `toml:"admin_group"`
+	Host   string `toml:"host"`
+	Port   string `toml:"port"`
+	UserDN string `toml:"user_dn"`
 }
 
 type Auth struct {
@@ -100,14 +99,11 @@ func (c *Config) Validate() error {
 	if port, err := strconv.Atoi(c.LDAP.Port); err != nil || port < 1 || port > 65535 {
 		return fmt.Errorf("ldap.port must be a valid port number (1-65535)")
 	}
-	if c.LDAP.BaseDN == "" {
-		return fmt.Errorf("ldap.base_dn is required")
-	}
 	if c.LDAP.UserDN == "" {
 		return fmt.Errorf("ldap.user_dn is required")
 	}
-	if c.LDAP.AdminGroup == "" {
-		return fmt.Errorf("ldap.admin_group is required")
+	if !strings.Contains(c.LDAP.UserDN, "%s") {
+		return fmt.Errorf("ldap.user_dn must contain %%s placeholder for username")
 	}
 
 	// Test LDAP connection

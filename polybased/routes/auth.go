@@ -15,11 +15,9 @@ func authenticate(username string, password string, cfg *config.Config) (bool, e
 		return false, fmt.Errorf("ldap connect: %w", err)
 	}
 	defer l.Close()
-
 	l.SetTimeout(5 * time.Second)
 
-	userDN := fmt.Sprintf("cn=%s,%s", username, cfg.LDAP.BaseDN)
-
+	userDN := fmt.Sprintf(cfg.LDAP.UserDN, username)
 	err = l.Bind(userDN, password)
 	if err != nil {
 		if ldap.IsErrorWithCode(err, ldap.LDAPResultInvalidCredentials) {
@@ -27,7 +25,6 @@ func authenticate(username string, password string, cfg *config.Config) (bool, e
 		}
 		return false, fmt.Errorf("ldap bind: %w", err)
 	}
-
 	return true, nil
 }
 
