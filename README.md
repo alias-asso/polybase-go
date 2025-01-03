@@ -27,7 +27,7 @@ just build
 Install dependencies:
 
 - `go install github.com/cosmtrek/air@latest`
-- `go install github.com/a-h/templ/cmd/templ@latest`
+- `go install github.com/a-h/templ/cmd/templ@v0.2.793`
 - `npm install -g tailwindcss`
 
 Build:

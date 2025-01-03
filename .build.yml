@@ -8,11 +8,11 @@ sources:
 tasks:
   - setup: |
       cd polybase-go
-      go install github.com/a-h/templ/cmd/templ@latest
+      go install github.com/a-h/templ/cmd/templ@v0.2.793
 
   - test: |
       cd polybase-go
-      npx -y tailwindcss -i static/css/main.css -o static/css/styles.css --minify
+      npx -y tailwindcss -i static/css/main.css -o static/css/styles.css -m
       ~/go/bin/templ generate
       go test ./...
 
@@ -20,7 +20,7 @@ tasks:
       cd polybase-go
       mkdir -p target
 
-      npx -y tailwindcss -i static/css/main.css -o static/css/styles.css --minify
+      npx -y tailwindcss -i static/css/main.css -o static/css/styles.css -m
 
       ~/go/bin/templ generate
 
@@ -33,18 +33,21 @@ tasks:
   - package: |
       cd polybase-go
 
-      mkdir -p dist/{bin,usr/local/man/man1,etc/polybase}
-
+      mkdir -p dist
       cp install.sh dist/
 
+      mkdir -p dist/usr/local/bin
       cp target/polybased dist/usr/local/bin/
       cp target/polybase dist/usr/local/bin/
 
+      mkdir -p dist/usr/local/man/man1
       cp target/polybase.1 dist/usr/local/man/man1/
       cp target/polybased.1 dist/usr/local/man/man1/
 
+      mkdir -p dist/etc/polybase
       touch dist/etc/polybase/polybase.cfg
 
+      mkdir -p dist/etc/rc.d
       cp polybased.rc dist/etc/rc.d/polybased
 
 artifacts:
