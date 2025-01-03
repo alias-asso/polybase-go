@@ -68,7 +68,7 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   3600 * 24,
 	})
