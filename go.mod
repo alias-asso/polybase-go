@@ -7,12 +7,10 @@ require (
 	github.com/go-ldap/ldap/v3 v3.4.8
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/mattn/go-sqlite3 v1.14.24
+	golang.org/x/term v0.27.0
 )
 
-require (
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
-)
+require golang.org/x/sys v0.28.0 // indirect
 
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
