@@ -7,7 +7,7 @@ install -m 644 dist/usr/local/man/man1/polybase.1 /usr/share/man/man1/
 install -m 644 dist/usr/local/man/man1/polybased.1 /usr/share/man/man1/
 makewhatis /usr/share/man
 
-install -m 644 dist/etc/polybase/* /etc/polybase/
+touch /etc/polybase/polybase.cfg
 
 install -m 555 dist/etc/rc.d/polybased /etc/rc.d/
 
