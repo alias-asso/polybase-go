@@ -12,17 +12,17 @@ tasks:
 
   - test: |
       cd polybase-go
-      npx tailwindcss -i static/css/main.css -o static/css/styles.css --minify
-      templ generate
+      npx -y tailwindcss -i static/css/main.css -o static/css/styles.css --minify
+      ~/go/bin/templ generate
       go test ./...
 
   - build: |
       cd polybase-go
       mkdir -p target
 
-      npx tailwindcss -i static/css/main.css -o static/css/styles.css --minify
+      npx -y tailwindcss -i static/css/main.css -o static/css/styles.css --minify
 
-      templ generate
+      ~/go/bin/templ generate
 
       scdoc < polybase.1.scd | sed "s/1980-01-01/$(date '+%B %Y')/" > target/polybase.1
       scdoc < polybased.1.scd | sed "s/1980-01-01/$(date '+%B %Y')/" > target/polybased.1
