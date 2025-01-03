@@ -25,10 +25,7 @@ templ Public(courses []internal.Course, count int) {
 			<div class="flex-grow">
 				@Grid(GroupCoursesBySemesterAndKind(courses), PublicCard)
 			</div>
-			<div class="flex items-center justify-between border-t px-4 sm:px-12 py-4 mt-12">
-				<span class="text-left">Visiteur n°{ fmt.Sprintf("%d", count) }</span>
-				<span class="text-right">Fait par et pour l'ALIAS avec ❤️ </span>
-			</div>
+			@Footer(count)
 		</div>
 	}
 }
@@ -56,9 +53,18 @@ templ NotFound() {
 					<p class="text-xl text-gray-600">Cette page n'existe pas</p>
 				</div>
 			</div>
-			<div class="flex items-center justify-end border-t px-4 sm:px-12 py-4 mt-12">
-				<span class="text-right">Fait par et pour l'ALIAS avec ❤️ </span>
-			</div>
+			@Footer(0)
 		</div>
 	}
+}
+
+templ Footer(count int) {
+	<div class="flex items-center justify-between border-t px-4 sm:px-12 py-4 mt-12">
+		if count > 0 {
+			<span class="text-left">Visiteur n°{ fmt.Sprintf("%d", count) }</span>
+		} else {
+			<span class="text-left"></span>
+		}
+		<a href="https://git.sr.ht/~alias/polybase-go" class="text-right hover:underline">Fait par et pour l'ALIAS avec ❤️ </a>
+	</div>
 }
