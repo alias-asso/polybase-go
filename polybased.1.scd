@@ -52,14 +52,8 @@ the following sections and parameters:
 *port*
 	Port of the LDAP server (default: 389)
 
-*base_dn*
-	Base domain name of the LDAP server
-
 *user_dn*
-	User domain name of the LDAP server
-
-*admin_group*
-	Admin group of the LDAP server
+	User domain name of the LDAP server (must contain %s for username)
 
 ## auth
 
@@ -67,7 +61,7 @@ the following sections and parameters:
 	Secret for JWT authorization
 
 *jwt_expiry*
-	Duration before JWT expiry (default: "24h")
+	Duration before JWT expiry (default: "4320h")
 
 # DATABASE SCHEMA
 
