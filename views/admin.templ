@@ -19,25 +19,25 @@ templ Admin(courses []internal.Course, username string) {
 						<span class="capitalize">{ username },</span>
 						<span class="lowercase">{ GetRandomMessage() }</span>
 					</p>
-            <div class="mr-2 whitespace-nowrap">
-              <a class="hover:bg-accent-700 px-2 py-2" href="/admin/statistics">Statistiques</a>
-              <a class="hover:bg-accent-700 px-2 py-2" href="/admin/packs/new">Ajouter pack</a>
-              <button
-                  class="hover:bg-accent-700 px-2 py-2"
-                  hx-get="/admin/courses/new"
-                  hx-target="#modal-container"
-              >
-                  Ajouter poly
-              </button>
-            </div>
+					<div class="mr-2 whitespace-nowrap">
+						<a class="hover:bg-accent-700 px-2 py-2" href="/admin/statistics">Statistiques</a>
+						<a class="hover:bg-accent-700 px-2 py-2" href="/admin/packs/new">Ajouter pack</a>
+						<button
+							class="hover:bg-accent-700 px-2 py-2"
+							hx-get="/admin/courses/new"
+							hx-target="#modal-container"
+						>
+							Ajouter poly
+						</button>
+					</div>
 				</div>
 			</header>
 			<div id="courses-grid" class="flex-grow">
 				@Grid(GroupCoursesBySemesterAndKind(courses), AdminCard)
 			</div>
-			<div class="flex items-center justify-between border-t px-12 py-4 mt-12">
+			<div class="flex items-center justify-between border-t px-8 sm:px-12 py-4 mt-12">
 				<span></span>
-				<span>Fait par et pour l'ALIAS avec ❤️ </span>
+				<span class="text-right">Fait par et pour l'ALIAS avec ❤️ </span>
 			</div>
 		</div>
 		<div id="modal-container"></div>
