@@ -5,10 +5,16 @@ import (
 	"net/http"
 
 	"git.sr.ht/~alias/polybase-go/views"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // getHome
 func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
+	if ok := s.isLoggedIn(r); ok {
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		return
+	}
+
 	courses, err := s.pb.List(r.Context(), false, nil, nil, nil, nil)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
@@ -83,4 +89,26 @@ func (s *Server) getNotFound(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
 	}
+}
+
+func (s *Server) isLoggedIn(r *http.Request) bool {
+	cookie, err := r.Cookie("X-Auth-Token")
+	if err != nil {
+		return false
+	}
+
+	type Claims struct {
+		Username string `json:"username"`
+		jwt.RegisteredClaims
+	}
+
+	token, err := jwt.ParseWithClaims(cookie.Value, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(s.cfg.Auth.JWTSecret), nil
+	})
+	if err != nil || !token.Valid {
+		return false
+	}
+
+	_, ok := token.Claims.(*Claims)
+	return ok
 }
