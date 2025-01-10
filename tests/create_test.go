@@ -15,7 +15,7 @@ import (
 
 func TestCreateCourse(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB)
+	pb := internal.New(db.DB, "", false)
 
 	course := internal.Course{
 		Code:     "CS101",
@@ -29,7 +29,7 @@ func TestCreateCourse(t *testing.T) {
 		Semester: "S1",
 	}
 
-	_, err := pb.Create(context.Background(), course)
+	_, err := pb.Create(context.Background(), "", course)
 	if err != nil {
 		t.Fatalf("failed to create course: %v", err)
 	}
