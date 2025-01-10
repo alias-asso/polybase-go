@@ -27,7 +27,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		return nil, fmt.Errorf("open database: %w", err)
 	}
 
-	pb := internal.New(db)
+	pb := internal.New(db, cfg.Server.Log, true)
 
 	srv := &Server{
 		mux:   http.NewServeMux(),

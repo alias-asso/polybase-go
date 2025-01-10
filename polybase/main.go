@@ -32,5 +32,5 @@ func run() error {
 		return fmt.Errorf("invalid database file: %w", err)
 	}
 
-	return dispatch(internal.New(db), args)
+	return dispatch(internal.New(db, "/var/log/polybase/polybase.log", false), args)
 }

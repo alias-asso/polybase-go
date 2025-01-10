@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -128,6 +129,8 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	username := getUsernameFromContext(r.Context())
+
 	err = r.ParseForm()
 	if err != nil {
 		log.Printf("Failed to parse form: %v", err)
@@ -135,13 +138,10 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("New Course submission - Form data: %+v", r.Form)
-
 	_, err = s.pb.Get(r.Context(), id)
 	exists := true
 	if err != nil {
 		if _, ok := err.(*internal.CourseNotFound); ok {
-			log.Println("does not exists")
 			exists = false
 		} else {
 			http.Error(w, "Failed to get course", http.StatusInternalServerError)
@@ -197,7 +197,7 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 		Semester: semester,
 	}
 
-	_, err = s.pb.Create(r.Context(), course)
+	_, err = s.pb.Create(r.Context(), username, course)
 	if err != nil {
 		http.Error(w, "Failed to add course", http.StatusInternalServerError)
 		log.Printf("%s", err)
@@ -227,14 +227,14 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	username := getUsernameFromContext(r.Context())
+
 	err = r.ParseForm()
 	if err != nil {
 		log.Printf("Failed to parse form: %v", err)
 		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
-
-	log.Printf("Edit Course submission - Form data: %+v", r.Form)
 
 	_, err = s.pb.Get(r.Context(), id)
 	exists := true
@@ -301,7 +301,7 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		Semester: &semester,
 	}
 
-	_, err = s.pb.Update(r.Context(), id, course)
+	_, err = s.pb.Update(r.Context(), username, id, course)
 	if err != nil {
 		http.Error(w, "Failed to add course", http.StatusInternalServerError)
 		log.Printf("%s", err)
@@ -330,7 +330,8 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	log.Printf("Delete Course submission - Form data: %+v", r.Form)
+
+	username := getUsernameFromContext(r.Context())
 
 	_, err = s.pb.Get(r.Context(), id)
 	exists := true
@@ -350,7 +351,7 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.pb.Delete(r.Context(), id)
+	err = s.pb.Delete(r.Context(), username, id)
 	if err != nil {
 		http.Error(w, "Failed to add course", http.StatusInternalServerError)
 		log.Printf("%s", err)
@@ -380,6 +381,8 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	username := getUsernameFromContext(r.Context())
+
 	delta, err := strconv.Atoi(r.URL.Query().Get("delta"))
 	if err != nil {
 		log.Printf("Invalid delta parameter: %v", err)
@@ -387,7 +390,7 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	course, err := s.pb.UpdateQuantity(r.Context(), id, delta)
+	course, err := s.pb.UpdateQuantity(r.Context(), username, id, delta)
 	if err != nil {
 		log.Println("Patch admin course quantity - error:", err)
 		http.Error(w, "Failed to update quantity", http.StatusInternalServerError)
@@ -410,6 +413,8 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	username := getUsernameFromContext(r.Context())
+
 	visibility, err := strconv.ParseBool(r.URL.Query().Get("visibility"))
 	if err != nil {
 		log.Printf("Invalid delta parameter: %v", err)
@@ -417,18 +422,24 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	course, err := s.pb.UpdateShown(r.Context(), id, visibility)
+	course, err := s.pb.UpdateShown(r.Context(), username, id, visibility)
 	if err != nil {
 		log.Println("Patch admin course quantity - error:", err)
 		http.Error(w, "Failed to update quantity", http.StatusInternalServerError)
 		return
 	}
 
-	log.Println(course)
-
 	err = views.AdminCard(course).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Failed to render template: %v", err)
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 	}
+}
+
+func getUsernameFromContext(ctx context.Context) string {
+	username, ok := ctx.Value("username").(string)
+	if !ok {
+		return ""
+	}
+	return username
 }

@@ -15,6 +15,7 @@ type Server struct {
 	Host string
 	Port string
 	Mode string
+	Log  string
 }
 
 type Database struct {
@@ -45,6 +46,7 @@ func DefaultConfig() Config {
 			Host: "127.0.0.1",
 			Port: "1265",
 			Mode: "prod",
+			Log:  "/var/log/polybase/polybase.log",
 		},
 		Database: Database{
 			Path: "/var/lib/polybase/polybase.db",
@@ -82,6 +84,14 @@ func (c *Config) Validate() error {
 	}
 	if port, err := strconv.Atoi(c.Server.Port); err != nil || port < 1 || port > 65535 {
 		return fmt.Errorf("server.port must be a valid port number (1-65535)")
+	}
+
+	if c.Server.Mode == "" {
+		return fmt.Errorf("server.mode is required")
+	}
+
+	if c.Server.Log == "" {
+		return fmt.Errorf("server.log is required")
 	}
 
 	// Database validation

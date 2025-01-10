@@ -37,12 +37,12 @@ type PartialCourse struct {
 }
 
 type Polybase interface {
-	Create(ctx context.Context, cours Course) (Course, error)
+	Create(ctx context.Context, user string, cours Course) (Course, error)
 	Get(ctx context.Context, id CourseID) (Course, error)
-	Update(ctx context.Context, id CourseID, partial PartialCourse) (Course, error)
-	Delete(ctx context.Context, id CourseID) error
+	Update(ctx context.Context, user string, id CourseID, partial PartialCourse) (Course, error)
+	Delete(ctx context.Context, user string, id CourseID) error
 	List(ctx context.Context, showHidden bool, filterSemester *string, filterCode *string, filterKind *string, filterPart *int) ([]Course, error)
 
-	UpdateQuantity(ctx context.Context, id CourseID, delta int) (Course, error)
-	UpdateShown(ctx context.Context, id CourseID, shown bool) (Course, error)
+	UpdateQuantity(ctx context.Context, user string, id CourseID, delta int) (Course, error)
+	UpdateShown(ctx context.Context, user string, id CourseID, shown bool) (Course, error)
 }

@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/user"
 	"strconv"
+	"strings"
 
 	"golang.org/x/term"
 
@@ -59,7 +61,8 @@ func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {
 		Semester: *semester,
 	}
 
-	created, err := pb.Create(ctx, course)
+	username := getCurrentUser()
+	created, err := pb.Create(ctx, username, course)
 	if err != nil {
 		return err
 	}
@@ -152,7 +155,8 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		}
 	})
 
-	updated, err := pb.Update(ctx, id, partial)
+	username := getCurrentUser()
+	updated, err := pb.Update(ctx, username, id, partial)
 	if err != nil {
 		return err
 	}
@@ -206,7 +210,8 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 		return nil
 	}
 
-	return pb.Delete(ctx, id)
+	username := getCurrentUser()
+	return pb.Delete(ctx, username, id)
 }
 
 func runList(pb internal.Polybase, ctx context.Context, args []string) error {
@@ -274,7 +279,8 @@ func runQuantity(pb internal.Polybase, ctx context.Context, args []string) error
 		Part: part,
 	}
 
-	updated, err := pb.UpdateQuantity(ctx, id, delta)
+	username := getCurrentUser()
+	updated, err := pb.UpdateQuantity(ctx, username, id, delta)
 	if err != nil {
 		return err
 	}
@@ -307,7 +313,8 @@ func runVisibility(pb internal.Polybase, ctx context.Context, args []string) err
 		Part: part,
 	}
 
-	updated, err := pb.UpdateShown(ctx, id, *shown)
+	username := getCurrentUser()
+	updated, err := pb.UpdateShown(ctx, username, id, *shown)
 	if err != nil {
 		return err
 	}
@@ -341,4 +348,18 @@ func runHelp(args []string) error {
 		return fmt.Errorf("unknown command %q", args[0])
 	}
 	return nil
+}
+
+func getCurrentUser() string {
+	currentUser, err := user.Current()
+	if err != nil {
+		return "unknown-user"
+	}
+
+	// Extract just the username part, removing domain if present
+	username := currentUser.Username
+	if i := strings.LastIndex(username, "\\"); i >= 0 {
+		username = username[i+1:]
+	}
+	return username
 }
