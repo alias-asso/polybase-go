@@ -164,19 +164,19 @@ templ NewCourseForm() {
     if (!window.newCourseForm) {
       window.newCourseForm = true;
       document.body.addEventListener('htmx:configRequest', function(evt) {
-          if (evt.target.id === 'new-course-form') {
-              const code = document.getElementById('code').value;
-              const kind = document.getElementById('kind').value;
-              const part = document.getElementById('part').value;
-              evt.detail.path = `/admin/courses/${code}/${kind}/${part}`;
-          }
+        if (evt.target.id === 'new-course-form') {
+          const code = document.getElementById('code').value;
+          const kind = document.getElementById('kind').value;
+          const part = document.getElementById('part').value;
+          evt.detail.path = `/admin/courses/${code}/${kind}/${part}`;
+        }
       });
 
       document.body.addEventListener('htmx:afterOnLoad', function(evt) {
-          if (evt.detail.elt.id === 'new-course-form' && 
-              evt.detail.xhr.status === 200) {
-              closeModal();
-          }
+        if (evt.detail.elt.id === 'new-course-form' && 
+          evt.detail.xhr.status === 200) {
+          closeModal();
+        }
       });
     }
     </script>
@@ -324,9 +324,9 @@ templ EditCourseForm(course internal.Course) {
     if (!window.editCourseForm) {
       window.editCourseForm = true;
       document.body.addEventListener('htmx:afterOnLoad', function(evt) {
-          if (evt.detail.elt.id === 'edit-course-form' && evt.detail.xhr.status === 200) {
-              closeModal();
-          }
+        if (evt.detail.elt.id === 'edit-course-form' && evt.detail.xhr.status === 200) {
+          closeModal();
+        }
       });
     }
     </script>
@@ -363,9 +363,9 @@ templ DeleteConfirm(course internal.Course) {
     if (!window.deleteCourseButton) {
       window.deleteCourseButton = true;
       document.body.addEventListener('htmx:afterOnLoad', function(evt) {
-          if (evt.detail.elt.id === 'delete-course-button' && evt.detail.xhr.status === 200) {
-              closeModal();
-          }
+        if (evt.detail.elt.id === 'delete-course-button' && evt.detail.xhr.status === 200) {
+          closeModal();
+        }
       });
     }
     </script>
