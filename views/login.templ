@@ -46,14 +46,18 @@ templ Login() {
 		<div class="border-t mt-auto">
 			@Footer(0)
 		</div>
-		<script>
-    document.addEventListener('htmx:beforeSwap', function(evt) {
-      if (evt.detail.xhr.status >= 400) {
-        evt.detail.shouldSwap = true;
-        evt.detail.isError = false;
-        evt.detail.target = document.getElementById('error-response');
-      }
-    });
-    </script>
+		@ErrorHandle()
 	}
+}
+
+templ ErrorHandle() {
+	<script>
+  document.addEventListener('htmx:beforeSwap', function(evt) {
+    if (evt.detail.xhr.status >= 400) {
+      evt.detail.shouldSwap = true;
+      evt.detail.isError = false;
+      evt.detail.target = document.getElementById('error-response');
+    }
+  });
+  </script>
 }
