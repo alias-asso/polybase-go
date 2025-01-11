@@ -1,6 +1,8 @@
 module git.sr.ht/~alias/polybase-go
 
-go 1.22
+go 1.23
+
+toolchain go1.23.4
 
 require (
 	github.com/BurntSushi/toml v1.4.0
@@ -14,7 +16,7 @@ require golang.org/x/sys v0.28.0 // indirect
 
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
-	github.com/a-h/templ v0.2.793
+	github.com/a-h/templ v0.3.819
 	github.com/go-asn1-ber/asn1-ber v1.5.5 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect

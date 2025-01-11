@@ -1,0 +1,29 @@
+package views
+
+templ Header(isAdmin bool, username string, message string) {
+	<header class="mb-4 drop-shadow-lg">
+		<div class="px-4 py-2 drop-shadow-none">
+			<div class="flex items-center">
+				<a href="/" class="text-accent-500 flex items-center gap-x-2">
+					<img class="size-12" src="/static/svg/logo.svg"/>
+					<h1 class="text-3xl font-bold">Polybase</h1>
+				</a>
+			</div>
+		</div>
+		<div class="bg-accent-500 text-accent-100 flex items-center justify-between drop-shadow-none">
+			<p class="pl-2 py-2 truncate">
+				if isAdmin {
+					<span class="capitalize">{ username }, </span>
+					<span class="lowercase">{ message }</span>
+				} else {
+					<span>{ message }</span>
+				}
+			</p>
+			<nav class="whitespace-nowrap h-full">
+				<div class="flex [&>*]:px-3 [&>*]:py-2 [&>*:hover]:bg-accent-700">
+					{ children... }
+				</div>
+			</nav>
+		</div>
+	</header>
+}
