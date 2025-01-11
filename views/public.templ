@@ -11,18 +11,3 @@ templ Public(courses []internal.Course, count int) {
 		@Footer(count)
 	}
 }
-
-templ NotFound() {
-	@Base(false) {
-		@Header(false, "", GetRandomMessage()) {
-			<a href="/login">Connexion</a>
-		}
-		<div class="flex-grow flex items-center justify-center">
-			<div class="text-center">
-				<h2 class="text-8xl font-bold text-accent-500 mb-4">404</h2>
-				<p class="text-xl text-gray-600">Cette page n'existe pas</p>
-			</div>
-		</div>
-		@Footer(0)
-	}
-}
