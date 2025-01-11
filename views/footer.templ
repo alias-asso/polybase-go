@@ -1,0 +1,19 @@
+package views
+
+import "fmt"
+
+templ Footer(visitorCount int) {
+	<div class="flex items-center justify-between border-t px-4 sm:px-12 py-4 mt-12">
+		<span class="text-left">
+			if visitorCount > 0 {
+				Visiteur n°{ fmt.Sprintf("%d", visitorCount) }
+			}
+		</span>
+		<a
+			href="https://sr.ht/~alias/polybase"
+			class="text-right hover:underline"
+		>
+			Fait par et pour l'ALIAS avec ❤️ 
+		</a>
+	</div>
+}

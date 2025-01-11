@@ -525,9 +525,9 @@ func (pb *PB) setParts(ctx context.Context, courseID CourseID) error {
 }
 
 func (pb *PB) logAction(user string, action string, details string) error {
-  if (pb.logPath == "") {
-    return nil
-  }
+	if pb.logPath == "" {
+		return nil
+	}
 
 	f, err := os.OpenFile(pb.logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {

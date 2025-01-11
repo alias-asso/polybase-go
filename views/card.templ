@@ -38,31 +38,31 @@ templ AdminCard(course internal.Course) {
 		<p class="text-left leading-6 line-clamp-2" title={ course.Name }>{ course.Name }</p>
 		<div class="mt-auto flex justify-between items-baseline">
 			<div class="flex gap-x-2">
-        <div class="flex gap-x-1">
-          <button
-            hx-get={ fmt.Sprintf("/admin/courses/edit/%s", course.ID()) }
-            hx-target="#modal-container"
-            class="border border-gray-300 px-2 py-2 rounded-lg flex items-center justify-center hover:bg-gray-200 active:bg-gray-300"
-          >
-            <span class="subpixel-antialiased icon-pencil size-4 text-gray-400"></span>
-          </button>
-          <button
-            hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", course.ID(), !course.Shown) }
-            hx-target={ fmt.Sprintf("#%s", course.SID()) }
-            hx-swap="outerHTML"
-            class="group border border-gray-300 px-2 py-2 rounded-lg flex items-center justify-center hover:bg-gray-200 active:bg-gray-300"
-          >
-            if course.Shown {
-              <span class="icon-show size-4 text-gray-400 group-hover:icon-hide"></span>
-            } else {
-              <span class="icon-hide size-4 text-gray-400 group-hover:icon-show"></span>
-            }
-          </button>
-        </div>
-        <div class="flex gap-x-1">
-          @QuantityButton(course.ID(), course.SID(), -1)
-          @QuantityButton(course.ID(), course.SID(), 1)
-        </div>
+				<div class="flex gap-x-1">
+					<button
+						hx-get={ fmt.Sprintf("/admin/courses/edit/%s", course.ID()) }
+						hx-target="#modal-container"
+						class="border border-gray-300 px-2 py-2 rounded-lg flex items-center justify-center hover:bg-gray-200 active:bg-gray-300"
+					>
+						<span class="subpixel-antialiased icon-pencil size-4 text-gray-400"></span>
+					</button>
+					<button
+						hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", course.ID(), !course.Shown) }
+						hx-target={ fmt.Sprintf("#%s", course.SID()) }
+						hx-swap="outerHTML"
+						class="group border border-gray-300 px-2 py-2 rounded-lg flex items-center justify-center hover:bg-gray-200 active:bg-gray-300"
+					>
+						if course.Shown {
+							<span class="icon-show size-4 text-gray-400 group-hover:icon-hide"></span>
+						} else {
+							<span class="icon-hide size-4 text-gray-400 group-hover:icon-show"></span>
+						}
+					</button>
+				</div>
+				<div class="flex gap-x-1">
+					@QuantityButton(course.ID(), course.SID(), -1)
+					@QuantityButton(course.ID(), course.SID(), 1)
+				</div>
 			</div>
 			<div class="flex items-center">
 				<div class="flex items-end">

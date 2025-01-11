@@ -1,70 +1,13 @@
 package views
 
-import (
-	"fmt"
-	"git.sr.ht/~alias/polybase-go/internal"
-)
+import "git.sr.ht/~alias/polybase-go/internal"
 
 templ Public(courses []internal.Course, count int) {
 	@Base(false) {
-		<div class="flex flex-col min-h-screen">
-			<header class="mb-4 drop-shadow-lg">
-				<div class="px-4 py-2 drop-shadow-none">
-					<div class="flex items-center">
-						<a href="/" class="text-accent-500 flex items-center gap-x-2">
-							<img class="size-12" src="/static/svg/logo.svg"/>
-							<h1 class="text-3xl font-bold">Polybase</h1>
-						</a>
-					</div>
-				</div>
-				<div class="bg-accent-500 text-accent-100 flex items-center justify-between drop-shadow-none">
-					<p class="px-4 truncate">{ GetRandomMessage() }</p>
-					<a class="hover:bg-accent-700 px-4 py-2" href="/login">Connexion</a>
-				</div>
-			</header>
-			<div class="flex-grow">
-				@Grid(GroupCoursesBySemesterAndKind(courses), PublicCard)
-			</div>
-			@Footer(count)
-		</div>
-	}
-}
-
-templ NotFound() {
-	@Base(false) {
-		<div class="flex flex-col min-h-screen">
-			<header class="mb-4 drop-shadow-lg">
-				<div class="px-4 py-2 drop-shadow-none">
-					<div class="flex items-center">
-						<a href="/" class="text-accent-500 flex items-center gap-x-2">
-							<img class="size-12" src="/static/svg/logo.svg"/>
-							<h1 class="text-3xl font-bold">Polybase</h1>
-						</a>
-					</div>
-				</div>
-				<div class="bg-accent-500 text-accent-100 flex items-center justify-between drop-shadow-none">
-					<p class="px-4 truncate">{ GetRandomMessage() }</p>
-					<a class="hover:bg-accent-700 px-4 py-2" href="/login">Connexion</a>
-				</div>
-			</header>
-			<div class="flex-grow flex items-center justify-center">
-				<div class="text-center">
-					<h2 class="text-8xl font-bold text-accent-500 mb-4">404</h2>
-					<p class="text-xl text-gray-600">Cette page n'existe pas</p>
-				</div>
-			</div>
-			@Footer(0)
-		</div>
-	}
-}
-
-templ Footer(count int) {
-	<div class="flex items-center justify-between border-t px-4 sm:px-12 py-4 mt-12">
-		if count > 0 {
-			<span class="text-left">Visiteur n°{ fmt.Sprintf("%d", count) }</span>
-		} else {
-			<span class="text-left"></span>
+		@Header(false, "", GetRandomMessage()) {
+			<a href="/login">Connexion</a>
 		}
-		<a href="https://sr.ht/~alias/polybase" class="text-right hover:underline">Fait par et pour l'ALIAS avec ❤️ </a>
-	</div>
+		@Grid(GroupCoursesBySemesterAndKind(courses), PublicCard)
+		@Footer(count)
+	}
 }
