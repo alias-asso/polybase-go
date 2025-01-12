@@ -3,7 +3,7 @@ package views
 import "fmt"
 
 templ Footer(visitorCount int) {
-	<div class="flex items-center justify-between border-t px-4 sm:px-12 py-4 mt-12">
+	<div class="flex items-center justify-between border-t border-base-300 px-4 sm:px-12 py-4 mt-12">
 		<span class="text-left">
 			if visitorCount > 0 {
 				Visiteur n°{ fmt.Sprintf("%d", visitorCount) }

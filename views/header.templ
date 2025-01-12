@@ -4,9 +4,9 @@ templ Header(isAdmin bool, username string, message string) {
 	<header class="mb-4 drop-shadow-lg">
 		<div class="px-4 py-2 drop-shadow-none">
 			<div class="flex items-center">
-				<a href="/" class="text-accent-500 flex items-center gap-x-2">
-					<img class="size-12" src="/static/svg/logo.svg"/>
-					<h1 class="text-3xl font-bold">Polybase</h1>
+				<a href="/" class="flex items-center gap-x-2">
+					<img class="text-accent-500 size-12" src="/static/svg/logo.svg"/>
+					<h1 class="ml-1 text-3xl font-bold">Polybase</h1>
 				</a>
 			</div>
 		</div>
@@ -19,9 +19,10 @@ templ Header(isAdmin bool, username string, message string) {
 					<span>{ message }</span>
 				}
 			</p>
-			<nav class="whitespace-nowrap h-full">
-				<div class="flex [&>*]:px-3 [&>*]:py-2 [&>*:hover]:bg-accent-700">
+			<nav class="pr-2 whitespace-nowrap h-full">
+				<div class="flex [&>*]:px-2 [&>*]:py-2 [&>*]:select-none [&>*]:flex [&>*]:justify-center [&>*]:items-center [&>*:hover]:bg-accent-700">
 					{ children... }
+					<button onclick="toggleTheme()"><span class="icon-theme size-4"></span></button>
 				</div>
 			</nav>
 		</div>

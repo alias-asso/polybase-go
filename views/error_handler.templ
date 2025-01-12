@@ -1,0 +1,17 @@
+package views
+
+templ ErrorTarget() {
+			<div id="error-target" class="text-sm text-red-500 text-center"></div>
+}
+
+templ HtmxErrorHandler() {
+	<script>
+  document.addEventListener('htmx:beforeSwap', function(evt) {
+    if (evt.detail.xhr.status >= 400) {
+      evt.detail.shouldSwap = true;
+      evt.detail.isError = false;
+      evt.detail.target = document.getElementById('error-target');
+    }
+  });
+  </script>
+}

@@ -1,0 +1,22 @@
+package views
+
+templ ThemeManager() {
+	<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  });
+
+  function toggleTheme() {
+    console.log("test");
+    if (localStorage.getItem('theme') === 'dark') {
+      localStorage.removeItem('theme', 'dark');
+      document.documentElement.classList.remove('dark');
+    } else {
+      localStorage.setItem('theme', 'dark');
+      document.documentElement.classList.add('dark');
+    }
+  }
+  </script>
+}

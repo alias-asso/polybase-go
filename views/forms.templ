@@ -3,12 +3,13 @@ package views
 import (
 	"fmt"
 	"git.sr.ht/~alias/polybase-go/internal"
+	"time"
 )
 
 templ Modal() {
 	<div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-		<div class="bg-white rounded-lg w-full max-w-4xl p-6 sm:p-4 relative">
-			<button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+		<div class="bg-base-100 rounded-lg w-full max-w-4xl p-6 sm:p-4 relative">
+			<button onclick="closeModal()" class="absolute top-4 right-4 text-base-500 hover:text-base-700">
 				<span class="icon-cross size-6"></span>
 			</button>
 			{ children... }
@@ -52,11 +53,11 @@ templ NewCourseForm() {
 				hx-target="#courses-grid"
 				class="space-y-6"
 			>
-				<div class="bg-gray-50 p-4 rounded-lg border">
+				<div class="p-4 rounded-lg border border-base-300">
 					<h3 class="text-lg font-semibold mb-4">Identifiants du poly</h3>
 					<div class="grid grid-cols-3 gap-4">
 						<div>
-							<label class="block text-gray-700 mb-2" for="code">
+							<label class="block text-base-600 mb-2" for="code">
 								Code <span class="text-red-500">*</span>
 							</label>
 							<input
@@ -64,23 +65,22 @@ templ NewCourseForm() {
 								id="code"
 								name="code"
 								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
+								class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
 							/>
 						</div>
 						<div>
-							<label class="block text-gray-700 mb-2" for="kind">
+							<label class="block text-base-600 mb-2" for="kind">
 								Type <span class="text-red-500">*</span>
 							</label>
-							<input
-								type="text"
-								id="kind"
-								name="kind"
-								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-							/>
+              <select id="kind" name="kind" required placeholder="" class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500">
+                <option value="TD">TD</option>
+                <option value="Cours">Cours</option>
+                <option value="Memento">Memento</option>
+                <option value="TME">TME</option>
+              </select>
 						</div>
 						<div>
-							<label class="block text-gray-700 mb-2" for="part">
+							<label class="block text-base-600 mb-2" for="part">
 								Partie <span class="text-red-500">*</span>
 							</label>
 							<input
@@ -88,14 +88,14 @@ templ NewCourseForm() {
 								id="part"
 								name="part"
 								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
+								class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
 							/>
 						</div>
 					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-6">
 					<div>
-						<label class="block text-gray-700 mb-2" for="name">
+						<label class="block text-base-600 mb-2" for="name">
 							Nom <span class="text-red-500">*</span>
 						</label>
 						<input
@@ -103,23 +103,26 @@ templ NewCourseForm() {
 							id="name"
 							name="name"
 							required
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
+							class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
 						/>
 					</div>
 					<div>
-						<label class="block text-gray-700 mb-2" for="semester">
+						<label class="block text-base-600 mb-2" for="semester">
 							Semestre <span class="text-red-500">*</span>
 						</label>
-						<input
-							type="text"
-							id="semester"
-							name="semester"
-							required
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-						/>
+
+            <select id="semester" name="semester" required class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500">
+            if time.Now().Month() >= time.July {
+              <option value="S1">S1</option>
+              <option value="S2">S2</option>
+            } else {
+              <option value="S2">S2</option>
+              <option value="S1">S1</option>
+            }
+            </select>
 					</div>
 					<div>
-						<label class="block text-gray-700 mb-2" for="quantity">
+						<label class="block text-base-600 mb-2" for="quantity">
 							Quantité initiale <span class="text-red-500">*</span>
 						</label>
 						<input
@@ -127,18 +130,18 @@ templ NewCourseForm() {
 							id="quantity"
 							name="quantity"
 							required
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
+							class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
 						/>
 					</div>
 					<div>
-						<label class="block text-gray-700 mb-2" for="total">
+						<label class="block text-base-600 mb-2" for="total">
 							Quantité totale
 						</label>
 						<input
 							type="number"
 							id="total"
 							name="total"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
+							class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
 						/>
 					</div>
 				</div>
@@ -147,7 +150,7 @@ templ NewCourseForm() {
 					<button
 						type="button"
 						onclick="closeModal()"
-						class="border border-gray-300 text-gray-700 px-3 sm:px-6 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
+						class="border border-base-300 text-base-600 px-3 sm:px-6 py-2 rounded-lg hover:bg-base-200 active:bg-base-300 transition-colors"
 					>
 						Annuler
 					</button>

@@ -2,9 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --base-100: #ffffff;
+  --base-200: #e1e1e1;
+  --base-300: #c3c3c3;
+  --base-400: #a5a5a5;
+  --base-500: #878787;
+  --base-600: #696969;
+  --base-700: #4b4b4b;
+  --base-800: #2d2d2d;
+  --base-900: #0f0f0f;
+}
+
+.dark {
+  --base-100: #282828;
+  --base-200: #414141;
+  --base-300: #5a5a5a;
+  --base-400: #737373;
+  --base-500: #8c8c8c;
+  --base-600: #a5a5a5;
+  --base-700: #bebebe;
+  --base-800: #d7d7d7;
+  --base-900: #f0f0f0;
+}
+
 @layer components {
   .icon-base {
     @apply inline-block size-4 bg-current;
+  }
+
+  .icon-theme {
+    @apply icon-base;
+    mask: url(/static/svg/moon.svg) no-repeat center / contain;
+  }
+
+  .dark .icon-theme {
+    @apply icon-base;
+    mask: url(/static/svg/sun.svg) no-repeat center / contain;
   }
 
   .icon-show {
