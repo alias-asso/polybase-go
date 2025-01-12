@@ -2,7 +2,7 @@ package views
 
 import "git.sr.ht/~alias/polybase-go/internal"
 
-templ Grid(semesterGroups []SemesterGroup, cardTempl func(course internal.Course) templ.Component) {
+templ Grid(semesterGroups []SemesterGroup, isAdmin bool) {
 	<main id="courses-grid" class="flex-grow">
 		for _, semester := range semesterGroups {
 			<div class="px-4 sm:px-4 lg:px-6 xl:px-8">
@@ -10,7 +10,7 @@ templ Grid(semesterGroups []SemesterGroup, cardTempl func(course internal.Course
 				<div class="flex flex-col gap-8">
 					for _, kindGroup := range semester.Kinds {
 						if len(kindGroup.Courses) > 0 {
-							@Section(kindGroup.Name, kindGroup.Courses, cardTempl)
+							@Section(kindGroup.Name, kindGroup.Courses, isAdmin)
 						}
 					}
 				</div>
@@ -19,12 +19,12 @@ templ Grid(semesterGroups []SemesterGroup, cardTempl func(course internal.Course
 	</main>
 }
 
-templ Section(kind string, courses []internal.Course, cardTempl func(course internal.Course) templ.Component) {
+templ Section(kind string, courses []internal.Course, isAdmin bool) {
 	<section>
 		<h3 class="text-2xl font-semibold mb-2 font-mono">{ kind }</h3>
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
 			for _, course := range courses {
-				@cardTempl(course)
+				@CourseCard(course, isAdmin)
 			}
 		</div>
 	</section>

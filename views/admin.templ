@@ -9,7 +9,7 @@ templ Admin(courses []internal.Course, username string) {
 			<a href="/admin/packs/new">Ajouter pack</a>
 			<button hx-get="/admin/courses/new" hx-target="#modal-container">Ajouter poly</button>
 		}
-		@Grid(GroupCoursesBySemesterAndKind(courses), AdminCard)
+		@Grid(GroupCoursesBySemesterAndKind(courses), true)
 		@Footer(0)
 		<div id="modal-container"></div>
 	}

@@ -7,7 +7,7 @@ templ Public(courses []internal.Course, count int) {
 		@Header(false, "", GetRandomMessage()) {
 			<a href="/login">Connexion</a>
 		}
-		@Grid(GroupCoursesBySemesterAndKind(courses), PublicCard)
+		@Grid(GroupCoursesBySemesterAndKind(courses), false)
 		@Footer(count)
 	}
 }

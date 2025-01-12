@@ -5,95 +5,141 @@ import (
 	"git.sr.ht/~alias/polybase-go/internal"
 )
 
-templ PublicCard(course internal.Course) {
-	<div class="border border-base-300 bg-base-100 flex h-48 flex-col rounded-lg px-6 py-5 transition-colors relative gap-y-4">
-		<div class="flex w-full mb-2 gap-4 min-w-0 items-center">
-			<p class="text-lg font-mono truncate text-accent-600 bg-accent-100 px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
-			<p class="ml-auto shrink-0 text-base-500">Partie { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
-		</div>
-		<p class="text-left leading-6 line-clamp-2" title={ course.Name }>{ course.Name }</p>
-		<div class="mt-auto flex justify-end items-baseline">
-			<div class="flex items-center">
-				<div class="flex items-end">
-					<span class="text-2xl font-bold">
-						@CardQuantity(course.Quantity)
-					</span>
-					<span class="text-lg">/{ fmt.Sprint(course.Total) }</span>
-				</div>
-			</div>
-		</div>
-	</div>
-}
-
-templ AdminCard(course internal.Course) {
+// CourseCard defines a reusable UI component for displaying course information
+// in a card format. The card includes a header with course code and part
+// information, the course name, and quantity controls for administrators. It
+// handles different display states based on course visibility and admin
+// privileges.
+templ CourseCard(course internal.Course, isAdmin bool) {
 	<div id={ course.SID() } class="border border-base-300 bg-base-100 flex h-48 flex-col rounded-lg px-6 py-5 transition-colors relative gap-y-4">
-		<div class="flex w-full mb-2 gap-4 min-w-0 items-center">
-			if course.Shown {
-				<p class="text-lg font-mono truncate text-accent-600 bg-accent-100 px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
-			} else {
-				<p class="text-lg font-mono truncate text-base-700 bg-base-200 px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
-			}
-			<p class="ml-auto shrink-0 text-base-500">Partie { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
-		</div>
-		<p class="text-left leading-6 line-clamp-2" title={ course.Name }>{ course.Name }</p>
+		@CourseHeader(course)
+		@CourseName(course)
 		<div class="mt-auto flex justify-between items-baseline">
-			<div class="flex gap-x-1">
-				@EditButton(course.ID())
-				@VisibilityButton(course.Shown, course.ID(), course.SID())
-				@QuantityButton(course.ID(), course.SID(), -1)
-				@QuantityButton(course.ID(), course.SID(), 1)
-			</div>
-			<div class="flex items-center">
-				<div class="flex items-end">
-					<span id={ fmt.Sprintf("%s-quantity", course.SID()) } class="text-2xl font-bold">
-						@CardQuantity(course.Quantity)
-					</span>
-					<span class="text-lg">/{ fmt.Sprint(course.Total) }</span>
-				</div>
-			</div>
+			if isAdmin {
+				@CourseAdminControl(course)
+			} else {
+				<span></span>
+			}
+			@CourseQuantity(course)
 		</div>
 	</div>
 }
 
+// CourseHeader renders the top section of a course card containing the course
+// code and part information in a horizontally aligned layout.
+templ CourseHeader(course internal.Course) {
+	<div class="flex w-full mb-2 gap-4 min-w-0 items-center">
+		@CourseCode(course)
+		@CoursePart(course)
+	</div>
+}
+
+// CourseCode displays the course identifier with different visual styling
+// based on the course's visibility status. Shown courses use accent colors
+// while hidden courses use base colors.
+templ CourseCode(course internal.Course) {
+	if course.Shown {
+		<p class="text-lg font-mono truncate text-accent-600 bg-accent-100 px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
+	} else {
+		<p class="text-lg font-mono truncate text-base-700 bg-base-200 px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
+	}
+}
+
+// CoursePart shows the current part number and total parts of the course in a
+// fraction format.
+templ CoursePart(course internal.Course) {
+	<p class="ml-auto shrink-0 text-base-500">Partie { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
+}
+
+// CourseName presents the course title in a two-line clamped format with hover
+// tooltip for longer names.
+templ CourseName(course internal.Course) {
+	<p class="text-left leading-6 line-clamp-2" title={ course.Name }>{ course.Name }</p>
+}
+
+// CourseAdminControl provides administrative functionality including edit,
+// visibility toggle, and quantity adjustment buttons. These controls are only
+// rendered when isAdmin is true.
+templ CourseAdminControl(course internal.Course) {
+	<div class="flex gap-x-1">
+		@EditButton(course)
+		@VisibilityButton(course)
+		@QuantityButton(course, -1)
+		@QuantityButton(course, 1)
+	</div>
+}
+
+// EditButton creates an admin control that opens the course editing modal when
+// clicked.
+templ EditButton(course internal.Course) {
+	@AdminButtons() {
+		<button
+			hx-get={ fmt.Sprintf("/admin/courses/edit/%s", course.ID()) }
+			hx-target="#modal-container"
+		>
+			<span class="icon-pencil size-4 text-base-600"></span>
+		</button>
+	}
+}
+
+// QuantityButton generates increment/decrement controls for adjusting course
+// quantities. Delta parameter determines button behavior: positive for
+// increment, negative for decrement.
+templ QuantityButton(course internal.Course, delta int) {
+	@AdminButtons() {
+		<button
+			hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=%d", course.ID(), delta) }
+			hx-target={ fmt.Sprintf("#%s-quantity", course.SID()) }
+		>
+			if delta > 0 {
+				<span class="icon-plus size-4 text-base-600"></span>
+			} else {
+				<span class="icon-minus size-4 text-base-600"></span>
+			}
+		</button>
+	}
+}
+
+// VisibilityButton toggles course visibility with dynamic icon changes on
+// hover.
+templ VisibilityButton(course internal.Course) {
+	@AdminButtons() {
+		<button
+			hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", course.ID(), !course.Shown) }
+			hx-target={ fmt.Sprintf("#%s", course.SID()) }
+			hx-swap="outerHTML"
+		>
+			if course.Shown {
+				<span class="icon-show size-4 text-base-600 group-hover:icon-hide"></span>
+			} else {
+				<span class="icon-hide size-4 text-base-600 group-hover:icon-show"></span>
+			}
+		</button>
+	}
+}
+
+// AdminButtons provides consistent styling for administrative control buttons
+// including hover and active states.
+templ AdminButtons() {
+	<div class="[&>button]:border [&>button]:border-base-300 [&>button]:px-2 [&>button]:py-2 [&>button]:rounded-lg [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:hover:bg-base-200 [&>button]:active:bg-base-300 flex gap-x-1">
+		{ children... }
+	</div>
+}
+
+// CourseQuantity shows current enrollment numbers as a fraction of total
+// capacity.
+templ CourseQuantity(course internal.Course) {
+	<div class="flex items-center">
+		<div class="flex items-end">
+			<span id={ fmt.Sprintf("%s-quantity", course.SID()) } class="text-2xl font-bold">
+				@CardQuantity(course.Quantity)
+			</span>
+			<span class="text-lg">/{ fmt.Sprint(course.Total) }</span>
+		</div>
+	</div>
+}
+
+// CardQuantity formats the current quantity value for display.
 templ CardQuantity(quantity int) {
 	{ fmt.Sprintf("%d", quantity) }
-}
-
-templ EditButton(courseID string) {
-	<button
-		hx-get={ fmt.Sprintf("/admin/courses/edit/%s", courseID) }
-		hx-target="#modal-container"
-		class="border border-base-300 px-2 py-2 rounded-lg flex items-center justify-center hover:bg-base-200 active:bg-base-300"
-	>
-		<span class="icon-pencil size-4 text-base-600"></span>
-	</button>
-}
-
-templ QuantityButton(courseID string, courseStableID string, delta int) {
-	<button
-		hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=%d", courseID, delta) }
-		hx-target={ fmt.Sprintf("#%s-quantity", courseStableID) }
-		class="border border-base-300 px-2 py-2 rounded-lg flex items-center justify-center hover:bg-base-200 active:bg-base-300"
-	>
-		if delta > 0 {
-			<span class="icon-plus size-4 text-base-600"></span>
-		} else {
-			<span class="icon-minus size-4 text-base-600"></span>
-		}
-	</button>
-}
-
-templ VisibilityButton(shown bool, courseID string, courseSID string) {
-	<button
-		hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", courseID, !shown) }
-		hx-target={ fmt.Sprintf("#%s", courseSID) }
-		hx-swap="outerHTML"
-		class="group border border-base-300 px-2 py-2 rounded-lg flex items-center justify-center hover:bg-base-200 active:bg-base-300"
-	>
-		if shown {
-			<span class="icon-show size-4 text-base-600 group-hover:icon-hide"></span>
-		} else {
-			<span class="icon-hide size-4 text-base-600 group-hover:icon-show"></span>
-		}
-	</button>
 }

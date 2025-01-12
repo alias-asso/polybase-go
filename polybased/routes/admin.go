@@ -211,7 +211,7 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), views.AdminCard).Render(r.Context(), w)
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), true).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -315,7 +315,7 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), views.AdminCard).Render(r.Context(), w)
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), true).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -365,7 +365,7 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), views.AdminCard).Render(r.Context(), w)
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), true).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -429,7 +429,7 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = views.AdminCard(course).Render(r.Context(), w)
+	err = views.CourseCard(course, true).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Failed to render template: %v", err)
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
