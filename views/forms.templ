@@ -15,6 +15,11 @@ templ Modal() {
 			{ children... }
 		</div>
 	</div>
+	@ModalDynamic()
+}
+
+// TODO: this should be renamed and attached to the page
+templ ModalDynamic() {
 	<script>
     if (!window.modal) {
       window.modal = true;
@@ -31,16 +36,44 @@ templ Modal() {
       document.getElementById('modal-overlay').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
       });
-
-      document.addEventListener('htmx:beforeSwap', function(evt) {
-          if (evt.detail.xhr.status >= 400) {
-              evt.detail.shouldSwap = true;
-              evt.detail.isError = false;
-              evt.detail.target = document.getElementById('error-response');
-          }
-      });
     }
     </script>
+}
+
+templ FormField(id string, label string, required bool) {
+	<div>
+		<label class="block text-base-600 mb-2" for={ id }>
+			{ label }
+			if required {
+				<span class="text-red-500">*</span>
+			}
+		</label>
+		<div class="[&>*]:w-full [&>*]:bg-base-100 [&>*]:px-4 [&>*]:py-2 [&>*]:border [&>*]:border-base-300 [&>*]:rounded-lg [&>*:focus]:outline-none [&>*:focus]:border-accent-500">
+			{ children... }
+		</div>
+	</div>
+}
+
+templ IdentifierForm() {
+	<div class="p-4 rounded-lg border border-base-300">
+		<h3 class="text-lg font-semibold mb-4">Identifiants du poly</h3>
+		<div class="grid grid-cols-3 gap-4">
+			@FormField("code", "Code", true) {
+				<input type="text" id="code" name="code" required/>
+			}
+			@FormField("kind", "Type", true) {
+				<select id="kind" name="kind" required>
+					<option value="TD">TD</option>
+					<option value="Cours">Cours</option>
+					<option value="Memento">Memento</option>
+					<option value="TME">TME</option>
+				</select>
+			}
+			@FormField("part", "Partie", true) {
+				<input type="text" id="part" name="part" required/>
+			}
+		</div>
+	</div>
 }
 
 templ NewCourseForm() {
@@ -53,113 +86,41 @@ templ NewCourseForm() {
 				hx-target="#courses-grid"
 				class="space-y-6"
 			>
-				<div class="p-4 rounded-lg border border-base-300">
-					<h3 class="text-lg font-semibold mb-4">Identifiants du poly</h3>
-					<div class="grid grid-cols-3 gap-4">
-						<div>
-							<label class="block text-base-600 mb-2" for="code">
-								Code <span class="text-red-500">*</span>
-							</label>
-							<input
-								type="text"
-								id="code"
-								name="code"
-								required
-								class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
-							/>
-						</div>
-						<div>
-							<label class="block text-base-600 mb-2" for="kind">
-								Type <span class="text-red-500">*</span>
-							</label>
-              <select id="kind" name="kind" required placeholder="" class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500">
-                <option value="TD">TD</option>
-                <option value="Cours">Cours</option>
-                <option value="Memento">Memento</option>
-                <option value="TME">TME</option>
-              </select>
-						</div>
-						<div>
-							<label class="block text-base-600 mb-2" for="part">
-								Partie <span class="text-red-500">*</span>
-							</label>
-							<input
-								type="text"
-								id="part"
-								name="part"
-								required
-								class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
-							/>
-						</div>
-					</div>
-				</div>
+				@IdentifierForm()
 				<div class="grid grid-cols-2 gap-6">
-					<div>
-						<label class="block text-base-600 mb-2" for="name">
-							Nom <span class="text-red-500">*</span>
-						</label>
-						<input
-							type="text"
-							id="name"
-							name="name"
-							required
-							class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
-						/>
-					</div>
-					<div>
-						<label class="block text-base-600 mb-2" for="semester">
-							Semestre <span class="text-red-500">*</span>
-						</label>
-
-            <select id="semester" name="semester" required class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500">
-            if time.Now().Month() >= time.July {
-              <option value="S1">S1</option>
-              <option value="S2">S2</option>
-            } else {
-              <option value="S2">S2</option>
-              <option value="S1">S1</option>
-            }
-            </select>
-					</div>
-					<div>
-						<label class="block text-base-600 mb-2" for="quantity">
-							Quantité initiale <span class="text-red-500">*</span>
-						</label>
-						<input
-							type="number"
-							id="quantity"
-							name="quantity"
-							required
-							class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
-						/>
-					</div>
-					<div>
-						<label class="block text-base-600 mb-2" for="total">
-							Quantité totale
-						</label>
-						<input
-							type="number"
-							id="total"
-							name="total"
-							class="w-full bg-base-100 px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:border-accent-500"
-						/>
-					</div>
+					@FormField("name", "Nom", true) {
+						<input type="text" id="name" name="name" required/>
+					}
+					@FormField("semester", "Semestre", true) {
+						<select id="semester" name="semester" required>
+							if time.Now().Month() >= time.July {
+								<option value="S1">S1</option>
+								<option value="S2">S2</option>
+							} else {
+								<option value="S2">S2</option>
+								<option value="S1">S1</option>
+							}
+						</select>
+					}
+					@FormField("quantity", "Quantité initiale", true) {
+						<input type="number" id="quantity" name="quantity" required/>
+					}
+					@FormField("total", "Quantité totale", false) {
+						<input type="number" id="total" name="total"/>
+					}
 				</div>
-				<div id="error-response" class="text-sm text-red-500 text-center min-h-6"></div>
+				@ErrorTarget()
 				<div class="flex justify-end gap-x-4 pt-4">
-					<button
-						type="button"
-						onclick="closeModal()"
-						class="border border-base-300 text-base-600 px-3 sm:px-6 py-2 rounded-lg hover:bg-base-200 active:bg-base-300 transition-colors"
-					>
-						Annuler
-					</button>
-					<button
-						type="submit"
-						class="bg-accent-500 text-accent-100 px-3 sm:px-6 py-2 rounded-lg hover:bg-accent-700 active:bg-accent-800 transition-colors"
-					>
-						Ajouter
-					</button>
+					@Button(Medium, Default) {
+						<button type="button" onclick="closeModal()">
+							Annuler
+						</button>
+					}
+					@Button(Medium, Accent) {
+						<button type="submit">
+							Modifier
+						</button>
+					}
 				</div>
 			</form>
 		</div>
@@ -306,19 +267,16 @@ templ EditCourseForm(course internal.Course) {
 						</button>
 					</div>
 					<div class="flex gap-x-4">
-						<button
-							type="button"
-							onclick="closeModal()"
-							class="border border-gray-300 text-gray-700 p-3 sm:px-6 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
-						>
-							Annuler
-						</button>
-						<button
-							type="submit"
-							class="bg-accent-500 text-accent-100 px-3 sm:px-6 py-2 rounded-lg hover:bg-accent-700 active:bg-accent-800 transition-colors"
-						>
-							Modifier
-						</button>
+						@Button(Medium, Default) {
+							<button type="button" onclick="closeModal()">
+								Annuler
+							</button>
+						}
+						@Button(Medium, Accent) {
+							<button type="submit">
+								Modifier
+							</button>
+						}
 					</div>
 				</div>
 			</form>

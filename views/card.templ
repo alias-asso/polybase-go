@@ -72,7 +72,7 @@ templ CourseAdminControl(course internal.Course) {
 // EditButton creates an admin control that opens the course editing modal when
 // clicked.
 templ EditButton(course internal.Course) {
-	@AdminButtons() {
+	@Button(Small, Default) {
 		<button
 			hx-get={ fmt.Sprintf("/admin/courses/edit/%s", course.ID()) }
 			hx-target="#modal-container"
@@ -86,7 +86,7 @@ templ EditButton(course internal.Course) {
 // quantities. Delta parameter determines button behavior: positive for
 // increment, negative for decrement.
 templ QuantityButton(course internal.Course, delta int) {
-	@AdminButtons() {
+	@Button(Small, Default) {
 		<button
 			hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=%d", course.ID(), delta) }
 			hx-target={ fmt.Sprintf("#%s-quantity", course.SID()) }
@@ -103,7 +103,7 @@ templ QuantityButton(course internal.Course, delta int) {
 // VisibilityButton toggles course visibility with dynamic icon changes on
 // hover.
 templ VisibilityButton(course internal.Course) {
-	@AdminButtons() {
+	@Button(Small, Default) {
 		<button
 			hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", course.ID(), !course.Shown) }
 			hx-target={ fmt.Sprintf("#%s", course.SID()) }
@@ -116,14 +116,6 @@ templ VisibilityButton(course internal.Course) {
 			}
 		</button>
 	}
-}
-
-// AdminButtons provides consistent styling for administrative control buttons
-// including hover and active states.
-templ AdminButtons() {
-	<div class="[&>button]:border [&>button]:border-base-300 [&>button]:px-2 [&>button]:py-2 [&>button]:rounded-lg [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:hover:bg-base-200 [&>button]:active:bg-base-300 flex gap-x-1">
-		{ children... }
-	</div>
 }
 
 // CourseQuantity shows current enrollment numbers as a fraction of total

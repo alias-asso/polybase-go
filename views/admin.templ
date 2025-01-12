@@ -12,5 +12,6 @@ templ Admin(courses []internal.Course, username string) {
 		@Grid(GroupCoursesBySemesterAndKind(courses), true)
 		@Footer(0)
 		<div id="modal-container"></div>
+		@HtmxErrorHandler()
 	}
 }

@@ -21,12 +21,11 @@ templ LoginForm() {
 			@LoginFormInput("username", "Nom d'utilisateur", "text")
 			@LoginFormInput("password", "Mot de passe", "password")
 			@ErrorTarget()
-			<button
-				type="submit"
-				class="w-full bg-accent-500 text-accent-100 py-2 rounded-lg hover:bg-accent-700 active:bg-accent-800 transition-colors"
-			>
+      @Button(Large, Accent) {
+			<button type="submit">
 				Se connecter
 			</button>
+      }
 		</div>
 	</form>
 }
