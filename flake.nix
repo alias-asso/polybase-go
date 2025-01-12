@@ -23,6 +23,7 @@
       ];
 
       devPkgs = with pkgs; [
+        go
         just
         air
         sqlite

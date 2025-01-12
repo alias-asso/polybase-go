@@ -8,7 +8,7 @@ import (
 
 templ Modal() {
 	<div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-		<div class="bg-base-100 rounded-lg w-full max-w-4xl p-6 sm:p-4 relative">
+		<div class="bg-base-100 rounded-lg max-w-4xl p-6 sm:p-4 relative">
 			<button onclick="closeModal()" class="absolute top-4 right-4 text-base-500 hover:text-base-700">
 				<span class="icon-cross size-6"></span>
 			</button>
@@ -54,39 +54,30 @@ templ FormField(id string, label string, required bool) {
 	</div>
 }
 
-templ IdentifierForm() {
-	<div class="p-4 rounded-lg border border-base-300">
-		<h3 class="text-lg font-semibold mb-4">Identifiants du poly</h3>
-		<div class="grid grid-cols-3 gap-4">
-			@FormField("code", "Code", true) {
-				<input type="text" id="code" name="code" required/>
-			}
-			@FormField("kind", "Type", true) {
-				<select id="kind" name="kind" required>
-					<option value="TD">TD</option>
-					<option value="Cours">Cours</option>
-					<option value="Memento">Memento</option>
-					<option value="TME">TME</option>
-				</select>
-			}
-			@FormField("part", "Partie", true) {
-				<input type="text" id="part" name="part" required/>
-			}
-		</div>
-	</div>
-}
-
 templ NewCourseForm() {
 	@Modal() {
 		<div class="space-y-6">
 			<h2 class="text-2xl font-bold">Ajouter un nouveau poly</h2>
-			<form
-				id="new-course-form"
-				hx-post="/admin/courses"
-				hx-target="#courses-grid"
-				class="space-y-6"
-			>
-				@IdentifierForm()
+			<form id="new-course-form" hx-post="/admin/courses" hx-target="#courses-grid" class="space-y-6">
+				<div class="p-4 rounded-lg border border-base-300">
+					<h3 class="text-lg font-semibold mb-4">Identifiants du poly</h3>
+					<div class="grid grid-cols-3 gap-4">
+						@FormField("code", "Code", true) {
+							<input type="text" id="code" name="code" required/>
+						}
+						@FormField("kind", "Type", true) {
+							<select id="kind" name="kind" required>
+								<option value="TD">TD</option>
+								<option value="Cours">Cours</option>
+								<option value="Memento">Memento</option>
+								<option value="TME">TME</option>
+							</select>
+						}
+						@FormField("part", "Partie", true) {
+							<input type="text" id="part" name="part" required/>
+						}
+					</div>
+				</div>
 				<div class="grid grid-cols-2 gap-6">
 					@FormField("name", "Nom", true) {
 						<input type="text" id="name" name="name" required/>
@@ -151,120 +142,47 @@ templ EditCourseForm(course internal.Course) {
 	@Modal() {
 		<div class="space-y-6">
 			<h2 class="text-2xl font-bold">Modifier un poly</h2>
-			<form
-				id="edit-course-form"
-				hx-put={ fmt.Sprintf("/admin/courses/%s", course.ID()) }
-				hx-target="#courses-grid"
-				class="space-y-6"
-			>
-				<div class="bg-gray-50 p-4 rounded-lg border">
+			<form id="edit-course-form" hx-put={ fmt.Sprintf("/admin/courses/%s", course.ID()) } hx-target="#courses-grid" class="space-y-6">
+				<div class="p-4 rounded-lg border border-base-300">
 					<h3 class="text-lg font-semibold mb-4">Identifiants du poly</h3>
 					<div class="grid grid-cols-3 gap-4">
-						<div>
-							<label class="block text-gray-700 mb-2" for="code">
-								Code <span class="text-red-500">*</span>
-							</label>
-							<input
-								type="text"
-								id="code"
-								name="code"
-								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-								value={ course.Code }
-							/>
-						</div>
-						<div>
-							<label class="block text-gray-700 mb-2" for="kind">
-								Type <span class="text-red-500">*</span>
-							</label>
-							<input
-								type="text"
-								id="kind"
-								name="kind"
-								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-								value={ course.Kind }
-							/>
-						</div>
-						<div>
-							<label class="block text-gray-700 mb-2" for="part">
-								Partie <span class="text-red-500">*</span>
-							</label>
-							<input
-								type="text"
-								id="part"
-								name="part"
-								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-								value={ fmt.Sprintf("%d", course.Part) }
-							/>
-						</div>
+						@FormField("code", "Code", true) {
+							<input type="text" id="code" name="code" required value={ course.Code }/>
+						}
+						@FormField("kind", "Type", true) {
+							<input type="text" id="kind" name="kind" required value={ course.Kind }/>
+						}
+						@FormField("part", "Partie", true) {
+							<input type="text" id="part" name="part" required value={ fmt.Sprintf("%d", course.Part) }/>
+						}
 					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-6">
-					<div>
-						<label class="block text-gray-700 mb-2" for="name">
-							Nom <span class="text-red-500">*</span>
-						</label>
-						<input
-							type="text"
-							id="name"
-							name="name"
-							required
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-							value={ course.Name }
-						/>
-					</div>
-					<div>
-						<label class="block text-gray-700 mb-2" for="semester">
-							Semestre <span class="text-red-500">*</span>
-						</label>
-						<input
-							type="text"
-							id="semester"
-							name="semester"
-							required
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-							value={ course.Semester }
-						/>
-					</div>
-					<div>
-						<label class="block text-gray-700 mb-2" for="quantity">
-							Quantité initiale <span class="text-red-500">*</span>
-						</label>
-						<input
-							type="number"
-							id="quantity"
-							name="quantity"
-							required
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-							value={ fmt.Sprintf("%d", course.Quantity) }
-						/>
-					</div>
-					<div>
-						<label class="block text-gray-700 mb-2" for="total">
-							Quantité totale
-						</label>
-						<input
-							type="number"
-							id="total"
-							name="total"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-accent-500"
-							value={ fmt.Sprintf("%d", course.Total) }
-						/>
-					</div>
+					@FormField("name", "Nom", true) {
+						<input type="text" id="name" name="name" required value={ course.Name }/>
+					}
+					@FormField("semester", "Semestre", true) {
+						<input type="text" id="semester" name="semester" required value={ course.Semester }/>
+					}
+					@FormField("quantity", "Quantité initiale", true) {
+						<input type="number" id="quantity" name="quantity" required value={ fmt.Sprintf("%d", course.Quantity) }/>
+					}
+					@FormField("total", "Quantité totale", false) {
+						<input type="number" id="total" name="total" value={ fmt.Sprintf("%d", course.Total) }/>
+					}
 				</div>
-				<div id="error-response" class="text-sm text-red-500 text-center min-h-6"></div>
+				@ErrorTarget()
 				<div class="flex justify-between pt-4">
 					<div class="flex gap-x-4">
-						<button
-							type="button"
-							class="border border-gray-300 text-red-500 py-2 px-3 sm:px-6 rounded-lg hover:text-white hover:bg-red-600 hover:border-none active:text-white active:bg-red-700 active:border-none transition-colors"
-							hx-get={ fmt.Sprintf("/admin/courses/delete/%s", course.ID()) }
-							hx-target="#modal-container"
-						>
-							Supprimer
-						</button>
+						@Button(Medium, Important) {
+							<button
+								type="button"
+								hx-get={ fmt.Sprintf("/admin/courses/delete/%s", course.ID()) }
+								hx-target="#modal-container"
+							>
+								Supprimer
+							</button>
+						}
 					</div>
 					<div class="flex gap-x-4">
 						@Button(Medium, Default) {
@@ -296,28 +214,30 @@ templ EditCourseForm(course internal.Course) {
 
 templ DeleteConfirm(course internal.Course) {
 	@Modal() {
-		<div class="flex flex-col items-center gap-y-4 mt-12 mb-8 mx-4">
+		<div class="flex flex-col items-center gap-y-4 mx-4 my-8">
 			<h1 class="text-bf text-xl font-bold">Supprimer { fmt.Sprintf("%s %s %d", course.Code, course.Kind, course.Part) } ?</h1>
 			<p>Cette action est <span class="text-red-500 font-bold">irréversible</span>.</p>
 		</div>
 		<div class="flex justify-center pt-4">
 			<div class="flex gap-x-4">
-				<button
-					type="button"
-					onclick="closeModal()"
-					class="border border-gray-300 text-gray-700 px-3 sm:px-6 py-2 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-colors"
-				>
-					Annuler
-				</button>
-				<button
-					id="delete-course-button"
-					type="button"
-					class="border border-gray-300 text-red-500 px-3 sm:px-6 py-2 rounded-lg hover:text-white hover:bg-red-600 hover:border-none active:text-white active:bg-red-700 active:border-none transition-colors"
-					hx-delete={ fmt.Sprintf("/admin/courses/%s", course.ID()) }
-					hx-target="#courses-grid"
-				>
-					Supprimer
-				</button>
+				@Button(Medium, Default) {
+					<button
+						type="button"
+						onclick="closeModal()"
+					>
+						Annuler
+					</button>
+				}
+				@Button(Medium, Important) {
+					<button
+						id="delete-course-button"
+						type="button"
+						hx-delete={ fmt.Sprintf("/admin/courses/%s", course.ID()) }
+						hx-target="#courses-grid"
+					>
+						Supprimer
+					</button>
+				}
 			</div>
 		</div>
 		<script>
