@@ -5,7 +5,7 @@ templ Header(isAdmin bool, username string, message string) {
 		<div class="px-4 py-2 drop-shadow-none">
 			<div class="flex items-center">
 				<a href="/" class="flex items-center gap-x-2">
-					<img class="text-accent-500 size-12" src="/static/svg/logo.svg"/>
+					<img class="text-accent-500 size-12" src="/static/svg/logo1.svg"/>
 					<h1 class="ml-1 text-3xl font-bold">Polybase</h1>
 				</a>
 			</div>
@@ -16,7 +16,7 @@ templ Header(isAdmin bool, username string, message string) {
 					<span class="capitalize">{ username }, </span>
 					<span class="lowercase">{ message }</span>
 				} else {
-					<span>{ message }</span>
+					<span></span>
 				}
 			</p>
 			<nav class="whitespace-nowrap h-full flex [&>*]:px-2 [&>*]:h-full [&>*]:select-none [&>*]:flex [&>*]:justify-center [&>*]:items-center [&>*:hover]:bg-accent-700">
