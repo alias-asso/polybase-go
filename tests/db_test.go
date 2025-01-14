@@ -10,17 +10,33 @@ import (
 
 const schema = `
 CREATE TABLE IF NOT EXISTS courses (
-	code TEXT,
-	kind TEXT,
-	part INTEGER DEFAULT 1,
-	parts INTEGER DEFAULT 1,
-	name TEXT,
-	quantity INTEGER,
-	total INTEGER,
-	shown INTEGER DEFAULT 1,
-	semester TEXT,
-	PRIMARY KEY (code, kind, part)
-)`
+    code TEXT,
+    kind TEXT,
+    part INTEGER DEFAULT 1,
+    parts INTEGER DEFAULT 1,
+    name TEXT,
+    quantity INTEGER,
+    total INTEGER,
+    shown INTEGER DEFAULT 1,
+    semester TEXT,
+    PRIMARY KEY (code, kind, part)
+);
+
+CREATE TABLE IF NOT EXISTS packs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pack_courses (
+    pack_id INTEGER,
+    course_code TEXT,
+    course_kind TEXT,
+    course_part INTEGER,
+    FOREIGN KEY (pack_id) REFERENCES packs(id) ON DELETE CASCADE,
+    FOREIGN KEY (course_code, course_kind, course_part) 
+        REFERENCES courses(code, kind, part) ON UPDATE CASCADE,
+    PRIMARY KEY (pack_id, course_code, course_kind, course_part)
+);`
 
 // DB encapsulates a test database connection and test helper functions
 type DB struct {
@@ -35,14 +51,16 @@ func NewDB(t *testing.T) *DB {
 		t.Fatalf("failed to open test database: %v", err)
 	}
 
-	// Ensure database is closed after test
+	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+		t.Fatalf("failed to enable foreign keys: %v", err)
+	}
+
 	t.Cleanup(func() {
 		if err := db.Close(); err != nil {
 			t.Errorf("failed to close test database: %v", err)
 		}
 	})
 
-	// Create schema
 	if _, err := db.Exec(schema); err != nil {
 		t.Fatalf("failed to create schema: %v", err)
 	}
@@ -169,4 +187,199 @@ func (db *DB) AssertCourseEqual(id internal.CourseID, want internal.Course) {
 	if got != want {
 		db.t.Errorf("course mismatch\ngot: %+v\nwant: %+v", got, want)
 	}
+}
+
+// InsertPack adds a pack to the test database
+func (db *DB) InsertPack(p internal.Pack) {
+	db.t.Helper()
+
+	result, err := db.Exec(`
+		INSERT INTO packs (id, name)
+		VALUES (?, ?)`,
+		p.ID, p.Name)
+	if err != nil {
+		db.t.Fatalf("failed to insert test pack: %v", err)
+	}
+
+	// If no ID was provided, get the auto-generated one
+	if p.ID == 0 {
+		id, err := result.LastInsertId()
+		if err != nil {
+			db.t.Fatalf("failed to get last insert id: %v", err)
+		}
+		p.ID = int(id)
+	}
+
+	// Insert pack courses if any
+	for _, courseID := range p.Courses {
+		db.InsertPackCourse(p.ID, courseID)
+	}
+}
+
+// InsertPackCourse links a course to a pack
+func (db *DB) InsertPackCourse(packID int, courseID internal.CourseID) {
+	db.t.Helper()
+
+	_, err := db.Exec(`
+		INSERT INTO pack_courses (pack_id, course_code, course_kind, course_part)
+		VALUES (?, ?, ?, ?)`,
+		packID, courseID.Code, courseID.Kind, courseID.Part)
+	if err != nil {
+		db.t.Fatalf("failed to insert pack course: %v", err)
+	}
+}
+
+// GetPack retrieves a pack from the database
+func (db *DB) GetPack(id int) internal.Pack {
+	db.t.Helper()
+
+	var pack internal.Pack
+	err := db.QueryRow(`
+		SELECT id, name
+		FROM packs
+		WHERE id = ?`, id).Scan(&pack.ID, &pack.Name)
+	if err != nil {
+		db.t.Fatalf("failed to get pack: %v", err)
+	}
+
+	// Get pack courses
+	rows, err := db.Query(`
+		SELECT course_code, course_kind, course_part
+		FROM pack_courses
+		WHERE pack_id = ?
+		ORDER BY course_code, course_kind, course_part`, id)
+	if err != nil {
+		db.t.Fatalf("failed to get pack courses: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var courseID internal.CourseID
+		if err := rows.Scan(&courseID.Code, &courseID.Kind, &courseID.Part); err != nil {
+			db.t.Fatalf("failed to scan pack course: %v", err)
+		}
+		pack.Courses = append(pack.Courses, courseID)
+	}
+
+	if err = rows.Err(); err != nil {
+		db.t.Fatalf("error iterating pack courses: %v", err)
+	}
+
+	return pack
+}
+
+// AssertPackExists checks if a pack exists
+func (db *DB) AssertPackExists(id int) {
+	db.t.Helper()
+
+	var exists bool
+	err := db.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM packs 
+			WHERE id = ?
+		)`, id).Scan(&exists)
+	if err != nil {
+		db.t.Fatalf("failed to check pack existence: %v", err)
+	}
+	if !exists {
+		db.t.Errorf("pack %d does not exist", id)
+	}
+}
+
+// AssertPackNotExists checks if a pack doesn't exist
+func (db *DB) AssertPackNotExists(id int) {
+	db.t.Helper()
+
+	var exists bool
+	err := db.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM packs 
+			WHERE id = ?
+		)`, id).Scan(&exists)
+	if err != nil {
+		db.t.Fatalf("failed to check pack existence: %v", err)
+	}
+	if exists {
+		db.t.Errorf("pack %d exists but should not", id)
+	}
+}
+
+// AssertPackEqual compares a pack with database content
+func (db *DB) AssertPackEqual(id int, want internal.Pack) {
+	db.t.Helper()
+
+	got := db.GetPack(id)
+	if got.ID != want.ID || got.Name != want.Name ||
+		len(got.Courses) != len(want.Courses) {
+		db.t.Errorf("pack mismatch\ngot: %+v\nwant: %+v", got, want)
+		return
+	}
+
+	// Compare courses slice - order matters as it's maintained in GetPack
+	for i := range got.Courses {
+		if got.Courses[i] != want.Courses[i] {
+			db.t.Errorf("pack courses mismatch at index %d\ngot: %+v\nwant: %+v",
+				i, got.Courses[i], want.Courses[i])
+		}
+	}
+}
+
+// AssertCourseInPack checks if a course is in a pack
+func (db *DB) AssertCourseInPack(packID int, courseID internal.CourseID) {
+	db.t.Helper()
+
+	var exists bool
+	err := db.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM pack_courses 
+			WHERE pack_id = ? 
+			AND course_code = ? 
+			AND course_kind = ? 
+			AND course_part = ?
+		)`,
+		packID, courseID.Code, courseID.Kind, courseID.Part).Scan(&exists)
+	if err != nil {
+		db.t.Fatalf("failed to check course in pack: %v", err)
+	}
+	if !exists {
+		db.t.Errorf("course %+v not found in pack %d", courseID, packID)
+	}
+}
+
+// AssertCourseNotInPack checks if a course is not in a pack
+func (db *DB) AssertCourseNotInPack(packID int, courseID internal.CourseID) {
+	db.t.Helper()
+
+	var exists bool
+	err := db.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM pack_courses 
+			WHERE pack_id = ? 
+			AND course_code = ? 
+			AND course_kind = ? 
+			AND course_part = ?
+		)`,
+		packID, courseID.Code, courseID.Kind, courseID.Part).Scan(&exists)
+	if err != nil {
+		db.t.Fatalf("failed to check course not in pack: %v", err)
+	}
+	if exists {
+		db.t.Errorf("course %+v found in pack %d but should not be", courseID, packID)
+	}
+}
+
+// CountPackCourses counts courses in a pack
+func (db *DB) CountPackCourses(packID int) int {
+	db.t.Helper()
+
+	var count int
+	err := db.QueryRow(`
+		SELECT COUNT(*) 
+		FROM pack_courses 
+		WHERE pack_id = ?`,
+		packID).Scan(&count)
+	if err != nil {
+		db.t.Fatalf("failed to count pack courses: %v", err)
+	}
+	return count
 }

@@ -15,7 +15,7 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	courses, err := s.pb.List(r.Context(), false, nil, nil, nil, nil)
+	courses, err := s.pb.ListCourse(r.Context(), false, nil, nil, nil, nil)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
 		log.Printf("%s", err)

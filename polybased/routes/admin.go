@@ -15,7 +15,7 @@ import (
 func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
-	courses, err := s.pb.List(r.Context(), true, nil, nil, nil, nil)
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
 		log.Printf("%s", err)
@@ -47,7 +47,7 @@ func (s *Server) getAdminCoursesEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	course, err := s.pb.Get(r.Context(), id)
+	course, err := s.pb.GetCourse(r.Context(), id)
 	if err != nil {
 		http.Error(w, "Failed to get course", http.StatusInternalServerError)
 		log.Printf("Failed to get course: %v", err)
@@ -69,7 +69,7 @@ func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	course, err := s.pb.Get(r.Context(), id)
+	course, err := s.pb.GetCourse(r.Context(), id)
 	if err != nil {
 		http.Error(w, "Failed to get course", http.StatusInternalServerError)
 		log.Printf("Failed to get course: %v", err)
@@ -138,7 +138,7 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.pb.Get(r.Context(), id)
+	_, err = s.pb.GetCourse(r.Context(), id)
 	exists := true
 	if err != nil {
 		if _, ok := err.(*internal.CourseNotFound); ok {
@@ -197,14 +197,14 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 		Semester: semester,
 	}
 
-	_, err = s.pb.Create(r.Context(), username, course)
+	_, err = s.pb.CreateCourse(r.Context(), username, course)
 	if err != nil {
 		http.Error(w, "Failed to add course", http.StatusInternalServerError)
 		log.Printf("%s", err)
 		return
 	}
 
-	courses, err := s.pb.List(r.Context(), true, nil, nil, nil, nil)
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
 		log.Printf("%s", err)
@@ -236,7 +236,7 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.pb.Get(r.Context(), id)
+	_, err = s.pb.GetCourse(r.Context(), id)
 	exists := true
 	if err != nil {
 		if err == fmt.Errorf("course not found") {
@@ -301,14 +301,14 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		Semester: &semester,
 	}
 
-	_, err = s.pb.Update(r.Context(), username, id, course)
+	_, err = s.pb.UpdateCourse(r.Context(), username, id, course)
 	if err != nil {
 		http.Error(w, "Failed to add course", http.StatusInternalServerError)
 		log.Printf("%s", err)
 		return
 	}
 
-	courses, err := s.pb.List(r.Context(), true, nil, nil, nil, nil)
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
 		log.Printf("%s", err)
@@ -333,7 +333,7 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 
 	username := getUsernameFromContext(r.Context())
 
-	_, err = s.pb.Get(r.Context(), id)
+	_, err = s.pb.GetCourse(r.Context(), id)
 	exists := true
 	if err != nil {
 		if err == fmt.Errorf("course not found") {
@@ -351,14 +351,14 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.pb.Delete(r.Context(), username, id)
+	err = s.pb.DeleteCourse(r.Context(), username, id)
 	if err != nil {
 		http.Error(w, "Failed to add course", http.StatusInternalServerError)
 		log.Printf("%s", err)
 		return
 	}
 
-	courses, err := s.pb.List(r.Context(), true, nil, nil, nil, nil)
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
 	if err != nil {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
 		log.Printf("%s", err)

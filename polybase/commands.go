@@ -62,7 +62,7 @@ func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {
 	}
 
 	username := getCurrentUser()
-	created, err := pb.Create(ctx, username, course)
+	created, err := pb.CreateCourse(ctx, username, course)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func runGet(pb internal.Polybase, ctx context.Context, args []string) error {
 		Part: part,
 	}
 
-	course, err := pb.Get(ctx, id)
+	course, err := pb.GetCourse(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 	})
 
 	username := getCurrentUser()
-	updated, err := pb.Update(ctx, username, id, partial)
+	updated, err := pb.UpdateCourse(ctx, username, id, partial)
 	if err != nil {
 		return err
 	}
@@ -181,7 +181,7 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 		Part: part,
 	}
 
-	course, err := pb.Get(ctx, id)
+	course, err := pb.GetCourse(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 	}
 
 	username := getCurrentUser()
-	return pb.Delete(ctx, username, id)
+	return pb.DeleteCourse(ctx, username, id)
 }
 
 func runList(pb internal.Polybase, ctx context.Context, args []string) error {
@@ -242,7 +242,7 @@ func runList(pb internal.Polybase, ctx context.Context, args []string) error {
 		}
 	})
 
-	courses, err := pb.List(ctx, *showHidden, filterSemester, filterCode, filterKind, filterPart)
+	courses, err := pb.ListCourse(ctx, *showHidden, filterSemester, filterCode, filterKind, filterPart)
 	if err != nil {
 		return err
 	}
