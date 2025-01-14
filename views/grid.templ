@@ -3,7 +3,7 @@ package views
 import "git.sr.ht/~alias/polybase-go/internal"
 
 templ Grid(semesterGroups []SemesterGroup, isAdmin bool) {
-	<main id="courses-grid" class="flex-grow">
+	<main id="courses-grid" class="flex-grow gap-y-4">
 		for _, semester := range semesterGroups {
 			<div class="px-4 sm:px-4 lg:px-6 xl:px-8">
 				<h2 class="text-3xl font-bold mb-4">{ semester.Name }</h2>
