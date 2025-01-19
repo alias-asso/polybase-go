@@ -164,7 +164,7 @@ templ EditCourseForm(course internal.Course) {
 					@FormField("semester", "Semestre", true) {
 						<input type="text" id="semester" name="semester" required value={ course.Semester }/>
 					}
-					@FormField("quantity", "Quantité initiale", true) {
+					@FormField("quantity", "Quantité", true) {
 						<input type="number" id="quantity" name="quantity" required value={ fmt.Sprintf("%d", course.Quantity) }/>
 					}
 					@FormField("total", "Quantité totale", false) {
