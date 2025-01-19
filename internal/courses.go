@@ -392,6 +392,10 @@ func validateCourse(course Course) (Course, error) {
 		return Course{}, fmt.Errorf("KIND cannot be empty")
 	}
 
+	if course.Part <= 0 || course.Part >= 1000 {
+		return Course{}, fmt.Errorf("PART must be in 1-1000")
+	}
+
 	course.Name = strings.TrimSpace(course.Name)
 
 	if err := validateQuantity(course.Quantity, course.Total); err != nil {

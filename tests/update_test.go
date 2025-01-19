@@ -2,8 +2,10 @@ package tests
 
 import (
 	"context"
-	"git.sr.ht/~alias/polybase-go/internal"
+	"strings"
 	"testing"
+
+	"git.sr.ht/~alias/polybase-go/internal"
 )
 
 // All fields of a course can be updated simultaneously
@@ -117,12 +119,383 @@ func TestUpdateAllFields(t *testing.T) {
 }
 
 // Each individual field can be updated independently
+func TestUpdateSingleField(t *testing.T) {
+	db := NewDB(t)
+	pb := internal.New(db.DB, "", false)
+	ctx := context.Background()
+
+	original := internal.Course{
+		Code:     "LU3IN005",
+		Kind:     "TD",
+		Part:     1,
+		Parts:    1,
+		Name:     "Operating Systems",
+		Quantity: 30,
+		Total:    50,
+		Shown:    true,
+		Semester: "S1",
+	}
+
+	tests := []struct {
+		name    string
+		partial internal.PartialCourse
+		want    internal.Course
+	}{
+		{
+			name: "update code",
+			partial: internal.PartialCourse{
+				Code: stringPtr("LU3IN006"),
+			},
+			want: internal.Course{
+				Code:     "LU3IN006",
+				Kind:     "TD",
+				Part:     1,
+				Parts:    1,
+				Name:     "Operating Systems",
+				Quantity: 30,
+				Total:    50,
+				Shown:    true,
+				Semester: "S1",
+			},
+		},
+		{
+			name: "update kind",
+			partial: internal.PartialCourse{
+				Kind: stringPtr("TME"),
+			},
+			want: internal.Course{
+				Code:     "LU3IN005",
+				Kind:     "TME",
+				Part:     1,
+				Parts:    1,
+				Name:     "Operating Systems",
+				Quantity: 30,
+				Total:    50,
+				Shown:    true,
+				Semester: "S1",
+			},
+		},
+		{
+			name: "update name",
+			partial: internal.PartialCourse{
+				Name: stringPtr("Advanced OS"),
+			},
+			want: internal.Course{
+				Code:     "LU3IN005",
+				Kind:     "TD",
+				Part:     1,
+				Parts:    1,
+				Name:     "Advanced OS",
+				Quantity: 30,
+				Total:    50,
+				Shown:    true,
+				Semester: "S1",
+			},
+		},
+		{
+			name: "update quantity",
+			partial: internal.PartialCourse{
+				Quantity: intPtr(40),
+			},
+			want: internal.Course{
+				Code:     "LU3IN005",
+				Kind:     "TD",
+				Part:     1,
+				Parts:    1,
+				Name:     "Operating Systems",
+				Quantity: 40,
+				Total:    50,
+				Shown:    true,
+				Semester: "S1",
+			},
+		},
+		{
+			name: "update total",
+			partial: internal.PartialCourse{
+				Total: intPtr(60),
+			},
+			want: internal.Course{
+				Code:     "LU3IN005",
+				Kind:     "TD",
+				Part:     1,
+				Parts:    1,
+				Name:     "Operating Systems",
+				Quantity: 30,
+				Total:    60,
+				Shown:    true,
+				Semester: "S1",
+			},
+		},
+		{
+			name: "update shown",
+			partial: internal.PartialCourse{
+				Shown: boolPtr(false),
+			},
+			want: internal.Course{
+				Code:     "LU3IN005",
+				Kind:     "TD",
+				Part:     1,
+				Parts:    1,
+				Name:     "Operating Systems",
+				Quantity: 30,
+				Total:    50,
+				Shown:    false,
+				Semester: "S1",
+			},
+		},
+		{
+			name: "update semester",
+			partial: internal.PartialCourse{
+				Semester: stringPtr("S2"),
+			},
+			want: internal.Course{
+				Code:     "LU3IN005",
+				Kind:     "TD",
+				Part:     1,
+				Parts:    1,
+				Name:     "Operating Systems",
+				Quantity: 30,
+				Total:    50,
+				Shown:    true,
+				Semester: "S2",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Reset database and recreate original course for each test
+			db.Clear()
+			created, err := pb.CreateCourse(ctx, "testuser", original)
+			if err != nil {
+				t.Fatalf("failed to create initial course: %v", err)
+			}
+
+			// Perform single field update
+			updated, err := pb.UpdateCourse(ctx, "testuser", internal.CourseID{
+				Code: created.Code,
+				Kind: created.Kind,
+				Part: created.Part,
+			}, tt.partial)
+
+			if err != nil {
+				t.Fatalf("failed to update course: %v", err)
+			}
+
+			if updated != tt.want {
+				t.Errorf("updated course mismatch:\ngot: %+v\nwant: %+v", updated, tt.want)
+			}
+
+			db.AssertCourseEqual(internal.CourseID{
+				Code: updated.Code,
+				Kind: updated.Kind,
+				Part: updated.Part,
+			}, tt.want)
+		})
+	}
+}
 
 // Updating non-existent course returns appropriate error
+func TestUpdateNonExistentCourse(t *testing.T) {
+	db := NewDB(t)
+	pb := internal.New(db.DB, "", false)
+	ctx := context.Background()
+
+	newName := "Updated Name"
+	partial := internal.PartialCourse{
+		Name: &newName,
+	}
+
+	id := internal.CourseID{
+		Code: "NOTFOUND",
+		Kind: "MISSING",
+		Part: 1,
+	}
+
+	_, err := pb.UpdateCourse(ctx, "testuser", id, partial)
+	if err == nil {
+		t.Fatal("expected error when updating non-existent course, got nil")
+	}
+	if !strings.Contains(err.Error(), "get current course: course not found") {
+		t.Errorf("expected 'course does not exists' error, got: %v", err)
+	}
+
+	db.AssertCount(0)
+	db.AssertNotExists(id)
+}
 
 // Updates with invalid values are properly rejected
+func TestUpdateWithInvalidValues(t *testing.T) {
+	db := NewDB(t)
+	pb := internal.New(db.DB, "", false)
+	ctx := context.Background()
+
+	original := internal.Course{
+		Code:     "LU3IN005",
+		Kind:     "TD",
+		Part:     1,
+		Parts:    1,
+		Name:     "Operating Systems",
+		Quantity: 30,
+		Total:    50,
+		Shown:    true,
+		Semester: "S1",
+	}
+
+	tests := []struct {
+		name    string
+		partial internal.PartialCourse
+	}{
+		{
+			name: "invalid code format",
+			partial: internal.PartialCourse{
+				Code: stringPtr(""),
+			},
+		},
+		{
+			name: "invalid kind with numbers",
+			partial: internal.PartialCourse{
+				Kind: stringPtr(""),
+			},
+		},
+		{
+			name: "invalid kind with numbers",
+			partial: internal.PartialCourse{
+				Part: intPtr(0),
+			},
+		},
+		{
+			name: "quantity exceeds total",
+			partial: internal.PartialCourse{
+				Quantity: intPtr(100),
+			},
+		},
+		{
+			name: "negative quantity",
+			partial: internal.PartialCourse{
+				Quantity: intPtr(-10),
+			},
+		},
+		{
+			name: "negative total",
+			partial: internal.PartialCourse{
+				Total: intPtr(-50),
+			},
+		},
+		{
+			name: "invalid semester format",
+			partial: internal.PartialCourse{
+				Semester: stringPtr("X1"),
+			},
+		},
+		{
+			name: "invalid semester number",
+			partial: internal.PartialCourse{
+				Semester: stringPtr("S3"),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Reset database and recreate original course for each test
+			db.Clear()
+			_, err := pb.CreateCourse(ctx, "testuser", original)
+			if err != nil {
+				t.Fatalf("failed to create initial course: %v", err)
+			}
+
+			id := internal.CourseID{
+				Code: original.Code,
+				Kind: original.Kind,
+				Part: original.Part,
+			}
+
+			_, err = pb.UpdateCourse(ctx, "testuser", id, tt.partial)
+
+			if err == nil {
+				t.Fatal("expected error, got nil")
+			}
+
+			// Verify course remains unchanged
+			db.AssertCourseEqual(id, original)
+		})
+	}
+}
 
 // Updating to create a duplicate is properly rejected
+func TestUpdateToDuplicate(t *testing.T) {
+	db := NewDB(t)
+	pb := internal.New(db.DB, "", false)
+	ctx := context.Background()
+
+	// Create first course
+	first := internal.Course{
+		Code:     "LU3IN005",
+		Kind:     "TD",
+		Part:     1,
+		Parts:    1,
+		Name:     "Operating Systems",
+		Quantity: 30,
+		Total:    50,
+		Shown:    true,
+		Semester: "S1",
+	}
+
+	// Create second course
+	second := internal.Course{
+		Code:     "LU3IN006",
+		Kind:     "TD",
+		Part:     1,
+		Parts:    1,
+		Name:     "Algorithms",
+		Quantity: 40,
+		Total:    60,
+		Shown:    true,
+		Semester: "S1",
+	}
+
+	// Insert both courses
+	_, err := pb.CreateCourse(ctx, "testuser", first)
+	if err != nil {
+		t.Fatalf("failed to create first course: %v", err)
+	}
+
+	_, err = pb.CreateCourse(ctx, "testuser", second)
+	if err != nil {
+		t.Fatalf("failed to create second course: %v", err)
+	}
+
+	// Try to update second course to have same ID as first
+	partial := internal.PartialCourse{
+		Code: &first.Code,
+		Kind: &first.Kind,
+		Part: &first.Part,
+	}
+
+	_, err = pb.UpdateCourse(ctx, "testuser", internal.CourseID{
+		Code: second.Code,
+		Kind: second.Kind,
+		Part: second.Part,
+	}, partial)
+
+	if err == nil {
+		t.Fatal("expected error when updating to create duplicate, got nil")
+	}
+
+	// Verify both courses remain unchanged
+	db.AssertCourseEqual(internal.CourseID{
+		Code: first.Code,
+		Kind: first.Kind,
+		Part: first.Part,
+	}, first)
+
+	db.AssertCourseEqual(internal.CourseID{
+		Code: second.Code,
+		Kind: second.Kind,
+		Part: second.Part,
+	}, second)
+}
 
 // Update with no actual changes is handled gracefully
 func TestUpdateCourseWithSameInfo(t *testing.T) {
