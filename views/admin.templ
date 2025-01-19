@@ -6,7 +6,7 @@ templ Admin(courses []internal.Course, username string) {
 	@Base(true) {
 		@Header(true, username, GetRandomMessage()) {
 			<a href="/admin/statistics">Statistiques</a>
-			<a href="/admin/packs/new">Ajouter pack</a>
+			<button hx-get="/admin/packs/new" hx-target="#modal-container">Ajouter pack</button>
 			<button hx-get="/admin/courses/new" hx-target="#modal-container">Ajouter poly</button>
 		}
 		@Grid(GroupCoursesBySemesterAndKind(courses), true)

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"git.sr.ht/~alias/polybase-go/internal"
 	"git.sr.ht/~alias/polybase-go/views"
@@ -84,12 +85,24 @@ func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
 
 // getAdminPacksNew
 func (s *Server) getAdminPacksNew(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin packs new - Config: %+v, Polybase: %+v", s.cfg, s.pb)
-	w.Write([]byte("Get admin packs new"))
+	// TODO:
+
+	courses, err := s.pb.ListCourse(r.Context(), false, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to get course", http.StatusInternalServerError)
+		log.Printf("Failed to get course: %v", err)
+	}
+
+	err = views.NewPackForm(courses).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // getAdminPacksEdit
 func (s *Server) getAdminPacksEdit(w http.ResponseWriter, r *http.Request) {
+	// TODO:
 	id, err := parseUrl("/admin/packs/edit/", r)
 	if err != nil {
 		log.Println(err)
@@ -103,6 +116,7 @@ func (s *Server) getAdminPacksEdit(w http.ResponseWriter, r *http.Request) {
 
 // getAdminPacksDelete
 func (s *Server) getAdminPacksDelete(w http.ResponseWriter, r *http.Request) {
+	// TODO:
 	id, err := parseUrl("/admin/packs/delete/", r)
 	if err != nil {
 		log.Println(err)
@@ -434,6 +448,82 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 		log.Printf("Failed to render template: %v", err)
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 	}
+}
+
+func (s *Server) postAdminPacks(w http.ResponseWriter, r *http.Request) {
+	username := getUsernameFromContext(r.Context())
+
+	// Parse form data
+	err := r.ParseForm()
+	if err != nil {
+		log.Printf("Failed to parse form: %v", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	name := r.Form.Get("name")
+	var coursesId []internal.CourseID
+	for _, idStr := range r.Form["courses"] {
+		parts := strings.Split(idStr, "/")
+
+		code := parts[0]
+		kind := parts[1]
+		part, err := strconv.Atoi(parts[2])
+		if err != nil {
+			http.Error(w, "Failed to get part", http.StatusInternalServerError)
+			log.Printf("%s", err)
+			return
+		}
+
+		id := internal.CourseID{
+			Code: code,
+			Kind: kind,
+			Part: part,
+		}
+
+		_, err = s.pb.GetCourse(r.Context(), id)
+		if err != nil {
+			http.Error(w, "Failed to get course", http.StatusInternalServerError)
+			log.Printf("%s", err)
+			return
+		}
+
+		coursesId = append(coursesId, id)
+	}
+
+	fmt.Println(username)
+	fmt.Println(name)
+	for _, course := range coursesId {
+		fmt.Println(course)
+	}
+
+	_, err = s.pb.CreatePack(r.Context(), username, name, coursesId)
+	if err != nil {
+		http.Error(w, "Failed to add pack", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), true).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
+}
+
+func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
+	// TODO:
+}
+
+func (s *Server) deleteAdminPacks(w http.ResponseWriter, r *http.Request) {
+	// TODO:
 }
 
 func getUsernameFromContext(ctx context.Context) string {
