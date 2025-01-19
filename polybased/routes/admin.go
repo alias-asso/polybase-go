@@ -155,6 +155,47 @@ func (s *Server) getAdminPacksDelete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) getAdminPack(w http.ResponseWriter, r *http.Request) {
+	id, err := parsePackUrl("/admin/packs/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		log.Printf("Failed to parse form: %v", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	expandedStr := r.Form.Get("expanded")
+	if expandedStr == "" {
+		log.Printf("Failed to parse form: %v", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+	expanded, err := strconv.ParseBool(expandedStr)
+	if err != nil {
+		log.Printf("Failed to parse form: %v", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	pack, err := s.pb.GetPack(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to get course", http.StatusInternalServerError)
+		log.Printf("Failed to get course: %v", err)
+	}
+
+	err = views.PackCard(pack, expanded).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
+}
+
 // getAdminPacksNew
 func (s *Server) getAdminStatistics(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Get admin statistics - Config: %+v, Polybase: %+v", s.cfg, s.pb)

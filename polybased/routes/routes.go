@@ -26,6 +26,8 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("GET /admin/packs/edit/{id}", s.withAuth(s.getAdminPacksEdit))
 	s.mux.HandleFunc("GET /admin/packs/delete/{id}", s.withAuth(s.getAdminPacksDelete))
 
+	s.mux.HandleFunc("GET /admin/packs/{id}", s.withAuth(s.getAdminPack))
+
 	// s.mux.HandleFunc("GET /admin/statistics", s.withAuth(s.getAdminStatistics))
 
 	s.mux.HandleFunc("POST /admin/courses/{code}/{kind}/{part}", s.withAuth(s.postAdminCourses))

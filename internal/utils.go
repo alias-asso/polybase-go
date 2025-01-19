@@ -47,10 +47,6 @@ func (c Course) ID() string {
 	return fmt.Sprintf("%s/%s/%d", c.Code, c.Kind, c.Part)
 }
 
-func (c CourseID) ID() string {
-	return fmt.Sprintf("%s/%s/%d", c.Code, c.Kind, c.Part)
-}
-
 func (c Course) CID() CourseID {
 	return CourseID{
 		Code: c.Code,
@@ -64,6 +60,22 @@ func (c Course) SID() string {
 	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)
 	sid = reg.ReplaceAllString(sid, "-")
 	return strings.ToLower(sid)
+}
+
+func (c CourseID) ID() string {
+	return fmt.Sprintf("%s/%s/%d", c.Code, c.Kind, c.Part)
+}
+
+
+func (c CourseID) SID() string {
+	sid := fmt.Sprintf("course-%s-%s-%d", c.Code, c.Kind, c.Part)
+	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+	sid = reg.ReplaceAllString(sid, "-")
+	return strings.ToLower(sid)
+}
+
+func (c CourseID) PID() string {
+	return fmt.Sprintf("%s %s %d", c.Code, c.Kind, c.Part)
 }
 
 func validateSemester(semester string) error {

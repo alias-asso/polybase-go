@@ -70,4 +70,24 @@
     @apply icon-base;
     mask: url(/static/svg/cross.svg) no-repeat center / contain;
   }
+
+  .icon-up {
+    @apply icon-base;
+    mask: url(/static/svg/up.svg) no-repeat center / contain;
+  }
+
+  .icon-down {
+    @apply icon-base;
+    mask: url(/static/svg/down.svg) no-repeat center / contain;
+  }
+
+  .icon-left {
+    @apply icon-base;
+    mask: url(/static/svg/left.svg) no-repeat center / contain;
+  }
+
+  .icon-right {
+    @apply icon-base;
+    mask: url(/static/svg/right.svg) no-repeat center / contain;
+  }
 }
