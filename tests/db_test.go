@@ -96,9 +96,17 @@ func (db *DB) InsertMany(courses []internal.Course) {
 // Clear removes all data from the test database
 func (db *DB) Clear() {
 	db.t.Helper()
-	_, err := db.Exec("DELETE FROM courses")
+	_, err := db.Exec("DELETE FROM pack_courses")
 	if err != nil {
-		db.t.Fatalf("failed to clear test database: %v", err)
+		db.t.Fatalf("failed to clear pack_courses: %v", err)
+	}
+	_, err = db.Exec("DELETE FROM packs")
+	if err != nil {
+		db.t.Fatalf("failed to clear packs: %v", err)
+	}
+	_, err = db.Exec("DELETE FROM courses")
+	if err != nil {
+		db.t.Fatalf("failed to clear courses: %v", err)
 	}
 }
 
@@ -309,17 +317,43 @@ func (db *DB) AssertPackEqual(id int, want internal.Pack) {
 	db.t.Helper()
 
 	got := db.GetPack(id)
-	if got.ID != want.ID || got.Name != want.Name ||
-		len(got.Courses) != len(want.Courses) {
-		db.t.Errorf("pack mismatch\ngot: %+v\nwant: %+v", got, want)
+
+	// Compare non-course fields
+	if got.ID != want.ID || got.Name != want.Name {
+		db.t.Errorf("pack basic fields mismatch\ngot: ID=%d, Name=%q\nwant: ID=%d, Name=%q",
+			got.ID, got.Name, want.ID, want.Name)
 		return
 	}
 
-	// Compare courses slice - order matters as it's maintained in GetPack
-	for i := range got.Courses {
-		if got.Courses[i] != want.Courses[i] {
-			db.t.Errorf("pack courses mismatch at index %d\ngot: %+v\nwant: %+v",
-				i, got.Courses[i], want.Courses[i])
+	// Check if course counts match
+	if len(got.Courses) != len(want.Courses) {
+		db.t.Errorf("course count mismatch\ngot %d courses, want %d courses",
+			len(got.Courses), len(want.Courses))
+		return
+	}
+
+	// Convert courses to maps for set comparison
+	wantCourses := make(map[string]internal.CourseID)
+	for _, course := range want.Courses {
+		wantCourses[course.ID()] = course
+	}
+
+	gotCourses := make(map[string]internal.CourseID)
+	for _, course := range got.Courses {
+		gotCourses[course.ID()] = course
+	}
+
+	// Check for missing courses
+	for id, wantCourse := range wantCourses {
+		if _, exists := gotCourses[id]; !exists {
+			db.t.Errorf("missing course: %+v", wantCourse)
+		}
+	}
+
+	// Check for unexpected extra courses
+	for id, gotCourse := range gotCourses {
+		if _, exists := wantCourses[id]; !exists {
+			db.t.Errorf("unexpected course: %+v", gotCourse)
 		}
 	}
 }

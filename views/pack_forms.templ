@@ -1,0 +1,171 @@
+package views
+
+import (
+	"fmt"
+	"git.sr.ht/~alias/polybase-go/internal"
+)
+
+templ NewPackForm(courses []internal.Course) {
+	@Modal() {
+		<div class="space-y-6">
+			<h2 class="text-2xl font-bold">Créer un nouveau pack</h2>
+			<form id="new-pack-form" hx-post="/admin/packs" hx-target="#courses-grid" class="space-y-6">
+				@FormField("name", "Nom du pack", true) {
+					<input type="text" id="name" name="name" required/>
+				}
+				<div class="border border-base-300 rounded-lg p-4">
+					<h3 class="text-lg font-semibold mb-4">Polys inclus</h3>
+					<div class="space-y-2 max-h-96 overflow-y-auto">
+						for _, course := range courses {
+							<div class="flex items-center">
+								<input
+									type="checkbox"
+									id={ fmt.Sprintf("course-%s", course.ID()) }
+									name="courses"
+									value={ course.ID() }
+									class="mr-3"
+								/>
+								<label for={ fmt.Sprintf("course-%s", course.ID()) }>
+									{ fmt.Sprintf("%s %s %d - %s", course.Code, course.Kind, course.Part, course.Name) }
+								</label>
+							</div>
+						}
+					</div>
+				</div>
+				@ErrorTarget()
+				<div class="flex justify-end gap-x-4 pt-4">
+					@Button(Medium, Default) {
+						<button type="button" onclick="closeModal()">
+							Annuler
+						</button>
+					}
+					@Button(Medium, Accent) {
+						<button type="submit">
+							Créer
+						</button>
+					}
+				</div>
+			</form>
+		</div>
+		<script>
+        if (!window.newPackForm) {
+            window.newPackForm = true;
+            document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+                if (evt.detail.elt.id === 'new-pack-form' && evt.detail.xhr.status === 200) {
+                    closeModal();
+                }
+            });
+        }
+        </script>
+	}
+}
+
+templ EditPackForm(pack internal.Pack, courses []internal.Course) {
+	@Modal() {
+		<div class="space-y-6">
+			<h2 class="text-2xl font-bold">Modifier un pack</h2>
+			<form id="edit-pack-form" hx-put={ fmt.Sprintf("/admin/packs/%d", pack.ID) } hx-target="#courses-grid" class="space-y-6">
+				@FormField("name", "Nom du pack", true) {
+					<input type="text" id="name" name="name" required value={ pack.Name }/>
+				}
+				<div class="border border-base-300 rounded-lg p-4">
+					<h3 class="text-lg font-semibold mb-4">Polys inclus</h3>
+					<div class="space-y-2 max-h-96 overflow-y-auto">
+						for _, course := range courses {
+							<div class="flex items-center">
+								<input
+									type="checkbox"
+									id={ fmt.Sprintf("course-%s", course.ID()) }
+									name="courses"
+									value={ course.ID() }
+									class="mr-3"
+									checked?={ contains(pack.Courses, course.CID()) }
+								/>
+								<label for={ fmt.Sprintf("course-%s", course.ID()) }>
+									{ fmt.Sprintf("%s %s %d - %s", course.Code, course.Kind, course.Part, course.Name) }
+								</label>
+							</div>
+						}
+					</div>
+				</div>
+				@ErrorTarget()
+				<div class="flex justify-between pt-4">
+					<div class="flex gap-x-4">
+						@Button(Medium, Important) {
+							<button
+								type="button"
+								hx-get={ fmt.Sprintf("/admin/packs/delete/%d", pack.ID) }
+								hx-target="#modal-container"
+							>
+								Supprimer
+							</button>
+						}
+					</div>
+					<div class="flex gap-x-4">
+						@Button(Medium, Default) {
+							<button type="button" onclick="closeModal()">
+								Annuler
+							</button>
+						}
+						@Button(Medium, Accent) {
+							<button type="submit">
+								Modifier
+							</button>
+						}
+					</div>
+				</div>
+			</form>
+		</div>
+		<script>
+        if (!window.editPackForm) {
+            window.editPackForm = true;
+            document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+                if (evt.detail.elt.id === 'edit-pack-form' && evt.detail.xhr.status === 200) {
+                    closeModal();
+                }
+            });
+        }
+        </script>
+	}
+}
+
+templ PackDeleteConfirm(pack internal.Pack) {
+	@Modal() {
+		<div class="flex flex-col items-center gap-y-4 mx-4 my-8">
+			<h1 class="text-bf text-xl font-bold">Supprimer le pack { pack.Name } ?</h1>
+			<p>Cette action est <span class="text-red-500 font-bold">irréversible</span>.</p>
+		</div>
+		<div class="flex justify-center pt-4">
+			<div class="flex gap-x-4">
+				@Button(Medium, Default) {
+					<button
+						type="button"
+						onclick="closeModal()"
+					>
+						Annuler
+					</button>
+				}
+				@Button(Medium, Important) {
+					<button
+						id="delete-pack-button"
+						type="button"
+						hx-delete={ fmt.Sprintf("/admin/packs/%d", pack.ID) }
+						hx-target="#courses-grid"
+					>
+						Supprimer
+					</button>
+				}
+			</div>
+		</div>
+		<script>
+    if (!window.deletePackButton) {
+      window.deletePackButton = true;
+      document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+        if (evt.detail.elt.id === 'delete-pack-button' && evt.detail.xhr.status === 200) {
+          closeModal();
+        }
+      });
+    }
+    </script>
+	}
+}

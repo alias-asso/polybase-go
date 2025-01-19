@@ -62,16 +62,16 @@ templ CourseName(course internal.Course) {
 // rendered when isAdmin is true.
 templ CourseAdminControl(course internal.Course) {
 	<div class="flex gap-x-1">
-		@EditButton(course)
-		@VisibilityButton(course)
-		@QuantityButton(course, -1)
-		@QuantityButton(course, 1)
+		@CourseEditButton(course)
+		@CourseVisibilityButton(course)
+		@CourseQuantityButton(course, -1)
+		@CourseQuantityButton(course, 1)
 	</div>
 }
 
 // EditButton creates an admin control that opens the course editing modal when
 // clicked.
-templ EditButton(course internal.Course) {
+templ CourseEditButton(course internal.Course) {
 	@Button(Small, Default) {
 		<button
 			hx-get={ fmt.Sprintf("/admin/courses/edit/%s", course.ID()) }
@@ -85,7 +85,7 @@ templ EditButton(course internal.Course) {
 // QuantityButton generates increment/decrement controls for adjusting course
 // quantities. Delta parameter determines button behavior: positive for
 // increment, negative for decrement.
-templ QuantityButton(course internal.Course, delta int) {
+templ CourseQuantityButton(course internal.Course, delta int) {
 	@Button(Small, Default) {
 		<button
 			hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=%d", course.ID(), delta) }
@@ -102,7 +102,7 @@ templ QuantityButton(course internal.Course, delta int) {
 
 // VisibilityButton toggles course visibility with dynamic icon changes on
 // hover.
-templ VisibilityButton(course internal.Course) {
+templ CourseVisibilityButton(course internal.Course) {
 	@Button(Small, Default) {
 		<button
 			hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", course.ID(), !course.Shown) }

@@ -38,6 +38,8 @@ func (s *Server) registerRoutes() {
 
 	s.mux.HandleFunc("PATCH /admin/courses/{code}/{kind}/{part}/quantity", s.withAuth(s.patchAdminCoursesQuantity))
 	s.mux.HandleFunc("PATCH /admin/courses/{code}/{kind}/{part}/visibility", s.withAuth(s.patchAdminCoursesVisibility))
+
+	s.mux.HandleFunc("PATCH /admin/packs/{id}/quantity", s.withAuth(s.patchAdminPacksQuantity))
 }
 
 func (s *Server) registerStatic() {

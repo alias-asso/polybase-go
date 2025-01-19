@@ -1,0 +1,64 @@
+package views
+
+import (
+	"fmt"
+	"git.sr.ht/~alias/polybase-go/internal"
+)
+
+templ PackCard(pack internal.Pack) {
+	<div class="border border-base-300 bg-base-100 flex h-48 flex-col rounded-lg px-6 py-5 transition-colors relative gap-y-4">
+		@PackHeader(pack)
+		@PackName(pack)
+		<div class="mt-auto flex justify-between items-baseline">
+			@PackAdminControl(pack)
+		</div>
+	</div>
+}
+
+templ PackHeader(pack internal.Pack) {
+	<div class="flex w-full mb-2 gap-4 min-w-0 items-center">
+		@PackCode(pack)
+	</div>
+}
+
+templ PackCode(pack internal.Pack) {
+	<p class="text-lg font-mono truncate text-accent-600 bg-accent-100 px-3 py-0.5 rounded-lg" title={ fmt.Sprintf("PK%03d", pack.ID) }>{ fmt.Sprintf("PK%03d", pack.ID) }</p>
+}
+
+templ PackName(pack internal.Pack) {
+	<p class="text-left leading-6 line-clamp-2" title={ pack.Name }>{ pack.Name }</p>
+}
+
+templ PackAdminControl(pack internal.Pack) {
+	<div class="flex gap-x-1">
+		@PackEditButton(pack)
+		@PackQuantityButton(pack, -1)
+		@PackQuantityButton(pack, 1)
+	</div>
+}
+
+templ PackEditButton(pack internal.Pack) {
+	@Button(Small, Default) {
+		<button
+			hx-get={ fmt.Sprintf("/admin/packs/edit/%d", pack.ID) }
+			hx-target="#modal-container"
+		>
+			<span class="icon-pencil size-4 text-base-600"></span>
+		</button>
+	}
+}
+
+templ PackQuantityButton(pack internal.Pack, delta int) {
+	@Button(Small, Default) {
+		<button
+			hx-patch={ fmt.Sprintf("/admin/packs/%d/quantity?delta=%d", pack.ID, delta) }
+			hx-target="#courses-grid"
+		>
+			if delta > 0 {
+				<span class="icon-plus size-4 text-base-600"></span>
+			} else {
+				<span class="icon-minus size-4 text-base-600"></span>
+			}
+		</button>
+	}
+}

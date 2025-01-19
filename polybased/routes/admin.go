@@ -23,7 +23,14 @@ func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = views.Admin(courses, username).Render(r.Context(), w)
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Admin(courses, packs, username).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -41,7 +48,7 @@ func (s *Server) getAdminCoursesNew(w http.ResponseWriter, r *http.Request) {
 
 // getAdminCoursesEdit
 func (s *Server) getAdminCoursesEdit(w http.ResponseWriter, r *http.Request) {
-	id, err := parseUrl("/admin/courses/edit/", r)
+	id, err := parseCourseUrl("/admin/courses/edit/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
@@ -63,7 +70,7 @@ func (s *Server) getAdminCoursesEdit(w http.ResponseWriter, r *http.Request) {
 
 // getAdminCoursesDelete
 func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
-	id, err := parseUrl("/admin/courses/delete/", r)
+	id, err := parseCourseUrl("/admin/courses/delete/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
@@ -76,7 +83,7 @@ func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to get course: %v", err)
 	}
 
-	err = views.DeleteConfirm(course).Render(r.Context(), w)
+	err = views.CourseDeleteConfirm(course).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -85,8 +92,6 @@ func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
 
 // getAdminPacksNew
 func (s *Server) getAdminPacksNew(w http.ResponseWriter, r *http.Request) {
-	// TODO:
-
 	courses, err := s.pb.ListCourse(r.Context(), false, nil, nil, nil, nil)
 	if err != nil {
 		http.Error(w, "Failed to get course", http.StatusInternalServerError)
@@ -102,30 +107,52 @@ func (s *Server) getAdminPacksNew(w http.ResponseWriter, r *http.Request) {
 
 // getAdminPacksEdit
 func (s *Server) getAdminPacksEdit(w http.ResponseWriter, r *http.Request) {
-	// TODO:
-	id, err := parseUrl("/admin/packs/edit/", r)
+	id, err := parsePackUrl("/admin/packs/edit/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	log.Printf("Get admin packs edit - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
-	w.Write([]byte("Get admin packs edit"))
+	courses, err := s.pb.ListCourse(r.Context(), false, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to get courses", http.StatusInternalServerError)
+		log.Printf("Failed to get courses: %v", err)
+	}
+
+	pack, err := s.pb.GetPack(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to get pack", http.StatusInternalServerError)
+		log.Printf("Failed to get pack: %v", err)
+	}
+
+	err = views.EditPackForm(pack, courses).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // getAdminPacksDelete
 func (s *Server) getAdminPacksDelete(w http.ResponseWriter, r *http.Request) {
-	// TODO:
-	id, err := parseUrl("/admin/packs/delete/", r)
+	id, err := parsePackUrl("/admin/packs/delete/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	log.Printf("Get admin packs delete - Config: %+v, Polybase: %+v, Id: %+v", s.cfg, s.pb, id)
-	w.Write([]byte("Get admin packs delete"))
+	pack, err := s.pb.GetPack(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Failed to get course", http.StatusInternalServerError)
+		log.Printf("Failed to get course: %v", err)
+	}
+
+	err = views.PackDeleteConfirm(pack).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 // getAdminPacksNew
@@ -136,7 +163,7 @@ func (s *Server) getAdminStatistics(w http.ResponseWriter, r *http.Request) {
 
 // postAdminCourses
 func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
-	id, err := parseUrl("/admin/courses/", r)
+	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
@@ -225,7 +252,14 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), true).Render(r.Context(), w)
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), packs, true).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -234,7 +268,7 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 
 // putAdminCourses
 func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
-	id, err := parseUrl("/admin/courses/", r)
+	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
@@ -329,7 +363,14 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), true).Render(r.Context(), w)
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), packs, true).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -338,7 +379,7 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 
 // deleteAdminCourses
 func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
-	id, err := parseUrl("/admin/courses/", r)
+	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
@@ -379,7 +420,14 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), true).Render(r.Context(), w)
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), packs, true).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
@@ -388,7 +436,7 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 
 // patchAdminCoursesQuantity
 func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Request) {
-	id, err := parseUrl("/admin/courses/", r)
+	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
@@ -420,7 +468,7 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 
 // patchAdminCoursesVisibility
 func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Request) {
-	id, err := parseUrl("/admin/courses/", r)
+	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
@@ -447,6 +495,51 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		log.Printf("Failed to render template: %v", err)
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) patchAdminPacksQuantity(w http.ResponseWriter, r *http.Request) {
+	id, err := parsePackUrl("/admin/packs/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	username := getUsernameFromContext(r.Context())
+
+	delta, err := strconv.Atoi(r.URL.Query().Get("delta"))
+	if err != nil {
+		log.Printf("Invalid delta parameter: %v", err)
+		http.Error(w, "Invalid delta parameter", http.StatusBadRequest)
+		return
+	}
+
+	_, err = s.pb.UpdatePackQuantity(r.Context(), username, id, delta)
+	if err != nil {
+		log.Println("Patch admin course quantity - error:", err)
+		http.Error(w, "Failed to update quantity", http.StatusInternalServerError)
+		return
+	}
+
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), packs, true).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
 	}
 }
 
@@ -511,7 +604,14 @@ func (s *Server) postAdminPacks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), true).Render(r.Context(), w)
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), packs, true).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)

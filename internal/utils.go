@@ -51,6 +51,14 @@ func (c CourseID) ID() string {
 	return fmt.Sprintf("%s/%s/%d", c.Code, c.Kind, c.Part)
 }
 
+func (c Course) CID() CourseID {
+	return CourseID{
+		Code: c.Code,
+		Kind: c.Kind,
+		Part: c.Part,
+	}
+}
+
 func (c Course) SID() string {
 	sid := fmt.Sprintf("course-%s-%s-%d", c.Code, c.Kind, c.Part)
 	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)

@@ -116,3 +116,12 @@ func GetRandomMessage() string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return niceMessages[r.Intn(len(niceMessages))]
 }
+
+func contains(courses []internal.CourseID, id internal.CourseID) bool {
+    for _, courseID := range courses {
+        if courseID == id {
+            return true
+        }
+    }
+    return false
+}

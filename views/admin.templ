@@ -2,14 +2,14 @@ package views
 
 import "git.sr.ht/~alias/polybase-go/internal"
 
-templ Admin(courses []internal.Course, username string) {
+templ Admin(courses []internal.Course, packs []internal.Pack, username string) {
 	@Base(true) {
 		@Header(true, username, GetRandomMessage()) {
 			<a href="/admin/statistics">Statistiques</a>
 			<button hx-get="/admin/packs/new" hx-target="#modal-container">Ajouter pack</button>
 			<button hx-get="/admin/courses/new" hx-target="#modal-container">Ajouter poly</button>
 		}
-		@Grid(GroupCoursesBySemesterAndKind(courses), true)
+		@Grid(GroupCoursesBySemesterAndKind(courses), packs, true)
 		@Footer(0)
 		<div id="modal-container"></div>
 		@HtmxErrorHandler()

@@ -48,7 +48,7 @@ func (pb *PB) CreatePack(ctx context.Context, user string, name string, courses 
 	for _, courseID := range courses {
 		_, err = tx.ExecContext(ctx, `
       INSERT INTO pack_courses (pack_id, course_code, course_kind, course_part)
-      VALUE (?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?)`,
 			packID, courseID.Code, courseID.Kind, courseID.Part)
 		if err != nil {
 			return Pack{}, fmt.Errorf("add course to pack: %w", err)
@@ -216,75 +216,51 @@ func (pb *PB) GetPack(ctx context.Context, id int) (Pack, error) {
 }
 
 func (pb *PB) ListPacks(ctx context.Context) ([]Pack, error) {
+	// Get packs ordered by ID
 	rows, err := pb.db.QueryContext(ctx, `
-    SELECT id, name
-    FROM packs
-    ORDER BY name`)
+        SELECT id, name, course_code, course_kind, course_part
+        FROM packs 
+        LEFT JOIN pack_courses ON packs.id = pack_courses.pack_id
+        ORDER BY packs.id, course_code, course_kind, course_part`)
 	if err != nil {
 		return nil, fmt.Errorf("list packs: %w", err)
 	}
 	defer rows.Close()
 
 	var packs []Pack
-	packMap := make(map[int]*Pack)
+	var currentPack *Pack
 
-	var packIDs []int
 	for rows.Next() {
-		var pack Pack
-		if err := rows.Scan(&pack.ID, &pack.Name); err != nil {
+		var id int
+		var name string
+		var code, kind sql.NullString
+		var part sql.NullInt64
+
+		if err := rows.Scan(&id, &name, &code, &kind, &part); err != nil {
 			return nil, fmt.Errorf("scan pack: %w", err)
 		}
-		packs = append(packs, pack)
-		packMap[pack.ID] = &packs[len(packs)-1]
-		packIDs = append(packIDs, pack.ID)
+
+		// Start new pack if ID changes
+		if currentPack == nil || currentPack.ID != id {
+			packs = append(packs, Pack{
+				ID:   id,
+				Name: name,
+			})
+			currentPack = &packs[len(packs)-1]
+		}
+
+		// Add course if one exists for this row
+		if code.Valid && kind.Valid && part.Valid {
+			currentPack.Courses = append(currentPack.Courses, CourseID{
+				Code: code.String,
+				Kind: kind.String,
+				Part: int(part.Int64),
+			})
+		}
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("iterate packs: %w", err)
-	}
-
-	if len(packs) == 0 {
-		return packs, nil
-	}
-
-	rows, err = pb.db.QueryContext(ctx, `
-      SELECT 
-          pc.pack_id,
-          c.code, c.kind, c.part, c.parts, c.name, 
-          c.quantity, c.total, c.shown, c.semester
-      FROM courses c
-      JOIN pack_courses pc ON c.code = pc.course_code 
-          AND c.kind = pc.course_kind 
-          AND c.part = pc.course_part
-      WHERE pc.pack_id IN (`+strings.Repeat("?,", len(packIDs)-1)+"?"+`)
-      ORDER BY pc.pack_id, c.code, c.kind, c.part`,
-		interface{}(packIDs))
-	if err != nil {
-		return nil, fmt.Errorf("get pack courses: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var packID int
-		var course Course
-		if err := rows.Scan(
-			&packID,
-			&course.Code, &course.Kind, &course.Part, &course.Parts,
-			&course.Name, &course.Quantity, &course.Total, &course.Shown,
-			&course.Semester); err != nil {
-			return nil, fmt.Errorf("scan course: %w", err)
-		}
-
-		pack := packMap[packID]
-		pack.Courses = append(pack.Courses, CourseID{
-			Code: course.Code,
-			Kind: course.Kind,
-			Part: course.Part,
-		})
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("iterate course: %w", err)
 	}
 
 	return packs, nil
@@ -300,21 +276,27 @@ func (pb *PB) UpdatePackQuantity(ctx context.Context, user string, id int, delta
 			log.Printf("failed to rollback transaction: %v", err)
 		}
 	}()
-
 	rows, err := tx.QueryContext(ctx, `
-    SELECT course_code, course_kind, course_part, quantity, total
-    FROM pack_courses pc
-    JOIN courses c ON pc.course_code = c.code
-      AND pc.course_kind = c.kind
-      AND pc.course_part = c.part
-    WHERE pack_id = ?
-    FOR UPDATE`, id)
+    SELECT c.code, c.kind, c.part, c.quantity, c.total
+    FROM courses c
+    JOIN pack_courses pc ON c.code = pc.course_code
+      AND c.kind = pc.course_kind
+      AND c.part = pc.course_part
+    WHERE pc.pack_id = ?`, id)
 	if err != nil {
 		return Pack{}, fmt.Errorf("get pack courses: %w", err)
 	}
 	defer rows.Close()
 
-	var coursesToUpdate []CourseID
+	type courseUpdate struct {
+		id       CourseID
+		quantity int
+		total    int
+		delta    int // Store per-course delta
+	}
+	var coursesToUpdate []courseUpdate
+
+	// First pass: validate all updates and compute per-course deltas
 	for rows.Next() {
 		var code, kind string
 		var part, quantity, total int
@@ -322,30 +304,39 @@ func (pb *PB) UpdatePackQuantity(ctx context.Context, user string, id int, delta
 			return Pack{}, fmt.Errorf("scan course: %w", err)
 		}
 
-		if delta < 0 && quantity+delta < 0 {
-			continue
+		// Calculate adjusted delta for this course
+		courseDelta := delta
+		if delta < 0 {
+			// If reducing would go below 0, adjust delta to hit exactly 0
+			if quantity+delta < 0 {
+				courseDelta = -quantity
+			}
+		} else if quantity+delta > total {
+			// Check upper bound
+			return Pack{}, fmt.Errorf("quantity would exceed total for course %s/%s/%d", code, kind, part)
 		}
 
-		coursesToUpdate = append(coursesToUpdate, CourseID{
-			Code: code,
-			Kind: kind,
-			Part: part,
+		coursesToUpdate = append(coursesToUpdate, courseUpdate{
+			id:       CourseID{Code: code, Kind: kind, Part: part},
+			quantity: quantity,
+			total:    total,
+			delta:    courseDelta,
 		})
 	}
 	if err = rows.Err(); err != nil {
 		return Pack{}, fmt.Errorf("iterate courses: %w", err)
 	}
-
 	if len(coursesToUpdate) == 0 {
 		return pb.GetPack(ctx, id)
 	}
 
-	for _, courseID := range coursesToUpdate {
+	// Second pass: apply the updates
+	for _, course := range coursesToUpdate {
 		_, err = tx.ExecContext(ctx, `
       UPDATE courses
       SET quantity = quantity + ?
       WHERE code = ? AND kind = ? AND part = ?`,
-			delta, courseID.Code, courseID.Kind, courseID.Part)
+			course.delta, course.id.Code, course.id.Kind, course.id.Part)
 		if err != nil {
 			return Pack{}, fmt.Errorf("update course quantity: %w", err)
 		}
@@ -354,12 +345,10 @@ func (pb *PB) UpdatePackQuantity(ctx context.Context, user string, id int, delta
 	if err := tx.Commit(); err != nil {
 		return Pack{}, fmt.Errorf("commit transaction: %w", err)
 	}
-
 	details := fmt.Sprintf("updated quantities for pack %d by %d", id, delta)
 	if err := pb.logAction(user, "UPDATE PACK QUANTITY", details); err != nil {
 		log.Printf("Warning: failed to log action: %v", err)
 	}
-
 	return pb.GetPack(ctx, id)
 }
 
