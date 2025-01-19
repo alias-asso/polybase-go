@@ -105,21 +105,42 @@ func clampQuantity(quantity, total int) int {
 	return quantity
 }
 
-func (pb *PB) exists(ctx context.Context, id CourseID) (bool, error) {
+func (pb *PB) exists(ctx context.Context, id CourseID, querier interface {
+	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
+}) (bool, error) {
 	var exists int
-	err := pb.db.QueryRowContext(ctx, `
+	err := querier.QueryRowContext(ctx, `
     SELECT 1 FROM courses WHERE code = ? AND kind = ? AND part = ?`,
 		id.Code, id.Kind, id.Part).Scan(&exists)
-
 	if err == sql.ErrNoRows {
 		return false, nil
 	}
-
 	if err != nil {
 		return false, err
 	}
-
 	return true, nil
+}
+
+func (pb *PB) getCourse(ctx context.Context, id CourseID, querier interface {
+	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
+}) (Course, error) {
+	var course Course
+	var shown int
+	err := querier.QueryRowContext(ctx, `
+    SELECT code, kind, part, parts, name, quantity, total, shown, semester
+    FROM courses
+    WHERE code = ? AND kind = ? AND part = ?`,
+		id.Code, id.Kind, id.Part).Scan(
+		&course.Code, &course.Kind, &course.Part, &course.Parts,
+		&course.Name, &course.Quantity, &course.Total, &shown, &course.Semester)
+	if err == sql.ErrNoRows {
+		return Course{}, &CourseNotFound{}
+	}
+	if err != nil {
+		return Course{}, fmt.Errorf("failed to retrieve course: %w", err)
+	}
+	course.Shown = shown == 1
+	return course, nil
 }
 
 func (pb *PB) logAction(user string, action string, details string) error {

@@ -24,7 +24,7 @@ func (pb *PB) CreatePack(ctx context.Context, user string, name string, courses 
 	}()
 
 	for _, courseID := range courses {
-		exists, err := pb.exists(ctx, courseID)
+		exists, err := pb.exists(ctx, courseID, tx)
 		if err != nil {
 			return Pack{}, fmt.Errorf("check course existence: %w", err)
 		}
@@ -108,7 +108,7 @@ func (pb *PB) UpdatePack(ctx context.Context, user string, id int, partial Parti
 		}
 
 		for _, courseID := range *partial.Courses {
-			exists, err := pb.exists(ctx, courseID)
+			exists, err := pb.exists(ctx, courseID, tx)
 			if err != nil {
 				return Pack{}, fmt.Errorf("check course existence: %w", err)
 			}

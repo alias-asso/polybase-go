@@ -20,8 +20,8 @@ test:
   go test -cover ./...
 
 # Setup test environment
-setup:
-  sqlite3 polybase.db < migrations/001_init.sql
+migrate:
+  find migrations -name "*.sql" | sort -n | xargs cat | sqlite3 polybase.db
 
 # Clean test data
 clean:

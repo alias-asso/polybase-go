@@ -9,12 +9,22 @@ import (
 )
 
 func (pb *PB) CreateCourse(ctx context.Context, user string, course Course) (Course, error) {
-	course, err := validateCourse(course)
+	tx, err := pb.db.BeginTx(ctx, nil)
+	if err != nil {
+		return Course{}, fmt.Errorf("begin transaction: %w", err)
+	}
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			log.Printf("failed to rollback transaction: %v", err)
+		}
+	}()
+
+	course, err = validateCourse(course)
 	if err != nil {
 		return Course{}, err
 	}
 
-	exists, err := pb.exists(ctx, CourseID{course.Code, course.Kind, course.Part})
+	exists, err := pb.exists(ctx, CourseID{course.Code, course.Kind, course.Part}, tx)
 	if err != nil {
 		return Course{}, fmt.Errorf("failed to check course existence: %w", err)
 	}
@@ -28,16 +38,20 @@ func (pb *PB) CreateCourse(ctx context.Context, user string, course Course) (Cou
 	}
 
 	course.Shown = true
-
-	if _, err := pb.db.ExecContext(ctx, `
+	if _, err := tx.ExecContext(ctx, `
     INSERT INTO courses (code, kind, part, parts, name, quantity, total, shown, semester)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		course.Code, course.Kind, course.Part, course.Parts, course.Name, course.Quantity, course.Total, course.Shown, course.Semester); err != nil {
+		course.Code, course.Kind, course.Part, course.Parts, course.Name,
+		course.Quantity, course.Total, course.Shown, course.Semester); err != nil {
 		return Course{}, fmt.Errorf("create course: %w", err)
 	}
 
-	if err := pb.setParts(ctx, CourseID{course.Code, course.Kind, course.Part}); err != nil {
+	if err := pb.setParts(ctx, CourseID{course.Code, course.Kind, course.Part}, tx); err != nil {
 		return Course{}, fmt.Errorf("set parts: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return Course{}, fmt.Errorf("commit transaction: %w", err)
 	}
 
 	updatedCourse, err := pb.GetCourse(ctx, CourseID{course.Code, course.Kind, course.Part})
@@ -99,15 +113,16 @@ func (pb *PB) UpdateCourse(ctx context.Context, user string, id CourseID, partia
 		return Course{}, err
 	}
 
-	course, err := pb.mergeCourse(ctx, id, partial)
+	course, err := pb.mergeCourse(ctx, id, partial, tx)
 	if err != nil {
 		return Course{}, err
 	}
 
-	exists, err := pb.exists(ctx, id)
+	exists, err := pb.exists(ctx, id, tx)
 	if err != nil {
 		return Course{}, fmt.Errorf("failed to check course existence: %w", err)
 	}
+
 	if !exists {
 		return Course{}, fmt.Errorf("course does not exists")
 	}
@@ -123,7 +138,7 @@ func (pb *PB) UpdateCourse(ctx context.Context, user string, id CourseID, partia
 		return Course{}, fmt.Errorf("update course: %w", err)
 	}
 
-	if err := pb.setParts(ctx, CourseID{course.Code, course.Kind, course.Part}); err != nil {
+	if err := pb.setParts(ctx, CourseID{course.Code, course.Kind, course.Part}, tx); err != nil {
 		return Course{}, fmt.Errorf("set parts: %w", err)
 	}
 
@@ -344,19 +359,9 @@ func (pb *PB) UpdateShown(ctx context.Context, user string, id CourseID, shown b
 	return pb.GetCourse(ctx, id)
 }
 
-func (pb *PB) setParts(ctx context.Context, courseID CourseID) error {
-	tx, err := pb.db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
-	}
-	defer func() {
-		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
-			log.Printf("failed to rollback transaction: %v", err)
-		}
-	}()
-
+func (pb *PB) setParts(ctx context.Context, courseID CourseID, tx *sql.Tx) error {
 	var maxPart int
-	err = tx.QueryRowContext(ctx, `
+	err := tx.QueryRowContext(ctx, `
     SELECT COALESCE(MAX(part), 0)
     FROM courses 
     WHERE code = ? AND kind = ?`,
@@ -372,10 +377,6 @@ func (pb *PB) setParts(ctx context.Context, courseID CourseID) error {
 		maxPart, courseID.Code, courseID.Kind)
 	if err != nil {
 		return fmt.Errorf("update parts: %w", err)
-	}
-
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("commit transaction: %w", err)
 	}
 	return nil
 }
@@ -405,7 +406,7 @@ func validateCourse(course Course) (Course, error) {
 	return course, nil
 }
 
-func (pb *PB) mergeCourse(ctx context.Context, id CourseID, partial PartialCourse) (Course, error) {
+func (pb *PB) mergeCourse(ctx context.Context, id CourseID, partial PartialCourse, tx *sql.Tx) (Course, error) {
 	if partial.Code == nil &&
 		partial.Kind == nil &&
 		partial.Part == nil &&
@@ -418,7 +419,7 @@ func (pb *PB) mergeCourse(ctx context.Context, id CourseID, partial PartialCours
 		return Course{}, fmt.Errorf("at least one field must be updated")
 	}
 
-	current, err := pb.GetCourse(ctx, id)
+	current, err := pb.getCourse(ctx, id, tx)
 	if err != nil {
 		return Course{}, fmt.Errorf("get current course: %w", err)
 	}

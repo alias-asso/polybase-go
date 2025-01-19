@@ -1,10 +1,10 @@
 package tests
 
 import (
-	"context"
-	"testing"
+"context"
+"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+"git.sr.ht/~alias/polybase-go/internal"
 )
 
 // An existing course can be retrieved accurately
