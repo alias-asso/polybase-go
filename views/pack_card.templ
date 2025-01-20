@@ -6,28 +6,10 @@ import (
 )
 
 templ PackCard(pack internal.Pack, expanded bool) {
-	<div class="border border-base-300 bg-base-100 flex flex-col min-h-64 rounded-lg px-6 py-5 transition-colors relative gap-y-4">
+	<div class="border border-base-300 bg-base-100 flex flex-col min-h-60 rounded-lg px-6 py-5 transition-colors relative gap-y-2">
 		@PackHeader(pack)
 		@PackName(pack)
-		<div class="flex flex-col gap-2">
-			<div
-				class={
-					"flex flex-wrap gap-2 overflow-hidden transition-all duration-50 min-h-10 ease-in-out",
-					templ.KV("max-h-11", !expanded),
-					templ.KV("max-h-auto", expanded),
-				}
-			>
-				for _, course := range pack.Courses {
-					<div
-						class="border flex justify-center items-center rounded-full px-3 h-7 text-sm font-mono border-base-300 hover:border-accent-300 hover:text-accent-300 hover:bg-accent-300/10 select-none"
-					>
-						<span>
-							{ course.PID() }
-						</span>
-					</div>
-				}
-			</div>
-		</div>
+		@PackBadges(pack, expanded)
 		<div class="mt-auto flex justify-between items-baseline">
 			@PackAdminControl(pack)
 			@PackDetailsButton(pack.ID, expanded)
@@ -46,7 +28,27 @@ templ PackCode(pack internal.Pack) {
 }
 
 templ PackName(pack internal.Pack) {
-	<p class="text-left leading-6 line-clamp-2" title={ pack.Name }>{ pack.Name }</p>
+	<p class="text-left leading-6 min-h-12 line-clamp-2" title={ pack.Name }>{ pack.Name }</p>
+}
+
+templ PackBadges(pack internal.Pack, expanded bool) {
+	<div
+		class={
+			"flex flex-wrap gap-2 overflow-hidden transition-all duration-50 min-h-10 ease-in-out",
+			templ.KV("max-h-11", !expanded),
+			templ.KV("max-h-auto", expanded),
+		}
+	>
+		for _, course := range pack.Courses {
+			<div
+				class="border flex justify-center items-center rounded-full px-3 h-7 text-sm font-mono border-base-300 hover:border-accent-300 hover:text-accent-300 hover:bg-accent-300/10 select-none"
+			>
+				<span>
+					{ course.PID() }
+				</span>
+			</div>
+		}
+	</div>
 }
 
 templ PackAdminControl(pack internal.Pack) {
