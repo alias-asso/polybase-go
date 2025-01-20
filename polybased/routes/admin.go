@@ -660,7 +660,89 @@ func (s *Server) postAdminPacks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
-	// TODO:
+	log.Println("putAdminPacks")
+	username := getUsernameFromContext(r.Context())
+
+	// Parse the pack ID from URL
+	id, err := parsePackUrl("/admin/packs", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	// Parse form data
+	err = r.ParseForm()
+	if err != nil {
+		log.Printf("Failed to parse form: %v", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	// Get updated pack name
+	name := r.Form.Get("name")
+
+	// Parse course IDs from form
+	var coursesId []internal.CourseID
+	for _, idStr := range r.Form["courses"] {
+		parts := strings.Split(idStr, "/")
+		if len(parts) != 3 {
+			http.Error(w, "Invalid course ID format", http.StatusBadRequest)
+			log.Printf("Invalid course ID format: %s", idStr)
+			return
+		}
+
+		code := parts[0]
+		kind := parts[1]
+		part, err := strconv.Atoi(parts[2])
+		if err != nil {
+			http.Error(w, "Failed to parse part number", http.StatusBadRequest)
+			log.Printf("Failed to parse part number: %s", err)
+			return
+		}
+
+		coursesId = append(coursesId, internal.CourseID{
+			Code: code,
+			Kind: kind,
+			Part: part,
+		})
+	}
+
+	// Create PartialPack for update
+	pack := internal.PartialPack{
+		Name:    &name,
+		Courses: &coursesId,
+	}
+
+	// Update the pack
+	_, err = s.pb.UpdatePack(r.Context(), username, id, pack)
+	if err != nil {
+		http.Error(w, "Failed to update pack", http.StatusInternalServerError)
+		log.Printf("Failed to update pack: %s", err)
+		return
+	}
+
+	// Fetch updated data for rendering
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("Failed to list courses: %s", err)
+		return
+	}
+
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("Failed to list packs: %s", err)
+		return
+	}
+
+	// Render the updated view
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), packs, true).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 func (s *Server) deleteAdminPacks(w http.ResponseWriter, r *http.Request) {
