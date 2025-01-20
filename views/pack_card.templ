@@ -19,7 +19,7 @@ templ PackCard(pack internal.Pack, expanded bool) {
 			>
 				for _, course := range pack.Courses {
 					<div
-						class="border flex justify-center items-center rounded-full px-3 h-7 text-sm font-mono border-base-300 hover:border-accent-300 hover:text-accent-300"
+						class="border flex justify-center items-center rounded-full px-3 h-7 text-sm font-mono border-base-300 hover:border-accent-300 hover:text-accent-300 hover:bg-accent-300/10 select-none"
 					>
 						<span>
 							{ course.PID() }
