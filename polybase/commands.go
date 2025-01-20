@@ -280,7 +280,7 @@ func runQuantity(pb internal.Polybase, ctx context.Context, args []string) error
 	}
 
 	username := getCurrentUser()
-	updated, err := pb.UpdateQuantity(ctx, username, id, delta)
+	updated, err := pb.UpdateCourseQuantity(ctx, username, id, delta)
 	if err != nil {
 		return err
 	}
@@ -314,7 +314,7 @@ func runVisibility(pb internal.Polybase, ctx context.Context, args []string) err
 	}
 
 	username := getCurrentUser()
-	updated, err := pb.UpdateShown(ctx, username, id, *shown)
+	updated, err := pb.UpdateCourseShown(ctx, username, id, *shown)
 	if err != nil {
 		return err
 	}

@@ -54,8 +54,8 @@ type Polybase interface {
 	DeleteCourse(ctx context.Context, user string, id CourseID) error
 	ListCourse(ctx context.Context, showHidden bool, filterSemester *string, filterCode *string, filterKind *string, filterPart *int) ([]Course, error)
 
-	UpdateQuantity(ctx context.Context, user string, id CourseID, delta int) (Course, error)
-	UpdateShown(ctx context.Context, user string, id CourseID, shown bool) (Course, error)
+	UpdateCourseQuantity(ctx context.Context, user string, id CourseID, delta int) (Course, error)
+	UpdateCourseShown(ctx context.Context, user string, id CourseID, shown bool) (Course, error)
 
 	CreatePack(ctx context.Context, user string, name string, courses []CourseID) (Pack, error)
 	GetPack(ctx context.Context, id int) (Pack, error)

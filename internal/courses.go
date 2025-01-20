@@ -67,36 +67,6 @@ func (pb *PB) CreateCourse(ctx context.Context, user string, course Course) (Cou
 	return updatedCourse, nil
 }
 
-func (pb *PB) GetCourse(ctx context.Context, id CourseID) (Course, error) {
-	id, err := ValidateCourseID(id)
-	if err != nil {
-		return Course{}, err
-	}
-
-	var course Course
-	var shown int
-
-	err = pb.db.QueryRowContext(ctx, `
-    SELECT code, kind, part, parts, name, quantity, total, shown, semester
-    FROM courses
-    WHERE code = ? AND kind = ? AND part = ?`,
-		id.Code, id.Kind, id.Part).Scan(
-		&course.Code, &course.Kind, &course.Part, &course.Parts,
-		&course.Name, &course.Quantity, &course.Total, &shown, &course.Semester)
-
-	if err == sql.ErrNoRows {
-		return Course{}, &CourseNotFound{}
-	}
-
-	if err != nil {
-		return Course{}, fmt.Errorf("failed to retrieve course: %w", err)
-	}
-
-	course.Shown = shown == 1
-
-	return course, nil
-}
-
 func (pb *PB) UpdateCourse(ctx context.Context, user string, id CourseID, partial PartialCourse) (Course, error) {
 	tx, err := pb.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -197,6 +167,15 @@ func (pb *PB) DeleteCourse(ctx context.Context, user string, id CourseID) error 
 		}
 	}()
 
+	exists, err := pb.exists(ctx, id, tx)
+	if err != nil {
+		return fmt.Errorf("failed to check course existence: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("course does not exists")
+	}
+
 	var maxPart int
 	err = tx.QueryRowContext(ctx, `
         SELECT COALESCE(MAX(part), 0)
@@ -243,6 +222,37 @@ func (pb *PB) DeleteCourse(ctx context.Context, user string, id CourseID) error 
 
 	return nil
 }
+
+func (pb *PB) GetCourse(ctx context.Context, id CourseID) (Course, error) {
+	id, err := ValidateCourseID(id)
+	if err != nil {
+		return Course{}, err
+	}
+
+	var course Course
+	var shown int
+
+	err = pb.db.QueryRowContext(ctx, `
+    SELECT code, kind, part, parts, name, quantity, total, shown, semester
+    FROM courses
+    WHERE code = ? AND kind = ? AND part = ?`,
+		id.Code, id.Kind, id.Part).Scan(
+		&course.Code, &course.Kind, &course.Part, &course.Parts,
+		&course.Name, &course.Quantity, &course.Total, &shown, &course.Semester)
+
+	if err == sql.ErrNoRows {
+		return Course{}, &CourseNotFound{}
+	}
+
+	if err != nil {
+		return Course{}, fmt.Errorf("failed to retrieve course: %w", err)
+	}
+
+	course.Shown = shown == 1
+
+	return course, nil
+}
+
 
 func (pb *PB) ListCourse(ctx context.Context, showHidden bool, filterSemester *string, filterCode *string, filterKind *string, filterPart *int) ([]Course, error) {
 	var courses []Course
@@ -303,7 +313,7 @@ func (pb *PB) ListCourse(ctx context.Context, showHidden bool, filterSemester *s
 	return courses, nil
 }
 
-func (pb *PB) UpdateQuantity(ctx context.Context, user string, id CourseID, delta int) (Course, error) {
+func (pb *PB) UpdateCourseQuantity(ctx context.Context, user string, id CourseID, delta int) (Course, error) {
 	id, err := ValidateCourseID(id)
 	if err != nil {
 		return Course{}, err
@@ -331,7 +341,7 @@ func (pb *PB) UpdateQuantity(ctx context.Context, user string, id CourseID, delt
 	return pb.GetCourse(ctx, id)
 }
 
-func (pb *PB) UpdateShown(ctx context.Context, user string, id CourseID, shown bool) (Course, error) {
+func (pb *PB) UpdateCourseShown(ctx context.Context, user string, id CourseID, shown bool) (Course, error) {
 	id, err := ValidateCourseID(id)
 	if err != nil {
 		return Course{}, err

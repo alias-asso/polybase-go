@@ -493,7 +493,7 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	course, err := s.pb.UpdateQuantity(r.Context(), username, id, delta)
+	course, err := s.pb.UpdateCourseQuantity(r.Context(), username, id, delta)
 	if err != nil {
 		log.Println("Patch admin course quantity - error:", err)
 		http.Error(w, "Failed to update quantity", http.StatusInternalServerError)
@@ -525,7 +525,7 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	course, err := s.pb.UpdateShown(r.Context(), username, id, visibility)
+	course, err := s.pb.UpdateCourseShown(r.Context(), username, id, visibility)
 	if err != nil {
 		log.Println("Patch admin course quantity - error:", err)
 		http.Error(w, "Failed to update quantity", http.StatusInternalServerError)
