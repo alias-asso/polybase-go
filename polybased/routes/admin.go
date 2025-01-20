@@ -664,7 +664,7 @@ func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
 	username := getUsernameFromContext(r.Context())
 
 	// Parse the pack ID from URL
-	id, err := parsePackUrl("/admin/packs", r)
+	id, err := parsePackUrl("/admin/packs/", r)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
