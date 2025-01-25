@@ -76,7 +76,7 @@ func TestCreateMultipleCourses(t *testing.T) {
 		},
 		{
 			Code:     "LU2IN018",
-			Kind:     "Notes",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Operating Systems",
@@ -204,7 +204,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 				Total:    10,
 				Semester: "S1",
 			},
-			wantErr: "invalid course id",
+			wantErr: "KIND must be one of: TD, Cours, Memento, TME",
 		},
 		{
 			name: "negative quantity",
@@ -256,7 +256,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 				Total:    10,
 				Semester: "",
 			},
-			wantErr: "semester cannot be empty",
+			wantErr: "SEMESTER must be either S1 or S2",
 		},
 		{
 			name: "invalid semester format",
@@ -269,7 +269,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 				Total:    10,
 				Semester: "X1",
 			},
-			wantErr: "semester must start with 'S'",
+			wantErr: "SEMESTER must be either S1 or S2",
 		},
 		{
 			name: "invalid semester number",
@@ -282,7 +282,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 				Total:    10,
 				Semester: "S3",
 			},
-			wantErr: "semester number must be either 1 or 2",
+			wantErr: "SEMESTER must be either S1 or S2",
 		},
 		{
 			name: "valid course with minimum values",
@@ -348,7 +348,7 @@ func TestCreateWithMaxValues(t *testing.T) {
 
 	course := internal.Course{
 		Code:     "COURSE-123{A,B,C}-456",
-		Kind:     "LectureExerciseSection",
+		Kind:     "Cours",
 		Part:     999,
 		Parts:    999,
 		Name:     "Advanced Topics in Theoretical Computer Science and Distributed Systems Engineering with Applications in Machine Learning",
@@ -386,7 +386,7 @@ func TestCreateWithMinValues(t *testing.T) {
 
 	course := internal.Course{
 		Code:     "A",
-		Kind:     "a",
+		Kind:     "TD",
 		Part:     1,
 		Parts:    1,
 		Name:     "x",

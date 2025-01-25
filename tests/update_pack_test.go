@@ -18,7 +18,7 @@ func TestUpdatePackNameOnly(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -29,7 +29,7 @@ func TestUpdatePackNameOnly(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -51,8 +51,8 @@ func TestUpdatePackNameOnly(t *testing.T) {
 	// Create initial pack
 	initialName := "Programming Pack"
 	courseIDs := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "CS102", Kind: "TME", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, courseIDs)
@@ -106,7 +106,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -117,7 +117,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -128,7 +128,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 		},
 		{
 			Code:     "CS103",
-			Kind:     "Tutorial",
+			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Tutorial",
@@ -150,8 +150,8 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 	// Create initial pack with subset of courses
 	packName := "Programming Pack"
 	initialCourses := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "CS102", Kind: "TME", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", packName, initialCourses)
@@ -161,8 +161,8 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 
 	// Update pack courses
 	newCourses := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS103", Kind: "Tutorial", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "CS103", Kind: "TD", Part: 1},
 	}
 
 	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, internal.PartialPack{
@@ -196,7 +196,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 	// Verify removed courses are no longer in pack
 	db.AssertCourseNotInPack(created.ID, internal.CourseID{
 		Code: "CS102",
-		Kind: "Lab",
+		Kind: "TME",
 		Part: 1,
 	})
 
@@ -216,7 +216,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -227,7 +227,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -238,7 +238,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 		},
 		{
 			Code:     "CS103",
-			Kind:     "Tutorial",
+			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Tutorial",
@@ -260,8 +260,8 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	// Create initial pack
 	initialName := "Programming Pack"
 	initialCourses := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "CS102", Kind: "TME", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
@@ -272,8 +272,8 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	// Update both name and courses
 	newName := "Advanced Programming Pack"
 	newCourses := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS103", Kind: "Tutorial", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "CS103", Kind: "TD", Part: 1},
 	}
 
 	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, internal.PartialPack{
@@ -308,7 +308,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	// Verify removed courses are no longer in pack
 	db.AssertCourseNotInPack(created.ID, internal.CourseID{
 		Code: "CS102",
-		Kind: "Lab",
+		Kind: "TME",
 		Part: 1,
 	})
 
@@ -362,7 +362,7 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 	// Create initial course
 	course := internal.Course{
 		Code:     "CS101",
-		Kind:     "Lecture",
+		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming I",
@@ -380,7 +380,7 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 	// Create initial pack
 	initialName := "Programming Pack"
 	initialCourses := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
@@ -447,7 +447,7 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 	// Create initial course
 	course := internal.Course{
 		Code:     "CS101",
-		Kind:     "Lecture",
+		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming I",
@@ -556,7 +556,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -567,7 +567,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -587,7 +587,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 
 	initialName := "Programming Pack"
 	initialCourses := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
@@ -602,25 +602,25 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 		{
 			name: "same course repeated",
 			updateCourses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name: "multiple duplicate courses",
 			updateCourses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
 			},
 		},
 		{
 			name: "duplicates with different order",
 			updateCourses: []internal.CourseID{
-				{Code: "CS102", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
 			},
 		},
 	}
@@ -659,7 +659,7 @@ func TestUpdateNonExistentPack(t *testing.T) {
 
 	course := internal.Course{
 		Code:     "CS101",
-		Kind:     "Lecture",
+		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming I",
@@ -691,7 +691,7 @@ func TestUpdateNonExistentPack(t *testing.T) {
 			packID: 0,
 			update: internal.PartialPack{
 				Courses: &[]internal.CourseID{
-					{Code: "CS101", Kind: "Lecture", Part: 1},
+					{Code: "CS101", Kind: "Cours", Part: 1},
 				},
 			},
 		},
@@ -700,7 +700,7 @@ func TestUpdateNonExistentPack(t *testing.T) {
 			packID: -1,
 			update: internal.PartialPack{
 				Name:    stringPtr("New Name"),
-				Courses: &[]internal.CourseID{{Code: "CS101", Kind: "Lecture", Part: 1}},
+				Courses: &[]internal.CourseID{{Code: "CS101", Kind: "Cours", Part: 1}},
 			},
 		},
 	}
@@ -726,7 +726,7 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 	// Create test course
 	course := internal.Course{
 		Code:     "CS101",
-		Kind:     "Lecture",
+		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming I",
@@ -744,7 +744,7 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 	// Create initial pack
 	initialName := "Programming Pack"
 	initialCourses := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)

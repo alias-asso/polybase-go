@@ -187,7 +187,15 @@ func (pb *PB) GetPack(ctx context.Context, id int) (Pack, error) {
       AND c.kind = pc.course_kind
       AND c.part = pc.course_part
     WHERE pc.pack_id = ?
-    ORDER BY c.code, c.kind, c.part`, id)
+    ORDER BY c.code,
+    CASE c.kind 
+        WHEN 'Memento' THEN 1
+        WHEN 'TME' THEN 2
+        WHEN 'Cours' THEN 3
+        WHEN 'TD' THEN 4
+        ELSE 5
+    END,
+    c.part`, id)
 	if err != nil {
 		return Pack{}, fmt.Errorf("get pack courses: %w", err)
 	}

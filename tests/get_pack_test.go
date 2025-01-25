@@ -17,7 +17,7 @@ func TestGetExistingPack(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -28,7 +28,7 @@ func TestGetExistingPack(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -39,7 +39,7 @@ func TestGetExistingPack(t *testing.T) {
 		},
 		{
 			Code:     "CS103",
-			Kind:     "Tutorial",
+			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Tutorial",
@@ -66,24 +66,24 @@ func TestGetExistingPack(t *testing.T) {
 			name:     "single course pack",
 			packName: "Basic Pack",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name:     "multiple course pack",
 			packName: "Complete Pack",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
-				{Code: "CS103", Kind: "Tutorial", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "CS103", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name:     "pack with spaces in name",
 			packName: "Programming   Course   Pack",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
 			},
 		},
 	}
@@ -163,7 +163,7 @@ func TestGetNonExistentPack(t *testing.T) {
 			setup: func(t *testing.T, pb *internal.PB) {
 				course := internal.Course{
 					Code:     "CS101",
-					Kind:     "Lecture",
+					Kind:     "Cours",
 					Part:     1,
 					Parts:    1,
 					Name:     "Programming",
@@ -241,7 +241,7 @@ func TestPackCourseOrder(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     2,
 			Parts:    2,
 			Name:     "Programming II",
@@ -252,7 +252,7 @@ func TestPackCourseOrder(t *testing.T) {
 		},
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    2,
 			Name:     "Programming I",
@@ -263,7 +263,7 @@ func TestPackCourseOrder(t *testing.T) {
 		},
 		{
 			Code:     "CS101",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -274,7 +274,7 @@ func TestPackCourseOrder(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Tutorial",
+			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
 			Name:     "Advanced Programming",
@@ -285,7 +285,7 @@ func TestPackCourseOrder(t *testing.T) {
 		},
 		{
 			Code:     "CS100",
-			Kind:     "Notes",
+			Kind:     "Memento",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Notes",
@@ -311,52 +311,52 @@ func TestPackCourseOrder(t *testing.T) {
 		{
 			name: "already sorted order",
 			inputOrder: []internal.CourseID{
-				{Code: "CS100", Kind: "Notes", Part: 1},
-				{Code: "CS101", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 2},
-				{Code: "CS102", Kind: "Tutorial", Part: 1},
+				{Code: "CS100", Kind: "Memento", Part: 1},
+				{Code: "CS101", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 2},
+				{Code: "CS102", Kind: "TD", Part: 1},
 			},
 			wantOrder: []internal.CourseID{
-				{Code: "CS100", Kind: "Notes", Part: 1},
-				{Code: "CS101", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 2},
-				{Code: "CS102", Kind: "Tutorial", Part: 1},
+				{Code: "CS100", Kind: "Memento", Part: 1},
+				{Code: "CS101", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 2},
+				{Code: "CS102", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name: "reversed input order",
 			inputOrder: []internal.CourseID{
-				{Code: "CS102", Kind: "Tutorial", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 2},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS101", Kind: "Lab", Part: 1},
-				{Code: "CS100", Kind: "Notes", Part: 1},
+				{Code: "CS102", Kind: "TD", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 2},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS101", Kind: "TME", Part: 1},
+				{Code: "CS100", Kind: "Memento", Part: 1},
 			},
 			wantOrder: []internal.CourseID{
-				{Code: "CS100", Kind: "Notes", Part: 1},
-				{Code: "CS101", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 2},
-				{Code: "CS102", Kind: "Tutorial", Part: 1},
+				{Code: "CS100", Kind: "Memento", Part: 1},
+				{Code: "CS101", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 2},
+				{Code: "CS102", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name: "mixed input order",
 			inputOrder: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 2},
-				{Code: "CS100", Kind: "Notes", Part: 1},
-				{Code: "CS102", Kind: "Tutorial", Part: 1},
-				{Code: "CS101", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 2},
+				{Code: "CS100", Kind: "Memento", Part: 1},
+				{Code: "CS102", Kind: "TD", Part: 1},
+				{Code: "CS101", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 			wantOrder: []internal.CourseID{
-				{Code: "CS100", Kind: "Notes", Part: 1},
-				{Code: "CS101", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 2},
-				{Code: "CS102", Kind: "Tutorial", Part: 1},
+				{Code: "CS100", Kind: "Memento", Part: 1},
+				{Code: "CS101", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 2},
+				{Code: "CS102", Kind: "TD", Part: 1},
 			},
 		},
 	}

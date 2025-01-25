@@ -14,7 +14,7 @@ func TestGetExistingCourse(t *testing.T) {
 
 	course := internal.Course{
 		Code:     "CS101",
-		Kind:     "Lecture",
+		Kind:     "Cours",
 		Part:     1,
 		Parts:    2,
 		Name:     "Introduction to Programming",
@@ -73,11 +73,11 @@ func TestGetInvalidCourseID(t *testing.T) {
 	}{
 		{
 			name: "invalid code with lowercase",
-			id:   internal.CourseID{Code: "lowercase", Kind: "Lecture", Part: 1},
+			id:   internal.CourseID{Code: "lowercase", Kind: "Cours", Part: 1},
 		},
 		{
 			name: "invalid code with special chars",
-			id:   internal.CourseID{Code: "CS101!", Kind: "Lecture", Part: 1},
+			id:   internal.CourseID{Code: "CS101!", Kind: "Cours", Part: 1},
 		},
 		{
 			name: "invalid kind with numbers",
@@ -108,7 +108,7 @@ func TestGetAfterDeletion(t *testing.T) {
 
 	course := internal.Course{
 		Code:     "CS101",
-		Kind:     "Lecture",
+		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming",
@@ -151,7 +151,7 @@ func TestGetMultiPartCourse(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    3,
 			Name:     "Programming I",
@@ -162,7 +162,7 @@ func TestGetMultiPartCourse(t *testing.T) {
 		},
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     2,
 			Parts:    3,
 			Name:     "Programming II",
@@ -173,7 +173,7 @@ func TestGetMultiPartCourse(t *testing.T) {
 		},
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     3,
 			Parts:    3,
 			Name:     "Programming III",

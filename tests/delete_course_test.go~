@@ -17,7 +17,7 @@ func TestDeleteExistingCourse(t *testing.T) {
 	// Create test course
 	course := internal.Course{
 		Code:     "CS101",
-		Kind:     "Cours",
+		Kind:     "Lecture",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming I",
@@ -99,13 +99,13 @@ func TestDeleteNonExistentCourse(t *testing.T) {
 			name: "already deleted",
 			id: internal.CourseID{
 				Code: "CS101",
-				Kind: "Cours",
+				Kind: "Lecture",
 				Part: 1,
 			},
 			setup: func(t *testing.T, pb *internal.PB) {
 				course := internal.Course{
 					Code:     "CS101",
-					Kind:     "Cours",
+					Kind:     "Lecture",
 					Part:     1,
 					Parts:    1,
 					Name:     "Programming",
@@ -166,7 +166,7 @@ func TestDeleteAndRecreateCourse(t *testing.T) {
 
 	original := internal.Course{
 		Code:     "CS101",
-		Kind:     "Cours",
+		Kind:     "Lecture",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming",
@@ -241,7 +241,7 @@ func TestDeleteCourseWithInvalidID(t *testing.T) {
 			name: "empty code",
 			id: internal.CourseID{
 				Code: "",
-				Kind: "Cours",
+				Kind: "Lecture",
 				Part: 1,
 			},
 		},
@@ -283,7 +283,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Cours",
+			Kind:     "Lecture",
 			Part:     1,
 			Parts:    3,
 			Name:     "Programming I",
@@ -294,7 +294,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 		},
 		{
 			Code:     "CS101",
-			Kind:     "Cours",
+			Kind:     "Lecture",
 			Part:     2,
 			Parts:    3,
 			Name:     "Programming II",
@@ -305,7 +305,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 		},
 		{
 			Code:     "CS101",
-			Kind:     "Cours",
+			Kind:     "Lecture",
 			Part:     3,
 			Parts:    3,
 			Name:     "Programming III",
@@ -341,7 +341,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 		t.Run(fmt.Sprintf("delete_part_%d", d.part), func(t *testing.T) {
 			err := pb.DeleteCourse(ctx, "testuser", internal.CourseID{
 				Code: "CS101",
-				Kind: "Cours",
+				Kind: "Lecture",
 				Part: d.part,
 			})
 			if err != nil {
@@ -368,7 +368,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 			// Verify deleted part doesn't exist
 			db.AssertNotExists(internal.CourseID{
 				Code: "CS101",
-				Kind: "Cours",
+				Kind: "Lecture",
 				Part: d.part,
 			})
 		})

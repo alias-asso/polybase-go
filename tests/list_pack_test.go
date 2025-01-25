@@ -51,7 +51,7 @@ func TestListSinglePack(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    2,
 			Name:     "Programming I",
@@ -62,7 +62,7 @@ func TestListSinglePack(t *testing.T) {
 		},
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     2,
 			Parts:    2,
 			Name:     "Programming II",
@@ -73,7 +73,7 @@ func TestListSinglePack(t *testing.T) {
 		},
 		{
 			Code:     "CS101",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -94,9 +94,9 @@ func TestListSinglePack(t *testing.T) {
 	pack := internal.Pack{
 		Name: "Programming Bundle",
 		Courses: []internal.CourseID{
-			{Code: "CS101", Kind: "Lecture", Part: 1},
-			{Code: "CS101", Kind: "Lecture", Part: 2},
-			{Code: "CS101", Kind: "Lab", Part: 1},
+			{Code: "CS101", Kind: "Cours", Part: 1},
+			{Code: "CS101", Kind: "Cours", Part: 2},
+			{Code: "CS101", Kind: "TME", Part: 1},
 		},
 	}
 
@@ -177,7 +177,7 @@ func TestListPacksOrder(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -188,7 +188,7 @@ func TestListPacksOrder(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -199,7 +199,7 @@ func TestListPacksOrder(t *testing.T) {
 		},
 		{
 			Code:     "CS103",
-			Kind:     "Tutorial",
+			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Tutorial",
@@ -220,9 +220,9 @@ func TestListPacksOrder(t *testing.T) {
 
 	// Prepare course IDs
 	courseIDs := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
-		{Code: "CS103", Kind: "Tutorial", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "CS102", Kind: "TME", Part: 1},
+		{Code: "CS103", Kind: "TD", Part: 1},
 	}
 
 	// Create packs
@@ -272,7 +272,7 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -283,7 +283,7 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -294,7 +294,7 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 		},
 		{
 			Code:     "CS103",
-			Kind:     "Tutorial",
+			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Tutorial",
@@ -315,9 +315,9 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 
 	// Prepare course IDs
 	courseIDs := []internal.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
-		{Code: "CS103", Kind: "Tutorial", Part: 1},
+		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "CS102", Kind: "TME", Part: 1},
+		{Code: "CS103", Kind: "TD", Part: 1},
 	}
 
 	// Create packs
@@ -383,7 +383,7 @@ func TestListPacksLargeNumberOfPacks(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		courses[i] = internal.Course{
 			Code:     fmt.Sprintf("CS%03d", 100+i),
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     fmt.Sprintf("Course %d", i+1),

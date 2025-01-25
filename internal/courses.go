@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 )
 
@@ -253,7 +254,6 @@ func (pb *PB) GetCourse(ctx context.Context, id CourseID) (Course, error) {
 	return course, nil
 }
 
-
 func (pb *PB) ListCourse(ctx context.Context, showHidden bool, filterSemester *string, filterCode *string, filterKind *string, filterPart *int) ([]Course, error) {
 	var courses []Course
 	var conditions []string
@@ -392,29 +392,47 @@ func (pb *PB) setParts(ctx context.Context, courseID CourseID, tx *sql.Tx) error
 }
 
 func validateCourse(course Course) (Course, error) {
+	// Validate Code
 	course.Code = strings.TrimSpace(course.Code)
 	if course.Code == "" {
 		return Course{}, fmt.Errorf("CODE cannot be empty")
 	}
+	if ok, _ := regexp.MatchString(`^[A-Za-z0-9{},._-]+$`, course.Code); !ok {
+		return Course{}, fmt.Errorf("CODE can only contain letters, numbers, and the characters {},._")
+	}
 
+	// Validate Kind
 	course.Kind = strings.TrimSpace(course.Kind)
 	if course.Kind == "" {
 		return Course{}, fmt.Errorf("KIND cannot be empty")
 	}
+	switch course.Kind {
+	case "TD", "Cours", "Memento", "TME":
+		// valid
+	default:
+		return Course{}, fmt.Errorf("KIND must be one of: TD, Cours, Memento, TME")
+	}
 
+	// Validate Part
 	if course.Part <= 0 || course.Part >= 1000 {
 		return Course{}, fmt.Errorf("PART must be in 1-1000")
 	}
 
+	// Validate Name
 	course.Name = strings.TrimSpace(course.Name)
 
+	// Validate Quantities
 	if err := validateQuantity(course.Quantity, course.Total); err != nil {
 		return Course{}, fmt.Errorf("invalid quantities: %w", err)
 	}
 
+	// Validate Semester
 	course.Semester = strings.TrimSpace(course.Semester)
-	if err := validateSemester(course.Semester); err != nil {
-		return Course{}, fmt.Errorf("invalid semester: %w", err)
+	switch course.Semester {
+	case "S1", "S2":
+		// valid
+	default:
+		return Course{}, fmt.Errorf("SEMESTER must be either S1 or S2")
 	}
 
 	return course, nil

@@ -17,7 +17,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -28,7 +28,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -39,7 +39,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 		},
 		{
 			Code:     "CS103",
-			Kind:     "Tutorial",
+			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Tutorial",
@@ -66,24 +66,24 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 			name:     "single course pack",
 			packName: "Programming Basics",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name:     "multiple course pack",
 			packName: "Complete Programming",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
-				{Code: "CS103", Kind: "Tutorial", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "CS103", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name:     "pack with spaces in name",
 			packName: "   Programming Pack   ",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
 			},
 		},
 	}
@@ -179,7 +179,7 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 
 	existingCourse := internal.Course{
 		Code:     "CS101",
-		Kind:     "Lecture",
+		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming",
@@ -288,7 +288,7 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 	courses := []internal.Course{
 		{
 			Code:     "CS101",
-			Kind:     "Lecture",
+			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming I",
@@ -299,7 +299,7 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 		},
 		{
 			Code:     "CS102",
-			Kind:     "Lab",
+			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
 			Name:     "Programming Lab",
@@ -326,27 +326,27 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 			name:     "exact duplicate course",
 			packName: "Duplicate Pack",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name:     "multiple duplicates",
 			packName: "Multiple Duplicates Pack",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
 			},
 		},
 		{
 			name:     "duplicate with valid courses",
 			packName: "Mixed Pack",
 			courses: []internal.CourseID{
-				{Code: "CS101", Kind: "Lecture", Part: 1},
-				{Code: "CS102", Kind: "Lab", Part: 1},
-				{Code: "CS101", Kind: "Lecture", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 		},
 	}
@@ -393,7 +393,7 @@ func TestCreatePackNameTrimming(t *testing.T) {
 
 	course := internal.Course{
 		Code:     "CS101",
-		Kind:     "Lecture",
+		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
 		Name:     "Programming",
