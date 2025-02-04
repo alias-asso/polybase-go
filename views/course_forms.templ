@@ -2,7 +2,7 @@ package views
 
 import (
 	"fmt"
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 	"time"
 )
 
@@ -138,7 +138,7 @@ templ NewCourseForm() {
 	}
 }
 
-templ EditCourseForm(course internal.Course) {
+templ EditCourseForm(course libpolybase.Course) {
 	@Modal() {
 		<div class="space-y-6">
 			<h2 class="text-2xl font-bold">Modifier un poly</h2>
@@ -212,7 +212,7 @@ templ EditCourseForm(course internal.Course) {
 	}
 }
 
-templ CourseDeleteConfirm(course internal.Course) {
+templ CourseDeleteConfirm(course libpolybase.Course) {
 	@Modal() {
 		<div class="flex flex-col items-center gap-y-4 mx-4 my-8">
 			<h1 class="text-bf text-xl font-bold">Supprimer { fmt.Sprintf("%s %s %d", course.Code, course.Kind, course.Part) } ?</h1>

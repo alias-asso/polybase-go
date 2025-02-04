@@ -5,17 +5,17 @@ import (
 	"strings"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // Pack name can be updated while preserving courses
 func TestUpdatePackNameOnly(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create test courses
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -50,7 +50,7 @@ func TestUpdatePackNameOnly(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	courseIDs := []internal.CourseID{
+	courseIDs := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 		{Code: "CS102", Kind: "TME", Part: 1},
 	}
@@ -62,7 +62,7 @@ func TestUpdatePackNameOnly(t *testing.T) {
 
 	// Update pack name
 	newName := "Updated Programming Pack"
-	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, internal.PartialPack{
+	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
 		Name: &newName,
 	})
 	if err != nil {
@@ -79,7 +79,7 @@ func TestUpdatePackNameOnly(t *testing.T) {
 	}
 
 	db.AssertPackExists(created.ID)
-	db.AssertPackEqual(created.ID, internal.Pack{
+	db.AssertPackEqual(created.ID, libpolybase.Pack{
 		ID:      created.ID,
 		Name:    newName,
 		Courses: courseIDs,
@@ -99,11 +99,11 @@ func TestUpdatePackNameOnly(t *testing.T) {
 // Pack courses can be updated while preserving name
 func TestUpdatePackCoursesOnly(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create test courses
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -149,7 +149,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 
 	// Create initial pack with subset of courses
 	packName := "Programming Pack"
-	initialCourses := []internal.CourseID{
+	initialCourses := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 		{Code: "CS102", Kind: "TME", Part: 1},
 	}
@@ -160,12 +160,12 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 	}
 
 	// Update pack courses
-	newCourses := []internal.CourseID{
+	newCourses := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 		{Code: "CS103", Kind: "TD", Part: 1},
 	}
 
-	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, internal.PartialPack{
+	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
 		Courses: &newCourses,
 	})
 	if err != nil {
@@ -182,7 +182,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 	}
 
 	db.AssertPackExists(created.ID)
-	db.AssertPackEqual(created.ID, internal.Pack{
+	db.AssertPackEqual(created.ID, libpolybase.Pack{
 		ID:      created.ID,
 		Name:    packName,
 		Courses: newCourses,
@@ -194,7 +194,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 	}
 
 	// Verify removed courses are no longer in pack
-	db.AssertCourseNotInPack(created.ID, internal.CourseID{
+	db.AssertCourseNotInPack(created.ID, libpolybase.CourseID{
 		Code: "CS102",
 		Kind: "TME",
 		Part: 1,
@@ -209,11 +209,11 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 // Pack courses and name can be updated simultaneously
 func TestUpdatePackNameAndCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create test courses
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -259,7 +259,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	initialCourses := []internal.CourseID{
+	initialCourses := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 		{Code: "CS102", Kind: "TME", Part: 1},
 	}
@@ -271,12 +271,12 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 
 	// Update both name and courses
 	newName := "Advanced Programming Pack"
-	newCourses := []internal.CourseID{
+	newCourses := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 		{Code: "CS103", Kind: "TD", Part: 1},
 	}
 
-	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, internal.PartialPack{
+	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
 		Name:    &newName,
 		Courses: &newCourses,
 	})
@@ -294,7 +294,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	}
 
 	db.AssertPackExists(created.ID)
-	db.AssertPackEqual(created.ID, internal.Pack{
+	db.AssertPackEqual(created.ID, libpolybase.Pack{
 		ID:      created.ID,
 		Name:    newName,
 		Courses: newCourses,
@@ -306,7 +306,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	}
 
 	// Verify removed courses are no longer in pack
-	db.AssertCourseNotInPack(created.ID, internal.CourseID{
+	db.AssertCourseNotInPack(created.ID, libpolybase.CourseID{
 		Code: "CS102",
 		Kind: "TME",
 		Part: 1,
@@ -356,11 +356,11 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 // Updating pack to have no courses is rejected
 func TestUpdatePackWithNoCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create initial course
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "CS101",
 		Kind:     "Cours",
 		Part:     1,
@@ -379,7 +379,7 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	initialCourses := []internal.CourseID{
+	initialCourses := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 	}
 
@@ -390,18 +390,18 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		update internal.PartialPack
+		update libpolybase.PartialPack
 	}{
 		{
 			name: "empty course slice",
-			update: internal.PartialPack{
-				Courses: &[]internal.CourseID{},
+			update: libpolybase.PartialPack{
+				Courses: &[]libpolybase.CourseID{},
 			},
 		},
 		{
 			name: "nil course slice",
-			update: internal.PartialPack{
-				Courses: new([]internal.CourseID),
+			update: libpolybase.PartialPack{
+				Courses: new([]libpolybase.CourseID),
 			},
 		},
 	}
@@ -420,7 +420,7 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 			}
 
 			// Verify pack remains unchanged
-			db.AssertPackEqual(created.ID, internal.Pack{
+			db.AssertPackEqual(created.ID, libpolybase.Pack{
 				ID:      created.ID,
 				Name:    initialName,
 				Courses: initialCourses,
@@ -441,11 +441,11 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 // Updating pack with non-existent courses fails properly
 func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create initial course
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "CS101",
 		Kind:     "Cours",
 		Part:     1,
@@ -462,7 +462,7 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 		t.Fatalf("failed to create course: %v", err)
 	}
 
-	existingID := internal.CourseID{
+	existingID := libpolybase.CourseID{
 		Code: course.Code,
 		Kind: course.Kind,
 		Part: course.Part,
@@ -470,7 +470,7 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	initialCourses := []internal.CourseID{existingID}
+	initialCourses := []libpolybase.CourseID{existingID}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
 	if err != nil {
@@ -479,37 +479,37 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		updateCourses []internal.CourseID
+		updateCourses []libpolybase.CourseID
 	}{
 		{
 			name: "single non-existent course",
-			updateCourses: []internal.CourseID{
+			updateCourses: []libpolybase.CourseID{
 				{Code: "FAKE101", Kind: "Missing", Part: 1},
 			},
 		},
 		{
 			name: "multiple non-existent courses",
-			updateCourses: []internal.CourseID{
+			updateCourses: []libpolybase.CourseID{
 				{Code: "FAKE101", Kind: "Missing", Part: 1},
 				{Code: "FAKE102", Kind: "Missing", Part: 1},
 			},
 		},
 		{
 			name: "mix of existing and non-existent courses",
-			updateCourses: []internal.CourseID{
+			updateCourses: []libpolybase.CourseID{
 				existingID,
 				{Code: "FAKE101", Kind: "Missing", Part: 1},
 			},
 		},
 		{
 			name: "existing code with wrong kind",
-			updateCourses: []internal.CourseID{
+			updateCourses: []libpolybase.CourseID{
 				{Code: existingID.Code, Kind: "WrongKind", Part: existingID.Part},
 			},
 		},
 		{
 			name: "existing code and kind with wrong part",
-			updateCourses: []internal.CourseID{
+			updateCourses: []libpolybase.CourseID{
 				{Code: existingID.Code, Kind: existingID.Kind, Part: 999},
 			},
 		},
@@ -518,7 +518,7 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Attempt update with non-existent courses
-			_, err := pb.UpdatePack(ctx, "testuser", created.ID, internal.PartialPack{
+			_, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
 				Courses: &tt.updateCourses,
 			})
 
@@ -531,7 +531,7 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 			}
 
 			// Verify pack remains unchanged
-			db.AssertPackEqual(created.ID, internal.Pack{
+			db.AssertPackEqual(created.ID, libpolybase.Pack{
 				ID:      created.ID,
 				Name:    initialName,
 				Courses: initialCourses,
@@ -550,10 +550,10 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 // Updating pack with duplicate courses fails properly
 func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -586,7 +586,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 	}
 
 	initialName := "Programming Pack"
-	initialCourses := []internal.CourseID{
+	initialCourses := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 	}
 
@@ -597,18 +597,18 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		updateCourses []internal.CourseID
+		updateCourses []libpolybase.CourseID
 	}{
 		{
 			name: "same course repeated",
-			updateCourses: []internal.CourseID{
+			updateCourses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name: "multiple duplicate courses",
-			updateCourses: []internal.CourseID{
+			updateCourses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS102", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
@@ -617,7 +617,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 		},
 		{
 			name: "duplicates with different order",
-			updateCourses: []internal.CourseID{
+			updateCourses: []libpolybase.CourseID{
 				{Code: "CS102", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS102", Kind: "TME", Part: 1},
@@ -627,14 +627,14 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := pb.UpdatePack(ctx, "testuser", created.ID, internal.PartialPack{
+			_, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
 				Courses: &tt.updateCourses,
 			})
 			if err == nil {
 				t.Fatal("expected error when updating pack with duplicate courses, got nil")
 			}
 
-			db.AssertPackEqual(created.ID, internal.Pack{
+			db.AssertPackEqual(created.ID, libpolybase.Pack{
 				ID:      created.ID,
 				Name:    initialName,
 				Courses: initialCourses,
@@ -654,10 +654,10 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 // Updating non-existent pack returns appropriate error
 func TestUpdateNonExistentPack(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "CS101",
 		Kind:     "Cours",
 		Part:     1,
@@ -677,20 +677,20 @@ func TestUpdateNonExistentPack(t *testing.T) {
 	tests := []struct {
 		name   string
 		packID int
-		update internal.PartialPack
+		update libpolybase.PartialPack
 	}{
 		{
 			name:   "non-existent positive ID",
 			packID: 999,
-			update: internal.PartialPack{
+			update: libpolybase.PartialPack{
 				Name: stringPtr("New Name"),
 			},
 		},
 		{
 			name:   "zero ID",
 			packID: 0,
-			update: internal.PartialPack{
-				Courses: &[]internal.CourseID{
+			update: libpolybase.PartialPack{
+				Courses: &[]libpolybase.CourseID{
 					{Code: "CS101", Kind: "Cours", Part: 1},
 				},
 			},
@@ -698,9 +698,9 @@ func TestUpdateNonExistentPack(t *testing.T) {
 		{
 			name:   "negative ID",
 			packID: -1,
-			update: internal.PartialPack{
+			update: libpolybase.PartialPack{
 				Name:    stringPtr("New Name"),
-				Courses: &[]internal.CourseID{{Code: "CS101", Kind: "Cours", Part: 1}},
+				Courses: &[]libpolybase.CourseID{{Code: "CS101", Kind: "Cours", Part: 1}},
 			},
 		},
 	}
@@ -720,11 +720,11 @@ func TestUpdateNonExistentPack(t *testing.T) {
 // Update with no changes succeeds without modifications
 func TestUpdatePackWithNoChanges(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create test course
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "CS101",
 		Kind:     "Cours",
 		Part:     1,
@@ -743,7 +743,7 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	initialCourses := []internal.CourseID{
+	initialCourses := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 	}
 
@@ -754,23 +754,23 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		update internal.PartialPack
+		update libpolybase.PartialPack
 	}{
 		{
 			name: "same name",
-			update: internal.PartialPack{
+			update: libpolybase.PartialPack{
 				Name: &initialName,
 			},
 		},
 		{
 			name: "same courses",
-			update: internal.PartialPack{
+			update: libpolybase.PartialPack{
 				Courses: &initialCourses,
 			},
 		},
 		{
 			name: "same name and courses",
-			update: internal.PartialPack{
+			update: libpolybase.PartialPack{
 				Name:    &initialName,
 				Courses: &initialCourses,
 			},
@@ -788,7 +788,7 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 				t.Errorf("pack name = %q, want %q", updated.Name, initialName)
 			}
 
-			db.AssertPackEqual(created.ID, internal.Pack{
+			db.AssertPackEqual(created.ID, libpolybase.Pack{
 				ID:      created.ID,
 				Name:    initialName,
 				Courses: initialCourses,

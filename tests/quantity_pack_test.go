@@ -5,16 +5,16 @@ import (
 	"math"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // Pack quantities can be increased within bounds
 func TestUpdatePackQuantityIncrease(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Lecture",
@@ -39,7 +39,7 @@ func TestUpdatePackQuantityIncrease(t *testing.T) {
 		},
 	}
 
-	courseIDs := []internal.CourseID{
+	courseIDs := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Lecture", Part: 1},
 		{Code: "CS102", Kind: "Lab", Part: 1},
 	}
@@ -105,7 +105,7 @@ func TestUpdatePackQuantityIncrease(t *testing.T) {
 
 			// Verify course quantities
 			for code, wantQuantity := range tt.quantities {
-				var courseID internal.CourseID
+				var courseID libpolybase.CourseID
 				for _, id := range courseIDs {
 					if id.Code == code {
 						courseID = id
@@ -126,9 +126,9 @@ func TestUpdatePackQuantityIncrease(t *testing.T) {
 // Pack quantities can be decreased within bounds
 func TestUpdatePackQuantityDecrease(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Lecture",
@@ -152,7 +152,7 @@ func TestUpdatePackQuantityDecrease(t *testing.T) {
 			Semester: "S1",
 		},
 	}
-	courseIDs := []internal.CourseID{
+	courseIDs := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Lecture", Part: 1},
 		{Code: "CS102", Kind: "Lab", Part: 1},
 	}
@@ -206,7 +206,7 @@ func TestUpdatePackQuantityDecrease(t *testing.T) {
 			}
 			// Verify course quantities
 			for code, wantQuantity := range tt.quantities {
-				var courseID internal.CourseID
+				var courseID libpolybase.CourseID
 				for _, id := range courseIDs {
 					if id.Code == code {
 						courseID = id
@@ -226,9 +226,9 @@ func TestUpdatePackQuantityDecrease(t *testing.T) {
 // Updating pack quantity respects individual course limits
 func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Lecture",
@@ -252,7 +252,7 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 			Semester: "S1",
 		},
 	}
-	courseIDs := []internal.CourseID{
+	courseIDs := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Lecture", Part: 1},
 		{Code: "CS102", Kind: "Lab", Part: 1},
 	}
@@ -311,7 +311,7 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 				}
 				// Verify no changes were made
 				for code, wantQuantity := range tt.quantities {
-					var courseID internal.CourseID
+					var courseID libpolybase.CourseID
 					for _, id := range courseIDs {
 						if id.Code == code {
 							courseID = id
@@ -331,7 +331,7 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 			}
 			// Verify course quantities
 			for code, wantQuantity := range tt.quantities {
-				var courseID internal.CourseID
+				var courseID libpolybase.CourseID
 				for _, id := range courseIDs {
 					if id.Code == code {
 						courseID = id
@@ -351,9 +351,9 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 // Negative and zero quantity updates are handled properly
 func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Lecture",
@@ -377,7 +377,7 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 			Semester: "S1",
 		},
 	}
-	courseIDs := []internal.CourseID{
+	courseIDs := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Lecture", Part: 1},
 		{Code: "CS102", Kind: "Lab", Part: 1},
 	}
@@ -472,7 +472,7 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 
 			// Verify course quantities
 			for code, wantQuantity := range tt.quantities {
-				var courseID internal.CourseID
+				var courseID libpolybase.CourseID
 				for _, id := range courseIDs {
 					if id.Code == code {
 						courseID = id
@@ -492,9 +492,9 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 // Quantity updates on non-existent pack fail properly
 func TestUpdatePackQuantityNonExistent(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Lecture",
@@ -507,7 +507,7 @@ func TestUpdatePackQuantityNonExistent(t *testing.T) {
 			Semester: "S1",
 		},
 	}
-	courseIDs := []internal.CourseID{
+	courseIDs := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Lecture", Part: 1},
 	}
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 func printUsage() {
@@ -120,7 +120,7 @@ type CourseJSON struct {
 	Semester string `json:"semester"`
 }
 
-func printCourses(courses []internal.Course, jsonOutput bool) error {
+func printCourses(courses []libpolybase.Course, jsonOutput bool) error {
 	if jsonOutput {
 		var coursesJSON []CourseJSON
 		for _, c := range courses {
@@ -151,7 +151,7 @@ func printCourses(courses []internal.Course, jsonOutput bool) error {
 	return nil
 }
 
-func printCourse(c internal.Course, jsonOutput bool) error {
+func printCourse(c libpolybase.Course, jsonOutput bool) error {
 	if jsonOutput {
 		courseJSON := CourseJSON{
 			Code:     c.Code,

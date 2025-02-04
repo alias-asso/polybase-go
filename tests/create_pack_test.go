@@ -5,16 +5,16 @@ import (
 	"strings"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // A new pack can be created with valid courses
 func TestCreatePackWithValidCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -60,19 +60,19 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 	tests := []struct {
 		name     string
 		packName string
-		courses  []internal.CourseID
+		courses  []libpolybase.CourseID
 	}{
 		{
 			name:     "single course pack",
 			packName: "Programming Basics",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name:     "multiple course pack",
 			packName: "Complete Programming",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS102", Kind: "TME", Part: 1},
 				{Code: "CS103", Kind: "TD", Part: 1},
@@ -81,7 +81,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 		{
 			name:     "pack with spaces in name",
 			packName: "   Programming Pack   ",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS102", Kind: "TME", Part: 1},
 			},
@@ -95,7 +95,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 				t.Fatalf("failed to create pack: %v", err)
 			}
 
-			want := internal.Pack{
+			want := libpolybase.Pack{
 				ID:      created.ID,
 				Name:    strings.TrimSpace(tt.packName),
 				Courses: tt.courses,
@@ -118,18 +118,18 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 // Creating a pack with no courses is properly rejected
 func TestCreatePackWithNoCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	tests := []struct {
 		name     string
 		packName string
-		courses  []internal.CourseID
+		courses  []libpolybase.CourseID
 	}{
 		{
 			name:     "empty course list",
 			packName: "Empty Pack",
-			courses:  []internal.CourseID{},
+			courses:  []libpolybase.CourseID{},
 		},
 		{
 			name:     "nil course list",
@@ -174,10 +174,10 @@ func TestCreatePackWithNoCourses(t *testing.T) {
 // Creating a pack with non-existent courses fails properly
 func TestCreatePackWithNonExistentCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	existingCourse := internal.Course{
+	existingCourse := libpolybase.Course{
 		Code:     "CS101",
 		Kind:     "Cours",
 		Part:     1,
@@ -194,7 +194,7 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 		t.Fatalf("failed to create test course: %v", err)
 	}
 
-	existingID := internal.CourseID{
+	existingID := libpolybase.CourseID{
 		Code: existingCourse.Code,
 		Kind: existingCourse.Kind,
 		Part: existingCourse.Part,
@@ -203,19 +203,19 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 	tests := []struct {
 		name     string
 		packName string
-		courses  []internal.CourseID
+		courses  []libpolybase.CourseID
 	}{
 		{
 			name:     "single non-existent course",
 			packName: "Invalid Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "FAKE101", Kind: "Missing", Part: 1},
 			},
 		},
 		{
 			name:     "multiple non-existent courses",
 			packName: "Invalid Pack Multiple",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "FAKE101", Kind: "Missing", Part: 1},
 				{Code: "FAKE102", Kind: "Missing", Part: 1},
 			},
@@ -223,7 +223,7 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 		{
 			name:     "mix of existing and non-existent courses",
 			packName: "Mixed Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				existingID,
 				{Code: "FAKE101", Kind: "Missing", Part: 1},
 			},
@@ -231,14 +231,14 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 		{
 			name:     "existing code with wrong kind",
 			packName: "Wrong Kind Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: existingID.Code, Kind: "WrongKind", Part: existingID.Part},
 			},
 		},
 		{
 			name:     "existing code and kind with wrong part",
 			packName: "Wrong Part Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: existingID.Code, Kind: existingID.Kind, Part: 999},
 			},
 		},
@@ -282,10 +282,10 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 // Creating a pack with duplicate courses fails properly
 func TestCreatePackWithDuplicateCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -320,12 +320,12 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 	tests := []struct {
 		name     string
 		packName string
-		courses  []internal.CourseID
+		courses  []libpolybase.CourseID
 	}{
 		{
 			name:     "exact duplicate course",
 			packName: "Duplicate Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
@@ -333,7 +333,7 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 		{
 			name:     "multiple duplicates",
 			packName: "Multiple Duplicates Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS102", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
@@ -343,7 +343,7 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 		{
 			name:     "duplicate with valid courses",
 			packName: "Mixed Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS102", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
@@ -388,10 +388,10 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 // Pack name is properly trimmed during creation
 func TestCreatePackNameTrimming(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "CS101",
 		Kind:     "Cours",
 		Part:     1,
@@ -408,7 +408,7 @@ func TestCreatePackNameTrimming(t *testing.T) {
 		t.Fatalf("failed to create test course: %v", err)
 	}
 
-	courseID := internal.CourseID{
+	courseID := libpolybase.CourseID{
 		Code: course.Code,
 		Kind: course.Kind,
 		Part: course.Part,
@@ -418,43 +418,43 @@ func TestCreatePackNameTrimming(t *testing.T) {
 		name      string
 		inputName string
 		wantName  string
-		courses   []internal.CourseID
+		courses   []libpolybase.CourseID
 	}{
 		{
 			name:      "leading spaces",
 			inputName: "   Programming Pack",
 			wantName:  "Programming Pack",
-			courses:   []internal.CourseID{courseID},
+			courses:   []libpolybase.CourseID{courseID},
 		},
 		{
 			name:      "trailing spaces",
 			inputName: "Programming Pack   ",
 			wantName:  "Programming Pack",
-			courses:   []internal.CourseID{courseID},
+			courses:   []libpolybase.CourseID{courseID},
 		},
 		{
 			name:      "leading and trailing spaces",
 			inputName: "   Programming Pack   ",
 			wantName:  "Programming Pack",
-			courses:   []internal.CourseID{courseID},
+			courses:   []libpolybase.CourseID{courseID},
 		},
 		{
-			name:      "multiple internal spaces preserved",
+			name:      "multiple libpolybase spaces preserved",
 			inputName: "   Programming    Pack   ",
 			wantName:  "Programming    Pack",
-			courses:   []internal.CourseID{courseID},
+			courses:   []libpolybase.CourseID{courseID},
 		},
 		{
 			name:      "tabs and newlines",
 			inputName: "\tProgramming\nPack\t",
 			wantName:  "Programming\nPack",
-			courses:   []internal.CourseID{courseID},
+			courses:   []libpolybase.CourseID{courseID},
 		},
 		{
 			name:      "only whitespace",
 			inputName: "     ",
 			wantName:  "",
-			courses:   []internal.CourseID{courseID},
+			courses:   []libpolybase.CourseID{courseID},
 		},
 	}
 
@@ -480,7 +480,7 @@ func TestCreatePackNameTrimming(t *testing.T) {
 			}
 
 			db.AssertPackExists(created.ID)
-			db.AssertPackEqual(created.ID, internal.Pack{
+			db.AssertPackEqual(created.ID, libpolybase.Pack{
 				ID:      created.ID,
 				Name:    tt.wantName,
 				Courses: tt.courses,

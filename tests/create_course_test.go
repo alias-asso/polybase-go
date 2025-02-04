@@ -5,15 +5,15 @@ import (
 	"strings"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // A new course can be successfully created in an empty database
 func TestCreateBasicCourse(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "LU3IN005",
 		Kind:     "TD",
 		Part:     1,
@@ -35,7 +35,7 @@ func TestCreateBasicCourse(t *testing.T) {
 	}
 	db.AssertCount(1)
 
-	courseID := internal.CourseID{
+	courseID := libpolybase.CourseID{
 		Code: course.Code,
 		Kind: course.Kind,
 		Part: course.Part,
@@ -48,10 +48,10 @@ func TestCreateBasicCourse(t *testing.T) {
 // Multiple distinct courses can be created sequentially
 func TestCreateMultipleCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "LU3IN009",
 			Kind:     "TD",
@@ -93,8 +93,8 @@ func TestCreateMultipleCourses(t *testing.T) {
 			t.Fatalf("failed to create course %s: %v", course.ID(), err)
 		}
 
-		db.AssertExists(internal.CourseID{Code: course.Code, Kind: course.Kind, Part: course.Part})
-		db.AssertCourseEqual(internal.CourseID{Code: course.Code, Kind: course.Kind, Part: course.Part}, created)
+		db.AssertExists(libpolybase.CourseID{Code: course.Code, Kind: course.Kind, Part: course.Part})
+		db.AssertCourseEqual(libpolybase.CourseID{Code: course.Code, Kind: course.Kind, Part: course.Part}, created)
 	}
 
 	db.AssertCount(len(courses))
@@ -103,10 +103,10 @@ func TestCreateMultipleCourses(t *testing.T) {
 // Creating a duplicate course returns an appropriate error
 func TestCreateDuplicateCourse(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	original := internal.Course{
+	original := libpolybase.Course{
 		Code:     "LU3IN009",
 		Kind:     "TD",
 		Part:     1,
@@ -123,7 +123,7 @@ func TestCreateDuplicateCourse(t *testing.T) {
 		t.Fatalf("failed to create initial course: %v", err)
 	}
 
-	duplicate := internal.Course{
+	duplicate := libpolybase.Course{
 		Code:     "LU3IN009",
 		Kind:     "TD",
 		Part:     1,
@@ -144,19 +144,19 @@ func TestCreateDuplicateCourse(t *testing.T) {
 	}
 
 	db.AssertCount(1)
-	db.AssertCourseEqual(internal.CourseID{Code: original.Code, Kind: original.Kind, Part: original.Part}, original)
+	db.AssertCourseEqual(libpolybase.CourseID{Code: original.Code, Kind: original.Kind, Part: original.Part}, original)
 }
 
 // All course fields are properly validated during creation
 func TestCreateCourseFieldValidation(t *testing.T) {
 	tests := []struct {
 		name    string
-		course  internal.Course
+		course  libpolybase.Course
 		wantErr string
 	}{
 		{
 			name: "empty code",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "",
 				Kind:     "TD",
 				Part:     1,
@@ -169,7 +169,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "invalid code characters",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "lu3in009",
 				Kind:     "TD",
 				Part:     1,
@@ -182,7 +182,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "empty kind",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "",
 				Part:     1,
@@ -195,7 +195,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "invalid kind characters",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "TD2",
 				Part:     1,
@@ -208,7 +208,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "negative quantity",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "TD",
 				Part:     1,
@@ -221,7 +221,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "negative total",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "TD",
 				Part:     1,
@@ -234,7 +234,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "quantity exceeds total",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "TD",
 				Part:     1,
@@ -247,7 +247,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "empty semester",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "TD",
 				Part:     1,
@@ -260,7 +260,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "invalid semester format",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "TD",
 				Part:     1,
@@ -273,7 +273,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "invalid semester number",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "TD",
 				Part:     1,
@@ -286,7 +286,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "valid course with minimum values",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009",
 				Kind:     "TD",
 				Part:     1,
@@ -299,7 +299,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 		},
 		{
 			name: "valid course with special code characters",
-			course: internal.Course{
+			course: libpolybase.Course{
 				Code:     "LU3IN009-{A},B",
 				Kind:     "TD",
 				Part:     1,
@@ -315,7 +315,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			db := NewDB(t)
-			pb := internal.New(db.DB, "", false)
+			pb := libpolybase.New(db.DB, "", false)
 
 			_, err := pb.CreateCourse(context.Background(), "", tt.course)
 
@@ -324,7 +324,7 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 					t.Errorf("[%s] expected success, got error: %v", tt.name, err)
 				}
 				db.AssertCount(1)
-				db.AssertExists(internal.CourseID{
+				db.AssertExists(libpolybase.CourseID{
 					Code: tt.course.Code,
 					Kind: tt.course.Kind,
 					Part: tt.course.Part,
@@ -344,9 +344,9 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 // A course can be created with maximum valid values for all fields
 func TestCreateWithMaxValues(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "COURSE-123{A,B,C}-456",
 		Kind:     "Cours",
 		Part:     999,
@@ -365,7 +365,7 @@ func TestCreateWithMaxValues(t *testing.T) {
 
 	db.AssertCount(1)
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: course.Code,
 		Kind: course.Kind,
 		Part: course.Part,
@@ -382,9 +382,9 @@ func TestCreateWithMaxValues(t *testing.T) {
 // A course can be created with minimum valid values for all fields
 func TestCreateWithMinValues(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "A",
 		Kind:     "TD",
 		Part:     1,
@@ -403,7 +403,7 @@ func TestCreateWithMinValues(t *testing.T) {
 
 	db.AssertCount(1)
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: course.Code,
 		Kind: course.Kind,
 		Part: course.Part,

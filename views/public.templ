@@ -1,8 +1,8 @@
 package views
 
-import "git.sr.ht/~alias/polybase-go/internal"
+import "git.sr.ht/~alias/polybase-go/libpolybase"
 
-templ Public(courses []internal.Course, count int) {
+templ Public(courses []libpolybase.Course, count int) {
 	@Base(false) {
 		@Header(false, "", GetRandomMessage()) {
 			<a href="/login">Connexion</a>

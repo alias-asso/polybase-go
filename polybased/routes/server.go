@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 	"git.sr.ht/~alias/polybase-go/polybased/config"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -16,7 +16,7 @@ type Server struct {
 	mux   *http.ServeMux
 	addr  string
 	cfg   *config.Config
-	pb    internal.Polybase
+	pb    libpolybase.Polybase
 	count int
 }
 
@@ -27,7 +27,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		return nil, fmt.Errorf("open database: %w", err)
 	}
 
-	pb := internal.New(db, cfg.Server.Log, true)
+	pb := libpolybase.New(db, cfg.Server.Log, true)
 
 	srv := &Server{
 		mux:   http.NewServeMux(),

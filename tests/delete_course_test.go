@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // delete existing course
 func TestDeleteExistingCourse(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create test course
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     "CS101",
 		Kind:     "Cours",
 		Part:     1,
@@ -33,13 +33,13 @@ func TestDeleteExistingCourse(t *testing.T) {
 	}
 
 	// Create a pack containing the course
-	courseID := internal.CourseID{
+	courseID := libpolybase.CourseID{
 		Code: created.Code,
 		Kind: created.Kind,
 		Part: created.Part,
 	}
 
-	pack, err := pb.CreatePack(ctx, "testuser", "Test Pack", []internal.CourseID{courseID})
+	pack, err := pb.CreatePack(ctx, "testuser", "Test Pack", []libpolybase.CourseID{courseID})
 	if err != nil {
 		t.Fatalf("failed to create test pack: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestDeleteExistingCourse(t *testing.T) {
 
 	// Verify get returns CourseNotFound
 	_, err = pb.GetCourse(ctx, courseID)
-	if _, ok := err.(*internal.CourseNotFound); !ok {
+	if _, ok := err.(*libpolybase.CourseNotFound); !ok {
 		t.Errorf("got error %T, want *CourseNotFound", err)
 	}
 
@@ -79,17 +79,17 @@ func TestDeleteExistingCourse(t *testing.T) {
 // delete non-existent course
 func TestDeleteNonExistentCourse(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	tests := []struct {
 		name  string
-		id    internal.CourseID
-		setup func(t *testing.T, pb *internal.PB)
+		id    libpolybase.CourseID
+		setup func(t *testing.T, pb *libpolybase.PB)
 	}{
 		{
 			name: "never existed",
-			id: internal.CourseID{
+			id: libpolybase.CourseID{
 				Code: "NOTFOUND",
 				Kind: "MISSING",
 				Part: 1,
@@ -97,13 +97,13 @@ func TestDeleteNonExistentCourse(t *testing.T) {
 		},
 		{
 			name: "already deleted",
-			id: internal.CourseID{
+			id: libpolybase.CourseID{
 				Code: "CS101",
 				Kind: "Cours",
 				Part: 1,
 			},
-			setup: func(t *testing.T, pb *internal.PB) {
-				course := internal.Course{
+			setup: func(t *testing.T, pb *libpolybase.PB) {
+				course := libpolybase.Course{
 					Code:     "CS101",
 					Kind:     "Cours",
 					Part:     1,
@@ -120,7 +120,7 @@ func TestDeleteNonExistentCourse(t *testing.T) {
 					t.Fatalf("failed to create test course: %v", err)
 				}
 
-				err = pb.DeleteCourse(ctx, "testuser", internal.CourseID{
+				err = pb.DeleteCourse(ctx, "testuser", libpolybase.CourseID{
 					Code: course.Code,
 					Kind: course.Kind,
 					Part: course.Part,
@@ -132,7 +132,7 @@ func TestDeleteNonExistentCourse(t *testing.T) {
 		},
 		{
 			name: "invalid course ID format",
-			id: internal.CourseID{
+			id: libpolybase.CourseID{
 				Code: "invalid!code",
 				Kind: "invalid!kind",
 				Part: 1,
@@ -161,10 +161,10 @@ func TestDeleteNonExistentCourse(t *testing.T) {
 // delete and recreate
 func TestDeleteAndRecreateCourse(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	original := internal.Course{
+	original := libpolybase.Course{
 		Code:     "CS101",
 		Kind:     "Cours",
 		Part:     1,
@@ -182,7 +182,7 @@ func TestDeleteAndRecreateCourse(t *testing.T) {
 		t.Fatalf("failed to create initial course: %v", err)
 	}
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: original.Code,
 		Kind: original.Kind,
 		Part: original.Part,
@@ -204,7 +204,7 @@ func TestDeleteAndRecreateCourse(t *testing.T) {
 	db.AssertNotExists(id)
 
 	// Create new course with same ID but different details
-	recreated := internal.Course{
+	recreated := libpolybase.Course{
 		Code:     original.Code,
 		Kind:     original.Kind,
 		Part:     original.Part,
@@ -230,16 +230,16 @@ func TestDeleteAndRecreateCourse(t *testing.T) {
 // delete with invalid id
 func TestDeleteCourseWithInvalidID(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	tests := []struct {
 		name string
-		id   internal.CourseID
+		id   libpolybase.CourseID
 	}{
 		{
 			name: "empty code",
-			id: internal.CourseID{
+			id: libpolybase.CourseID{
 				Code: "",
 				Kind: "Cours",
 				Part: 1,
@@ -247,7 +247,7 @@ func TestDeleteCourseWithInvalidID(t *testing.T) {
 		},
 		{
 			name: "empty kind",
-			id: internal.CourseID{
+			id: libpolybase.CourseID{
 				Code: "CS101",
 				Kind: "",
 				Part: 1,
@@ -276,11 +276,11 @@ func TestDeleteCourseWithInvalidID(t *testing.T) {
 // delete the last part of a multi-part course
 func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create a three-part course
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -339,7 +339,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 
 	for _, d := range deletions {
 		t.Run(fmt.Sprintf("delete_part_%d", d.part), func(t *testing.T) {
-			err := pb.DeleteCourse(ctx, "testuser", internal.CourseID{
+			err := pb.DeleteCourse(ctx, "testuser", libpolybase.CourseID{
 				Code: "CS101",
 				Kind: "Cours",
 				Part: d.part,
@@ -366,7 +366,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 			}
 
 			// Verify deleted part doesn't exist
-			db.AssertNotExists(internal.CourseID{
+			db.AssertNotExists(libpolybase.CourseID{
 				Code: "CS101",
 				Kind: "Cours",
 				Part: d.part,

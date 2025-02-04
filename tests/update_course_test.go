@@ -5,17 +5,17 @@ import (
 	"strings"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // All fields of a course can be updated simultaneously
 func TestUpdateAllFields(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// First verify we can create a course
-	original := internal.Course{
+	original := libpolybase.Course{
 		Code:     "LU3IN005",
 		Kind:     "TD",
 		Part:     1,
@@ -36,7 +36,7 @@ func TestUpdateAllFields(t *testing.T) {
 
 	// Verify course exists before update
 	t.Log("Verifying course exists...")
-	_, err = pb.GetCourse(ctx, internal.CourseID{
+	_, err = pb.GetCourse(ctx, libpolybase.CourseID{
 		Code: original.Code,
 		Kind: original.Kind,
 		Part: original.Part,
@@ -56,7 +56,7 @@ func TestUpdateAllFields(t *testing.T) {
 	newShown := false
 	newSemester := "S2"
 
-	partial := internal.PartialCourse{
+	partial := libpolybase.PartialCourse{
 		Code:     &newCode,
 		Kind:     &newKind,
 		Part:     &newPart,
@@ -66,13 +66,13 @@ func TestUpdateAllFields(t *testing.T) {
 		Shown:    &newShown,
 		Semester: &newSemester,
 	}
-	// Note: We removed Parts from partial update since it's internally managed
+	// Note: We removed Parts from partial update since it's libpolybasely managed
 
 	t.Log("Attempting to update course...")
 	t.Logf("Update values: %+v", partial)
 
 	// Perform update
-	updated, err := pb.UpdateCourse(ctx, "testuser", internal.CourseID{
+	updated, err := pb.UpdateCourse(ctx, "testuser", libpolybase.CourseID{
 		Code: original.Code,
 		Kind: original.Kind,
 		Part: original.Part,
@@ -82,7 +82,7 @@ func TestUpdateAllFields(t *testing.T) {
 	}
 	t.Logf("Update successful, received: %+v", updated)
 
-	expected := internal.Course{
+	expected := libpolybase.Course{
 		Code:     newCode,
 		Kind:     newKind,
 		Part:     newPart,
@@ -100,17 +100,17 @@ func TestUpdateAllFields(t *testing.T) {
 
 	t.Log("Verifying database state...")
 	// Verify final state
-	db.AssertNotExists(internal.CourseID{
+	db.AssertNotExists(libpolybase.CourseID{
 		Code: original.Code,
 		Kind: original.Kind,
 		Part: original.Part,
 	})
-	db.AssertExists(internal.CourseID{
+	db.AssertExists(libpolybase.CourseID{
 		Code: newCode,
 		Kind: newKind,
 		Part: newPart,
 	})
-	db.AssertCourseEqual(internal.CourseID{
+	db.AssertCourseEqual(libpolybase.CourseID{
 		Code: newCode,
 		Kind: newKind,
 		Part: newPart,
@@ -121,10 +121,10 @@ func TestUpdateAllFields(t *testing.T) {
 // Each individual field can be updated independently
 func TestUpdateSingleField(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	original := internal.Course{
+	original := libpolybase.Course{
 		Code:     "LU3IN005",
 		Kind:     "TD",
 		Part:     1,
@@ -138,15 +138,15 @@ func TestUpdateSingleField(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		partial internal.PartialCourse
-		want    internal.Course
+		partial libpolybase.PartialCourse
+		want    libpolybase.Course
 	}{
 		{
 			name: "update code",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Code: stringPtr("LU3IN006"),
 			},
-			want: internal.Course{
+			want: libpolybase.Course{
 				Code:     "LU3IN006",
 				Kind:     "TD",
 				Part:     1,
@@ -160,10 +160,10 @@ func TestUpdateSingleField(t *testing.T) {
 		},
 		{
 			name: "update kind",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Kind: stringPtr("TME"),
 			},
-			want: internal.Course{
+			want: libpolybase.Course{
 				Code:     "LU3IN005",
 				Kind:     "TME",
 				Part:     1,
@@ -177,10 +177,10 @@ func TestUpdateSingleField(t *testing.T) {
 		},
 		{
 			name: "update name",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Name: stringPtr("Advanced OS"),
 			},
-			want: internal.Course{
+			want: libpolybase.Course{
 				Code:     "LU3IN005",
 				Kind:     "TD",
 				Part:     1,
@@ -194,10 +194,10 @@ func TestUpdateSingleField(t *testing.T) {
 		},
 		{
 			name: "update quantity",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Quantity: intPtr(40),
 			},
-			want: internal.Course{
+			want: libpolybase.Course{
 				Code:     "LU3IN005",
 				Kind:     "TD",
 				Part:     1,
@@ -211,10 +211,10 @@ func TestUpdateSingleField(t *testing.T) {
 		},
 		{
 			name: "update total",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Total: intPtr(60),
 			},
-			want: internal.Course{
+			want: libpolybase.Course{
 				Code:     "LU3IN005",
 				Kind:     "TD",
 				Part:     1,
@@ -228,10 +228,10 @@ func TestUpdateSingleField(t *testing.T) {
 		},
 		{
 			name: "update shown",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Shown: boolPtr(false),
 			},
-			want: internal.Course{
+			want: libpolybase.Course{
 				Code:     "LU3IN005",
 				Kind:     "TD",
 				Part:     1,
@@ -245,10 +245,10 @@ func TestUpdateSingleField(t *testing.T) {
 		},
 		{
 			name: "update semester",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Semester: stringPtr("S2"),
 			},
-			want: internal.Course{
+			want: libpolybase.Course{
 				Code:     "LU3IN005",
 				Kind:     "TD",
 				Part:     1,
@@ -272,7 +272,7 @@ func TestUpdateSingleField(t *testing.T) {
 			}
 
 			// Perform single field update
-			updated, err := pb.UpdateCourse(ctx, "testuser", internal.CourseID{
+			updated, err := pb.UpdateCourse(ctx, "testuser", libpolybase.CourseID{
 				Code: created.Code,
 				Kind: created.Kind,
 				Part: created.Part,
@@ -286,7 +286,7 @@ func TestUpdateSingleField(t *testing.T) {
 				t.Errorf("updated course mismatch:\ngot: %+v\nwant: %+v", updated, tt.want)
 			}
 
-			db.AssertCourseEqual(internal.CourseID{
+			db.AssertCourseEqual(libpolybase.CourseID{
 				Code: updated.Code,
 				Kind: updated.Kind,
 				Part: updated.Part,
@@ -298,15 +298,15 @@ func TestUpdateSingleField(t *testing.T) {
 // Updating non-existent course returns appropriate error
 func TestUpdateNonExistentCourse(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	newName := "Updated Name"
-	partial := internal.PartialCourse{
+	partial := libpolybase.PartialCourse{
 		Name: &newName,
 	}
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: "NOTFOUND",
 		Kind: "MISSING",
 		Part: 1,
@@ -327,10 +327,10 @@ func TestUpdateNonExistentCourse(t *testing.T) {
 // Updates with invalid values are properly rejected
 func TestUpdateWithInvalidValues(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	original := internal.Course{
+	original := libpolybase.Course{
 		Code:     "LU3IN005",
 		Kind:     "TD",
 		Part:     1,
@@ -344,53 +344,53 @@ func TestUpdateWithInvalidValues(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		partial internal.PartialCourse
+		partial libpolybase.PartialCourse
 	}{
 		{
 			name: "invalid code format",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Code: stringPtr(""),
 			},
 		},
 		{
 			name: "invalid kind with numbers",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Kind: stringPtr(""),
 			},
 		},
 		{
 			name: "invalid kind with numbers",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Part: intPtr(0),
 			},
 		},
 		{
 			name: "quantity exceeds total",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Quantity: intPtr(100),
 			},
 		},
 		{
 			name: "negative quantity",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Quantity: intPtr(-10),
 			},
 		},
 		{
 			name: "negative total",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Total: intPtr(-50),
 			},
 		},
 		{
 			name: "invalid semester format",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Semester: stringPtr("X1"),
 			},
 		},
 		{
 			name: "invalid semester number",
-			partial: internal.PartialCourse{
+			partial: libpolybase.PartialCourse{
 				Semester: stringPtr("S3"),
 			},
 		},
@@ -405,7 +405,7 @@ func TestUpdateWithInvalidValues(t *testing.T) {
 				t.Fatalf("failed to create initial course: %v", err)
 			}
 
-			id := internal.CourseID{
+			id := libpolybase.CourseID{
 				Code: original.Code,
 				Kind: original.Kind,
 				Part: original.Part,
@@ -426,11 +426,11 @@ func TestUpdateWithInvalidValues(t *testing.T) {
 // Updating to create a duplicate is properly rejected
 func TestUpdateToDuplicate(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create first course
-	first := internal.Course{
+	first := libpolybase.Course{
 		Code:     "LU3IN005",
 		Kind:     "TD",
 		Part:     1,
@@ -443,7 +443,7 @@ func TestUpdateToDuplicate(t *testing.T) {
 	}
 
 	// Create second course
-	second := internal.Course{
+	second := libpolybase.Course{
 		Code:     "LU3IN006",
 		Kind:     "TD",
 		Part:     1,
@@ -467,13 +467,13 @@ func TestUpdateToDuplicate(t *testing.T) {
 	}
 
 	// Try to update second course to have same ID as first
-	partial := internal.PartialCourse{
+	partial := libpolybase.PartialCourse{
 		Code: &first.Code,
 		Kind: &first.Kind,
 		Part: &first.Part,
 	}
 
-	_, err = pb.UpdateCourse(ctx, "testuser", internal.CourseID{
+	_, err = pb.UpdateCourse(ctx, "testuser", libpolybase.CourseID{
 		Code: second.Code,
 		Kind: second.Kind,
 		Part: second.Part,
@@ -484,13 +484,13 @@ func TestUpdateToDuplicate(t *testing.T) {
 	}
 
 	// Verify both courses remain unchanged
-	db.AssertCourseEqual(internal.CourseID{
+	db.AssertCourseEqual(libpolybase.CourseID{
 		Code: first.Code,
 		Kind: first.Kind,
 		Part: first.Part,
 	}, first)
 
-	db.AssertCourseEqual(internal.CourseID{
+	db.AssertCourseEqual(libpolybase.CourseID{
 		Code: second.Code,
 		Kind: second.Kind,
 		Part: second.Part,
@@ -500,11 +500,11 @@ func TestUpdateToDuplicate(t *testing.T) {
 // Update with no actual changes is handled gracefully
 func TestUpdateCourseWithSameInfo(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create initial course
-	original := internal.Course{
+	original := libpolybase.Course{
 		Code:     "LU3IN009",
 		Kind:     "Cours",
 		Part:     1,
@@ -525,7 +525,7 @@ func TestUpdateCourseWithSameInfo(t *testing.T) {
 
 	// Verify initial state
 	t.Log("Verifying course exists...")
-	fetchedBefore, err := pb.GetCourse(ctx, internal.CourseID{
+	fetchedBefore, err := pb.GetCourse(ctx, libpolybase.CourseID{
 		Code: original.Code,
 		Kind: original.Kind,
 		Part: original.Part,
@@ -548,7 +548,7 @@ func TestUpdateCourseWithSameInfo(t *testing.T) {
 	sameShown := original.Shown
 	sameSemester := original.Semester
 
-	partial := internal.PartialCourse{
+	partial := libpolybase.PartialCourse{
 		Code:     &sameCode,
 		Kind:     &sameKind,
 		Part:     &samePart,
@@ -563,7 +563,7 @@ func TestUpdateCourseWithSameInfo(t *testing.T) {
 	t.Logf("Update values: %+v", partial)
 
 	// Perform update
-	updated, err := pb.UpdateCourse(ctx, "testuser", internal.CourseID{
+	updated, err := pb.UpdateCourse(ctx, "testuser", libpolybase.CourseID{
 		Code: original.Code,
 		Kind: original.Kind,
 		Part: original.Part,
@@ -580,12 +580,12 @@ func TestUpdateCourseWithSameInfo(t *testing.T) {
 
 	t.Log("Verifying final database state...")
 	// Verify the course still exists with same values
-	db.AssertExists(internal.CourseID{
+	db.AssertExists(libpolybase.CourseID{
 		Code: original.Code,
 		Kind: original.Kind,
 		Part: original.Part,
 	})
-	db.AssertCourseEqual(internal.CourseID{
+	db.AssertCourseEqual(libpolybase.CourseID{
 		Code: original.Code,
 		Kind: original.Kind,
 		Part: original.Part,

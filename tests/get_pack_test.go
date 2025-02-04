@@ -5,16 +5,16 @@ import (
 	"strings"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // An existing pack can be retrieved accurately
 func TestGetExistingPack(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -60,19 +60,19 @@ func TestGetExistingPack(t *testing.T) {
 	tests := []struct {
 		name     string
 		packName string
-		courses  []internal.CourseID
+		courses  []libpolybase.CourseID
 	}{
 		{
 			name:     "single course pack",
 			packName: "Basic Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name:     "multiple course pack",
 			packName: "Complete Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS102", Kind: "TME", Part: 1},
 				{Code: "CS103", Kind: "TD", Part: 1},
@@ -81,7 +81,7 @@ func TestGetExistingPack(t *testing.T) {
 		{
 			name:     "pack with spaces in name",
 			packName: "Programming   Course   Pack",
-			courses: []internal.CourseID{
+			courses: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS102", Kind: "TME", Part: 1},
 			},
@@ -100,7 +100,7 @@ func TestGetExistingPack(t *testing.T) {
 				t.Fatalf("failed to get pack: %v", err)
 			}
 
-			want := internal.Pack{
+			want := libpolybase.Pack{
 				ID:      created.ID,
 				Name:    tt.packName,
 				Courses: tt.courses,
@@ -136,14 +136,14 @@ func TestGetExistingPack(t *testing.T) {
 // Retrieving a non-existent pack returns appropriate error
 func TestGetNonExistentPack(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	tests := []struct {
 		name    string
 		packID  int
-		setup   func(t *testing.T, pb *internal.PB)
-		cleanup func(t *testing.T, pb *internal.PB, id int)
+		setup   func(t *testing.T, pb *libpolybase.PB)
+		cleanup func(t *testing.T, pb *libpolybase.PB, id int)
 	}{
 		{
 			name:   "never existed pack",
@@ -160,8 +160,8 @@ func TestGetNonExistentPack(t *testing.T) {
 		{
 			name:   "deleted pack",
 			packID: 1,
-			setup: func(t *testing.T, pb *internal.PB) {
-				course := internal.Course{
+			setup: func(t *testing.T, pb *libpolybase.PB) {
+				course := libpolybase.Course{
 					Code:     "CS101",
 					Kind:     "Cours",
 					Part:     1,
@@ -178,18 +178,18 @@ func TestGetNonExistentPack(t *testing.T) {
 					t.Fatalf("failed to create course: %v", err)
 				}
 
-				courseID := internal.CourseID{
+				courseID := libpolybase.CourseID{
 					Code: course.Code,
 					Kind: course.Kind,
 					Part: course.Part,
 				}
 
-				_, err = pb.CreatePack(ctx, "testuser", "Test Pack", []internal.CourseID{courseID})
+				_, err = pb.CreatePack(ctx, "testuser", "Test Pack", []libpolybase.CourseID{courseID})
 				if err != nil {
 					t.Fatalf("failed to create pack: %v", err)
 				}
 			},
-			cleanup: func(t *testing.T, pb *internal.PB, id int) {
+			cleanup: func(t *testing.T, pb *libpolybase.PB, id int) {
 				err := pb.DeletePack(ctx, "testuser", id)
 				if err != nil {
 					t.Fatalf("failed to delete pack: %v", err)
@@ -235,10 +235,10 @@ func TestGetNonExistentPack(t *testing.T) {
 // Pack courses are returned in correct order
 func TestPackCourseOrder(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -305,19 +305,19 @@ func TestPackCourseOrder(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		inputOrder []internal.CourseID
-		wantOrder  []internal.CourseID
+		inputOrder []libpolybase.CourseID
+		wantOrder  []libpolybase.CourseID
 	}{
 		{
 			name: "already sorted order",
-			inputOrder: []internal.CourseID{
+			inputOrder: []libpolybase.CourseID{
 				{Code: "CS100", Kind: "Memento", Part: 1},
 				{Code: "CS101", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 2},
 				{Code: "CS102", Kind: "TD", Part: 1},
 			},
-			wantOrder: []internal.CourseID{
+			wantOrder: []libpolybase.CourseID{
 				{Code: "CS100", Kind: "Memento", Part: 1},
 				{Code: "CS101", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
@@ -327,14 +327,14 @@ func TestPackCourseOrder(t *testing.T) {
 		},
 		{
 			name: "reversed input order",
-			inputOrder: []internal.CourseID{
+			inputOrder: []libpolybase.CourseID{
 				{Code: "CS102", Kind: "TD", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 2},
 				{Code: "CS101", Kind: "Cours", Part: 1},
 				{Code: "CS101", Kind: "TME", Part: 1},
 				{Code: "CS100", Kind: "Memento", Part: 1},
 			},
-			wantOrder: []internal.CourseID{
+			wantOrder: []libpolybase.CourseID{
 				{Code: "CS100", Kind: "Memento", Part: 1},
 				{Code: "CS101", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
@@ -344,14 +344,14 @@ func TestPackCourseOrder(t *testing.T) {
 		},
 		{
 			name: "mixed input order",
-			inputOrder: []internal.CourseID{
+			inputOrder: []libpolybase.CourseID{
 				{Code: "CS101", Kind: "Cours", Part: 2},
 				{Code: "CS100", Kind: "Memento", Part: 1},
 				{Code: "CS102", Kind: "TD", Part: 1},
 				{Code: "CS101", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
 			},
-			wantOrder: []internal.CourseID{
+			wantOrder: []libpolybase.CourseID{
 				{Code: "CS100", Kind: "Memento", Part: 1},
 				{Code: "CS101", Kind: "TME", Part: 1},
 				{Code: "CS101", Kind: "Cours", Part: 1},
@@ -383,7 +383,7 @@ func TestPackCourseOrder(t *testing.T) {
 				}
 			}
 
-			db.AssertPackEqual(created.ID, internal.Pack{
+			db.AssertPackEqual(created.ID, libpolybase.Pack{
 				ID:      created.ID,
 				Name:    "Test Pack",
 				Courses: tt.wantOrder,

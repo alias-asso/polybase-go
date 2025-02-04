@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // Empty database returns empty pack list
 func TestListPacksEmptyDatabase(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	packs, err := pb.ListPacks(ctx)
@@ -45,10 +45,10 @@ func TestListPacksEmptyDatabase(t *testing.T) {
 // Single pack is listed correctly
 func TestListSinglePack(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -91,9 +91,9 @@ func TestListSinglePack(t *testing.T) {
 		}
 	}
 
-	pack := internal.Pack{
+	pack := libpolybase.Pack{
 		Name: "Programming Bundle",
-		Courses: []internal.CourseID{
+		Courses: []libpolybase.CourseID{
 			{Code: "CS101", Kind: "Cours", Part: 1},
 			{Code: "CS101", Kind: "Cours", Part: 2},
 			{Code: "CS101", Kind: "TME", Part: 1},
@@ -115,7 +115,7 @@ func TestListSinglePack(t *testing.T) {
 	}
 
 	got := packs[0]
-	want := internal.Pack{
+	want := libpolybase.Pack{
 		ID:      created.ID,
 		Name:    pack.Name,
 		Courses: pack.Courses,
@@ -170,11 +170,11 @@ func TestListSinglePack(t *testing.T) {
 // Multiple packs are listed in correct order
 func TestListPacksOrder(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create three distinct courses
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -219,7 +219,7 @@ func TestListPacksOrder(t *testing.T) {
 	}
 
 	// Prepare course IDs
-	courseIDs := []internal.CourseID{
+	courseIDs := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 		{Code: "CS102", Kind: "TME", Part: 1},
 		{Code: "CS103", Kind: "TD", Part: 1},
@@ -227,13 +227,13 @@ func TestListPacksOrder(t *testing.T) {
 
 	// Create packs
 	packNames := []string{"Pack with 1 and 2", "Pack with 1 and 3", "Pack with 2 and 3"}
-	packCourses := [][]internal.CourseID{
+	packCourses := [][]libpolybase.CourseID{
 		{courseIDs[0], courseIDs[1]},
 		{courseIDs[0], courseIDs[2]},
 		{courseIDs[1], courseIDs[2]},
 	}
 
-	var createdPacks []internal.Pack
+	var createdPacks []libpolybase.Pack
 	for i, name := range packNames {
 		pack, err := pb.CreatePack(ctx, "testuser", name, packCourses[i])
 		if err != nil {
@@ -265,11 +265,11 @@ func TestListPacksOrder(t *testing.T) {
 // Pack list includes all associated courses
 func TestListPackIncludesAllCourses(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create courses
-	courses := []internal.Course{
+	courses := []libpolybase.Course{
 		{
 			Code:     "CS101",
 			Kind:     "Cours",
@@ -314,7 +314,7 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 	}
 
 	// Prepare course IDs
-	courseIDs := []internal.CourseID{
+	courseIDs := []libpolybase.CourseID{
 		{Code: "CS101", Kind: "Cours", Part: 1},
 		{Code: "CS102", Kind: "TME", Part: 1},
 		{Code: "CS103", Kind: "TD", Part: 1},
@@ -323,19 +323,19 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 	// Create packs
 	packDefinitions := []struct {
 		name    string
-		courses []internal.CourseID
+		courses []libpolybase.CourseID
 	}{
 		{
 			name:    "Pack 1",
-			courses: []internal.CourseID{courseIDs[0], courseIDs[1]},
+			courses: []libpolybase.CourseID{courseIDs[0], courseIDs[1]},
 		},
 		{
 			name:    "Pack 2",
-			courses: []internal.CourseID{courseIDs[1], courseIDs[2]},
+			courses: []libpolybase.CourseID{courseIDs[1], courseIDs[2]},
 		},
 	}
 
-	var createdPacks []internal.Pack
+	var createdPacks []libpolybase.Pack
 	for _, packDef := range packDefinitions {
 		pack, err := pb.CreatePack(ctx, "testuser", packDef.name, packDef.courses)
 		if err != nil {
@@ -375,13 +375,13 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 // Pack list handles large number of packs efficiently
 func TestListPacksLargeNumberOfPacks(t *testing.T) {
 	db := NewDB(t)
-	pb := internal.New(db.DB, "", false)
+	pb := libpolybase.New(db.DB, "", false)
 	ctx := context.Background()
 
 	// Create 10 courses
-	courses := make([]internal.Course, 10)
+	courses := make([]libpolybase.Course, 10)
 	for i := 0; i < 10; i++ {
-		courses[i] = internal.Course{
+		courses[i] = libpolybase.Course{
 			Code:     fmt.Sprintf("CS%03d", 100+i),
 			Kind:     "Cours",
 			Part:     1,
@@ -401,9 +401,9 @@ func TestListPacksLargeNumberOfPacks(t *testing.T) {
 	}
 
 	// Prepare course IDs
-	courseIDs := make([]internal.CourseID, 10)
+	courseIDs := make([]libpolybase.CourseID, 10)
 	for i, course := range courses {
-		courseIDs[i] = internal.CourseID{
+		courseIDs[i] = libpolybase.CourseID{
 			Code: course.Code,
 			Kind: course.Kind,
 			Part: course.Part,
@@ -418,7 +418,7 @@ func TestListPacksLargeNumberOfPacks(t *testing.T) {
 		for j := i + 1; j < len(courseIDs); j++ {
 			// Create a pack with these two courses
 			packName := fmt.Sprintf("Pack %d", packCount)
-			packCourses := []internal.CourseID{courseIDs[i], courseIDs[j]}
+			packCourses := []libpolybase.CourseID{courseIDs[i], courseIDs[j]}
 
 			pack, err := pb.CreatePack(ctx, "testuser", packName, packCourses)
 			if err != nil {

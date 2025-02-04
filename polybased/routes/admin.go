@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 	"git.sr.ht/~alias/polybase-go/views"
 )
 
@@ -223,7 +223,7 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 	_, err = s.pb.GetCourse(r.Context(), id)
 	exists := true
 	if err != nil {
-		if _, ok := err.(*internal.CourseNotFound); ok {
+		if _, ok := err.(*libpolybase.CourseNotFound); ok {
 			exists = false
 		} else {
 			http.Error(w, "Failed to get course", http.StatusInternalServerError)
@@ -267,7 +267,7 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 	shown := true
 	semester := r.Form.Get("semester")
 
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     code,
 		Kind:     kind,
 		Part:     part,
@@ -378,7 +378,7 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 
 	semester := r.Form.Get("semester")
 
-	course := internal.PartialCourse{
+	course := libpolybase.PartialCourse{
 		Code:     &code,
 		Kind:     &kind,
 		Part:     &part,
@@ -596,7 +596,7 @@ func (s *Server) postAdminPacks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	name := r.Form.Get("name")
-	var coursesId []internal.CourseID
+	var coursesId []libpolybase.CourseID
 	for _, idStr := range r.Form["courses"] {
 		parts := strings.Split(idStr, "/")
 
@@ -609,7 +609,7 @@ func (s *Server) postAdminPacks(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		id := internal.CourseID{
+		id := libpolybase.CourseID{
 			Code: code,
 			Kind: kind,
 			Part: part,
@@ -683,7 +683,7 @@ func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
 	name := r.Form.Get("name")
 
 	// Parse course IDs from form
-	var coursesId []internal.CourseID
+	var coursesId []libpolybase.CourseID
 	for _, idStr := range r.Form["courses"] {
 		parts := strings.Split(idStr, "/")
 		if len(parts) != 3 {
@@ -701,7 +701,7 @@ func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		coursesId = append(coursesId, internal.CourseID{
+		coursesId = append(coursesId, libpolybase.CourseID{
 			Code: code,
 			Kind: kind,
 			Part: part,
@@ -709,7 +709,7 @@ func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create PartialPack for update
-	pack := internal.PartialPack{
+	pack := libpolybase.PartialPack{
 		Name:    &name,
 		Courses: &coursesId,
 	}
