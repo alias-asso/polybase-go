@@ -1,6 +1,6 @@
 package views
 
-templ Base(enableJS bool) {
+templ Base(enableJS bool, enableIndex bool) {
 	<!DOCTYPE html>
 	<html lang="fr">
 		<head>
@@ -11,6 +11,9 @@ templ Base(enableJS bool) {
 			<link href="/static/css/styles.css" rel="stylesheet"/>
 			if enableJS {
 				<script src="/static/js/htmx.min.js"></script>
+			}
+			if !enableIndex {
+				<meta name="robots" content="noindex, nofollow"/>
 			}
 		</head>
 		<body class="bg-base-100">
