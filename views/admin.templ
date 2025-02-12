@@ -1,8 +1,8 @@
 package views
 
-import "git.sr.ht/~alias/polybase-go/internal"
+import "git.sr.ht/~alias/polybase-go/libpolybase"
 
-templ Admin(courses []internal.Course, packs []internal.Pack, username string) {
+templ Admin(courses []libpolybase.Course, packs []libpolybase.Pack, username string) {
 	@Base(true, false) {
 		@Header(true, username, GetRandomMessage()) {
 			<a href="/admin/statistics">Statistiques</a>

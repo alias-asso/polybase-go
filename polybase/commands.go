@@ -12,10 +12,10 @@ import (
 
 	"golang.org/x/term"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
-func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {
+func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	if len(args) < 3 {
 		printCreateUsage()
 		return fmt.Errorf("CODE, KIND and PART are required")
@@ -49,7 +49,7 @@ func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {
 		*total = *quantity
 	}
 
-	course := internal.Course{
+	course := libpolybase.Course{
 		Code:     args[0],
 		Kind:     args[1],
 		Part:     part,
@@ -70,7 +70,7 @@ func runCreate(pb internal.Polybase, ctx context.Context, args []string) error {
 	return printCourse(created, *jsonOutput)
 }
 
-func runGet(pb internal.Polybase, ctx context.Context, args []string) error {
+func runGet(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	if len(args) < 3 {
 		printGetUsage()
 		return fmt.Errorf("CODE, KIND and PART are required")
@@ -88,7 +88,7 @@ func runGet(pb internal.Polybase, ctx context.Context, args []string) error {
 		return err
 	}
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: args[0],
 		Kind: args[1],
 		Part: part,
@@ -102,7 +102,7 @@ func runGet(pb internal.Polybase, ctx context.Context, args []string) error {
 	return printCourse(course, *jsonOutput)
 }
 
-func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
+func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	if len(args) < 3 {
 		printUpdateUsage()
 		return fmt.Errorf("CODE, KIND and PART are required")
@@ -115,7 +115,7 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		return fmt.Errorf("invalid part number: %s", args[2])
 	}
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: code,
 		Kind: kind,
 		Part: part,
@@ -135,7 +135,7 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 		return err
 	}
 
-	partial := internal.PartialCourse{}
+	partial := libpolybase.PartialCourse{}
 	flags.Visit(func(f *flag.Flag) {
 		switch f.Name {
 		case "c":
@@ -164,7 +164,7 @@ func runUpdate(pb internal.Polybase, ctx context.Context, args []string) error {
 	return printCourse(updated, *jsonOutput)
 }
 
-func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
+func runDelete(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	if len(args) < 3 {
 		printDeleteUsage()
 		return fmt.Errorf("CODE, KIND and PART are required")
@@ -175,7 +175,7 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 		return fmt.Errorf("invalid part number: %s", args[2])
 	}
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: args[0],
 		Kind: args[1],
 		Part: part,
@@ -214,7 +214,7 @@ func runDelete(pb internal.Polybase, ctx context.Context, args []string) error {
 	return pb.DeleteCourse(ctx, username, id)
 }
 
-func runList(pb internal.Polybase, ctx context.Context, args []string) error {
+func runList(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	showHidden := flags.Bool("a", false, "show hidden courses")
 	semester := flags.String("s", "", "filter by semester")
@@ -250,7 +250,7 @@ func runList(pb internal.Polybase, ctx context.Context, args []string) error {
 	return printCourses(courses, *jsonOutput)
 }
 
-func runQuantity(pb internal.Polybase, ctx context.Context, args []string) error {
+func runQuantity(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	if len(args) < 4 {
 		printQuantityUsage()
 		return fmt.Errorf("CODE, KIND, PART and DELTA are required")
@@ -273,7 +273,7 @@ func runQuantity(pb internal.Polybase, ctx context.Context, args []string) error
 		return err
 	}
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: args[0],
 		Kind: args[1],
 		Part: part,
@@ -288,7 +288,7 @@ func runQuantity(pb internal.Polybase, ctx context.Context, args []string) error
 	return printCourse(updated, *jsonOutput)
 }
 
-func runVisibility(pb internal.Polybase, ctx context.Context, args []string) error {
+func runVisibility(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	if len(args) < 3 {
 		printVisibilityUsage()
 		return fmt.Errorf("CODE, KIND and PART are required")
@@ -307,7 +307,7 @@ func runVisibility(pb internal.Polybase, ctx context.Context, args []string) err
 		return fmt.Errorf("invalid part number: %s", args[2])
 	}
 
-	id := internal.CourseID{
+	id := libpolybase.CourseID{
 		Code: args[0],
 		Kind: args[1],
 		Part: part,

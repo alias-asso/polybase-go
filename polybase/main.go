@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -32,5 +32,5 @@ func run() error {
 		return fmt.Errorf("invalid database file: %w", err)
 	}
 
-	return dispatch(internal.New(db, "/var/log/polybase/polybase.log", false), args)
+	return dispatch(libpolybase.New(db, "/var/log/polybase/polybase.log", false), args)
 }

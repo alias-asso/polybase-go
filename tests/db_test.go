@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -69,7 +69,7 @@ func NewDB(t *testing.T) *DB {
 }
 
 // Insert adds a course to the test database
-func (db *DB) Insert(c internal.Course) {
+func (db *DB) Insert(c libpolybase.Course) {
 	db.t.Helper()
 	shown := 0
 	if c.Shown {
@@ -86,7 +86,7 @@ func (db *DB) Insert(c internal.Course) {
 }
 
 // InsertMany adds multiple courses to the test database
-func (db *DB) InsertMany(courses []internal.Course) {
+func (db *DB) InsertMany(courses []libpolybase.Course) {
 	db.t.Helper()
 	for _, c := range courses {
 		db.Insert(c)
@@ -122,9 +122,9 @@ func (db *DB) Count() int {
 }
 
 // Get retrieves a single course from the database
-func (db *DB) Get(id internal.CourseID) internal.Course {
+func (db *DB) Get(id libpolybase.CourseID) libpolybase.Course {
 	db.t.Helper()
-	var c internal.Course
+	var c libpolybase.Course
 	var shown int
 
 	err := db.QueryRow(`
@@ -153,7 +153,7 @@ func (db *DB) AssertCount(want int) {
 }
 
 // AssertExists checks if a course exists in the database
-func (db *DB) AssertExists(id internal.CourseID) {
+func (db *DB) AssertExists(id libpolybase.CourseID) {
 	db.t.Helper()
 	var exists bool
 	err := db.QueryRow(`
@@ -171,7 +171,7 @@ func (db *DB) AssertExists(id internal.CourseID) {
 }
 
 // AssertNotExists checks if a course does not exist in the database
-func (db *DB) AssertNotExists(id internal.CourseID) {
+func (db *DB) AssertNotExists(id libpolybase.CourseID) {
 	db.t.Helper()
 	var exists bool
 	err := db.QueryRow(`
@@ -189,7 +189,7 @@ func (db *DB) AssertNotExists(id internal.CourseID) {
 }
 
 // AssertCourseEqual compares a course with what's in the database
-func (db *DB) AssertCourseEqual(id internal.CourseID, want internal.Course) {
+func (db *DB) AssertCourseEqual(id libpolybase.CourseID, want libpolybase.Course) {
 	db.t.Helper()
 	got := db.Get(id)
 	if got != want {
@@ -198,7 +198,7 @@ func (db *DB) AssertCourseEqual(id internal.CourseID, want internal.Course) {
 }
 
 // InsertPack adds a pack to the test database
-func (db *DB) InsertPack(p internal.Pack) {
+func (db *DB) InsertPack(p libpolybase.Pack) {
 	db.t.Helper()
 
 	result, err := db.Exec(`
@@ -225,7 +225,7 @@ func (db *DB) InsertPack(p internal.Pack) {
 }
 
 // InsertPackCourse links a course to a pack
-func (db *DB) InsertPackCourse(packID int, courseID internal.CourseID) {
+func (db *DB) InsertPackCourse(packID int, courseID libpolybase.CourseID) {
 	db.t.Helper()
 
 	_, err := db.Exec(`
@@ -238,10 +238,10 @@ func (db *DB) InsertPackCourse(packID int, courseID internal.CourseID) {
 }
 
 // GetPack retrieves a pack from the database
-func (db *DB) GetPack(id int) internal.Pack {
+func (db *DB) GetPack(id int) libpolybase.Pack {
 	db.t.Helper()
 
-	var pack internal.Pack
+	var pack libpolybase.Pack
 	err := db.QueryRow(`
 		SELECT id, name
 		FROM packs
@@ -262,7 +262,7 @@ func (db *DB) GetPack(id int) internal.Pack {
 	defer rows.Close()
 
 	for rows.Next() {
-		var courseID internal.CourseID
+		var courseID libpolybase.CourseID
 		if err := rows.Scan(&courseID.Code, &courseID.Kind, &courseID.Part); err != nil {
 			db.t.Fatalf("failed to scan pack course: %v", err)
 		}
@@ -313,7 +313,7 @@ func (db *DB) AssertPackNotExists(id int) {
 }
 
 // AssertPackEqual compares a pack with database content
-func (db *DB) AssertPackEqual(id int, want internal.Pack) {
+func (db *DB) AssertPackEqual(id int, want libpolybase.Pack) {
 	db.t.Helper()
 
 	got := db.GetPack(id)
@@ -333,12 +333,12 @@ func (db *DB) AssertPackEqual(id int, want internal.Pack) {
 	}
 
 	// Convert courses to maps for set comparison
-	wantCourses := make(map[string]internal.CourseID)
+	wantCourses := make(map[string]libpolybase.CourseID)
 	for _, course := range want.Courses {
 		wantCourses[course.ID()] = course
 	}
 
-	gotCourses := make(map[string]internal.CourseID)
+	gotCourses := make(map[string]libpolybase.CourseID)
 	for _, course := range got.Courses {
 		gotCourses[course.ID()] = course
 	}
@@ -359,7 +359,7 @@ func (db *DB) AssertPackEqual(id int, want internal.Pack) {
 }
 
 // AssertCourseInPack checks if a course is in a pack
-func (db *DB) AssertCourseInPack(packID int, courseID internal.CourseID) {
+func (db *DB) AssertCourseInPack(packID int, courseID libpolybase.CourseID) {
 	db.t.Helper()
 
 	var exists bool
@@ -381,7 +381,7 @@ func (db *DB) AssertCourseInPack(packID int, courseID internal.CourseID) {
 }
 
 // AssertCourseNotInPack checks if a course is not in a pack
-func (db *DB) AssertCourseNotInPack(packID int, courseID internal.CourseID) {
+func (db *DB) AssertCourseNotInPack(packID int, courseID libpolybase.CourseID) {
 	db.t.Helper()
 
 	var exists bool

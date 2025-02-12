@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 const defaultDBPath = "/var/lib/polybase/polybase.db"
@@ -57,7 +57,7 @@ func parseArgs() (string, []string, error) {
 	return *dbPath, args, nil
 }
 
-func dispatch(pb internal.Polybase, args []string) error {
+func dispatch(pb libpolybase.Polybase, args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("no command specified")
 	}

@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // SemesterGroup represents a group of courses for a semester
@@ -19,10 +19,10 @@ type SemesterGroup struct {
 // KindGroup represents a group of courses of the same kind
 type KindGroup struct {
 	Name    string
-	Courses []internal.Course
+	Courses []libpolybase.Course
 }
 
-func GroupCoursesBySemesterAndKind(courses []internal.Course) []SemesterGroup {
+func GroupCoursesBySemesterAndKind(courses []libpolybase.Course) []SemesterGroup {
 	// Step 1: Get unique sorted semesters
 	semesterMap := make(map[string]bool)
 	for _, course := range courses {
@@ -65,7 +65,7 @@ func GroupCoursesBySemesterAndKind(courses []internal.Course) []SemesterGroup {
 		for j, kind := range kinds {
 			result[i].Kinds[j] = KindGroup{
 				Name:    kind,
-				Courses: make([]internal.Course, 0),
+				Courses: make([]libpolybase.Course, 0),
 			}
 			result[i].KindMap[kind] = j
 		}
@@ -117,7 +117,7 @@ func GetRandomMessage() string {
 	return niceMessages[r.Intn(len(niceMessages))]
 }
 
-func contains(courses []internal.CourseID, id internal.CourseID) bool {
+func contains(courses []libpolybase.CourseID, id libpolybase.CourseID) bool {
     for _, courseID := range courses {
         if courseID == id {
             return true

@@ -1,8 +1,8 @@
 package views
 
-import "git.sr.ht/~alias/polybase-go/internal"
+import "git.sr.ht/~alias/polybase-go/libpolybase"
 
-templ Grid(semesterGroups []SemesterGroup, packs []internal.Pack, isAdmin bool) {
+templ Grid(semesterGroups []SemesterGroup, packs []libpolybase.Pack, isAdmin bool) {
 	<main id="courses-grid" class="flex-grow gap-y-4">
 		if packs != nil {
 			<div class="px-4 sm:px-4 lg:px-6 xl:px-8 pb-4">
@@ -27,7 +27,7 @@ templ Grid(semesterGroups []SemesterGroup, packs []internal.Pack, isAdmin bool) 
 	</main>
 }
 
-templ Section(kind string, courses []internal.Course, isAdmin bool) {
+templ Section(kind string, courses []libpolybase.Course, isAdmin bool) {
 	<section>
 		<h3 class="text-2xl font-semibold mb-2 font-mono">{ kind }</h3>
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -38,7 +38,7 @@ templ Section(kind string, courses []internal.Course, isAdmin bool) {
 	</section>
 }
 
-templ PackSection(packs []internal.Pack) {
+templ PackSection(packs []libpolybase.Pack) {
 	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
 		for _, pack := range packs {
 			<div>

@@ -2,10 +2,10 @@ package views
 
 import (
 	"fmt"
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
-templ PackCard(pack internal.Pack, expanded bool) {
+templ PackCard(pack libpolybase.Pack, expanded bool) {
 	<div class="border border-base-300 bg-base-100 flex flex-col min-h-60 rounded-lg px-6 py-5 transition-colors relative gap-y-2">
 		@PackHeader(pack)
 		@PackName(pack)
@@ -17,21 +17,21 @@ templ PackCard(pack internal.Pack, expanded bool) {
 	</div>
 }
 
-templ PackHeader(pack internal.Pack) {
+templ PackHeader(pack libpolybase.Pack) {
 	<div class="flex w-full mb-2 gap-4 min-w-0 items-center">
 		@PackCode(pack)
 	</div>
 }
 
-templ PackCode(pack internal.Pack) {
+templ PackCode(pack libpolybase.Pack) {
 	<p class="text-lg font-mono truncate text-accent-600 bg-accent-100 px-3 py-0.5 rounded-lg" title={ fmt.Sprintf("PK%03d", pack.ID) }>{ fmt.Sprintf("PK%03d", pack.ID) }</p>
 }
 
-templ PackName(pack internal.Pack) {
+templ PackName(pack libpolybase.Pack) {
 	<p class="text-left leading-6 min-h-12 line-clamp-2" title={ pack.Name }>{ pack.Name }</p>
 }
 
-templ PackBadges(pack internal.Pack, expanded bool) {
+templ PackBadges(pack libpolybase.Pack, expanded bool) {
 	<div
 		class={
 			"p-2 flex flex-wrap gap-2 overflow-hidden transition-all duration-50 min-h-14 ease-in-out",
@@ -51,7 +51,7 @@ templ PackBadges(pack internal.Pack, expanded bool) {
 	</div>
 }
 
-templ PackAdminControl(pack internal.Pack) {
+templ PackAdminControl(pack libpolybase.Pack) {
 	<div class="flex gap-x-1">
 		@PackEditButton(pack)
 		@PackQuantityButton(pack, -1)
@@ -59,7 +59,7 @@ templ PackAdminControl(pack internal.Pack) {
 	</div>
 }
 
-templ PackEditButton(pack internal.Pack) {
+templ PackEditButton(pack libpolybase.Pack) {
 	@Button(Small, Default) {
 		<button
 			hx-get={ fmt.Sprintf("/admin/packs/edit/%d", pack.ID) }
@@ -70,7 +70,7 @@ templ PackEditButton(pack internal.Pack) {
 	}
 }
 
-templ PackQuantityButton(pack internal.Pack, delta int) {
+templ PackQuantityButton(pack libpolybase.Pack, delta int) {
 	@Button(Small, Default) {
 		<button
 			hx-patch={ fmt.Sprintf("/admin/packs/%d/quantity?delta=%d", pack.ID, delta) }

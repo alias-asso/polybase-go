@@ -2,7 +2,7 @@ package views
 
 import (
 	"fmt"
-	"git.sr.ht/~alias/polybase-go/internal"
+	"git.sr.ht/~alias/polybase-go/libpolybase"
 )
 
 // CourseCard defines a reusable UI component for displaying course information
@@ -10,7 +10,7 @@ import (
 // information, the course name, and quantity controls for administrators. It
 // handles different display states based on course visibility and admin
 // privileges.
-templ CourseCard(course internal.Course, isAdmin bool) {
+templ CourseCard(course libpolybase.Course, isAdmin bool) {
 	<div id={ course.SID() } class="border border-base-300 bg-base-100 flex h-48 flex-col rounded-lg px-6 py-5 transition-colors relative gap-y-4">
 		@CourseHeader(course)
 		@CourseName(course)
@@ -27,7 +27,7 @@ templ CourseCard(course internal.Course, isAdmin bool) {
 
 // CourseHeader renders the top section of a course card containing the course
 // code and part information in a horizontally aligned layout.
-templ CourseHeader(course internal.Course) {
+templ CourseHeader(course libpolybase.Course) {
 	<div class="flex w-full mb-2 gap-4 min-w-0 items-center">
 		@CourseCode(course)
 		@CoursePart(course)
@@ -37,7 +37,7 @@ templ CourseHeader(course internal.Course) {
 // CourseCode displays the course identifier with different visual styling
 // based on the course's visibility status. Shown courses use accent colors
 // while hidden courses use base colors.
-templ CourseCode(course internal.Course) {
+templ CourseCode(course libpolybase.Course) {
 	if course.Shown {
 		<p class="text-lg font-mono truncate text-accent-600 bg-accent-100 px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
 	} else {
@@ -47,20 +47,20 @@ templ CourseCode(course internal.Course) {
 
 // CoursePart shows the current part number and total parts of the course in a
 // fraction format.
-templ CoursePart(course internal.Course) {
+templ CoursePart(course libpolybase.Course) {
 	<p class="ml-auto shrink-0 text-base-500">Partie { fmt.Sprint(course.Part) }/{ fmt.Sprint(course.Parts) }</p>
 }
 
 // CourseName presents the course title in a two-line clamped format with hover
 // tooltip for longer names.
-templ CourseName(course internal.Course) {
+templ CourseName(course libpolybase.Course) {
 	<p class="text-left leading-6 line-clamp-2" title={ course.Name }>{ course.Name }</p>
 }
 
 // CourseAdminControl provides administrative functionality including edit,
 // visibility toggle, and quantity adjustment buttons. These controls are only
 // rendered when isAdmin is true.
-templ CourseAdminControl(course internal.Course) {
+templ CourseAdminControl(course libpolybase.Course) {
 	<div class="flex gap-x-1">
 		@CourseEditButton(course)
 		@CourseVisibilityButton(course)
@@ -71,7 +71,7 @@ templ CourseAdminControl(course internal.Course) {
 
 // EditButton creates an admin control that opens the course editing modal when
 // clicked.
-templ CourseEditButton(course internal.Course) {
+templ CourseEditButton(course libpolybase.Course) {
 	@Button(Small, Default) {
 		<button
 			hx-get={ fmt.Sprintf("/admin/courses/edit/%s", course.ID()) }
@@ -85,7 +85,7 @@ templ CourseEditButton(course internal.Course) {
 // QuantityButton generates increment/decrement controls for adjusting course
 // quantities. Delta parameter determines button behavior: positive for
 // increment, negative for decrement.
-templ CourseQuantityButton(course internal.Course, delta int) {
+templ CourseQuantityButton(course libpolybase.Course, delta int) {
 	@Button(Small, Default) {
 		<button
 			hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=%d", course.ID(), delta) }
@@ -102,7 +102,7 @@ templ CourseQuantityButton(course internal.Course, delta int) {
 
 // VisibilityButton toggles course visibility with dynamic icon changes on
 // hover.
-templ CourseVisibilityButton(course internal.Course) {
+templ CourseVisibilityButton(course libpolybase.Course) {
 	@Button(Small, Default) {
 		<button
 			hx-patch={ fmt.Sprintf("/admin/courses/%s/visibility?visibility=%t", course.ID(), !course.Shown) }
@@ -120,7 +120,7 @@ templ CourseVisibilityButton(course internal.Course) {
 
 // CourseQuantity shows current enrollment numbers as a fraction of total
 // capacity.
-templ CourseQuantity(course internal.Course) {
+templ CourseQuantity(course libpolybase.Course) {
 	<div class="flex items-center">
 		<div class="flex items-end">
 			<span id={ fmt.Sprintf("%s-quantity", course.SID()) } class="text-2xl font-bold">
