@@ -3,7 +3,7 @@ package views
 import "git.sr.ht/~alias/polybase-go/libpolybase"
 
 templ Public(courses []libpolybase.Course, count int) {
-	@Base(false) {
+	@Base(false, true) {
 		@Header(false, "", GetRandomMessage()) {
 			<a href="/login">Connexion</a>
 		}
