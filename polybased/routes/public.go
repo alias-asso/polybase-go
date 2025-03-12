@@ -3,6 +3,7 @@ package routes
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"git.sr.ht/~alias/polybase-go/views"
 	"github.com/golang-jwt/jwt/v5"
@@ -69,6 +70,12 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	expiry, err := time.ParseDuration(s.cfg.Auth.JWTExpiry)
+	if err != nil {
+		http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+		return
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "X-Auth-Token",
 		Value:    token,
@@ -76,7 +83,7 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
-		MaxAge:   3600 * 24,
+		MaxAge:   int(expiry.Hours()) * 3600,
 	})
 
 	w.Header().Set("HX-Redirect", "/admin")

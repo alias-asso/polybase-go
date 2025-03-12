@@ -25,6 +25,7 @@ templ ModalDynamic() {
       window.modal = true;
       function closeModal() {
         document.getElementById('modal-container').innerHTML = '';
+        window.replaceErrors = false;
       }
       
       document.addEventListener('keydown', function(e) {
@@ -118,6 +119,7 @@ templ NewCourseForm() {
 		<script>
     if (!window.newCourseForm) {
       window.newCourseForm = true;
+      window.replaceErrors = true;
       document.body.addEventListener('htmx:configRequest', function(evt) {
         if (evt.target.id === 'new-course-form') {
           const code = document.getElementById('code').value;
@@ -202,6 +204,7 @@ templ EditCourseForm(course libpolybase.Course) {
 		<script>
     if (!window.editCourseForm) {
       window.editCourseForm = true;
+      window.replaceErrors = true;
       document.body.addEventListener('htmx:afterOnLoad', function(evt) {
         if (evt.detail.elt.id === 'edit-course-form' && evt.detail.xhr.status === 200) {
           closeModal();

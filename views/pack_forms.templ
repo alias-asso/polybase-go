@@ -50,6 +50,7 @@ templ NewPackForm(courses []libpolybase.Course) {
 		<script>
         if (!window.newPackForm) {
             window.newPackForm = true;
+            window.replaceErrors = true;
             document.body.addEventListener('htmx:afterOnLoad', function(evt) {
                 if (evt.detail.elt.id === 'new-pack-form' && evt.detail.xhr.status === 200) {
                     closeModal();
@@ -119,6 +120,7 @@ templ EditPackForm(pack libpolybase.Pack, courses []libpolybase.Course) {
 		<script>
         if (!window.editPackForm) {
             window.editPackForm = true;
+            window.replaceErrors = true;
             document.body.addEventListener('htmx:afterOnLoad', function(evt) {
                 if (evt.detail.elt.id === 'edit-pack-form' && evt.detail.xhr.status === 200) {
                     closeModal();
