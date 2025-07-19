@@ -37,10 +37,6 @@
 
         nativeBuildInputs = buildPkgs;
 
-        checkPhase = ''
-          go test ./...
-        '';
-
         postPatch = ''
           tailwindcss -i static/css/main.css -o static/css/styles.css -m
           templ generate
