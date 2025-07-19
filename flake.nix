@@ -34,7 +34,6 @@
         version = "0.1.0";
         src = ./.;
         vendorHash = null;
-        proxyVendor = true;
 
         nativeBuildInputs = buildPkgs;
 
@@ -44,7 +43,7 @@
         '';
 
         buildPhase = ''
-          export GOOS=openbsd GOARCH=amd64 CGO_ENABLED=0
+          export GOOS=openbsd GOARCH=amd64
           mkdir -p bin
           go build -o bin/polybased ./polybased
           go build -o bin/polybase ./polybase
