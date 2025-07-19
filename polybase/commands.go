@@ -12,7 +12,7 @@ import (
 
 	"golang.org/x/term"
 
-	"git.sr.ht/~alias/polybase-go/libpolybase"
+	"github.com/alias-asso/polybase-go/libpolybase"
 )
 
 func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) error {

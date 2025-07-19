@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"git.sr.ht/~alias/polybase-go/libpolybase"
-	"git.sr.ht/~alias/polybase-go/views"
+	"github.com/alias-asso/polybase-go/libpolybase"
+	"github.com/alias-asso/polybase-go/views"
 )
 
 // getAdmin

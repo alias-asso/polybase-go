@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/libpolybase"
+	"github.com/alias-asso/polybase-go/libpolybase"
 )
 
 // An existing course can be retrieved accurately

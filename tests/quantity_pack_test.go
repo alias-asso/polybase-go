@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/libpolybase"
+	"github.com/alias-asso/polybase-go/libpolybase"
 )
 
 // Pack quantities can be increased within bounds

@@ -1,8 +1,10 @@
-# Run development server with air
 dev:
   hivemind
 
-# Build both binaries
+dev-rw:
+  sudo sh jammer.sh start
+  hivemind; sudo sh jammer.sh stop
+
 build: clean build-server build-cli
 
 publish: test build
@@ -19,16 +21,13 @@ publish: test build
 test:
   go test -cover ./...
 
-# Setup test environment
 migrate:
   find migrations -name "*.sql" | sort -n | xargs cat | sqlite3 polybase.db
 
-# Clean test data
 clean:
   rm -fr .cache/
   rm -fr target/
 
-# Build server binaries
 build-server:
   mkdir -p target
   tailwindcss -i static/css/main.css -o static/css/styles.css -m
@@ -36,7 +35,6 @@ build-server:
   go build -o target/polybased ./polybased
   scdoc < polybased.1.scd | sed "s/1980-01-01/$(date '+%B %Y')/" > target/polybased.1
 
-# Build cli binaries
 build-cli:
   mkdir -p target
   go build -o target/polybase ./polybase

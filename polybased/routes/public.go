@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"git.sr.ht/~alias/polybase-go/views"
+	"github.com/alias-asso/polybase-go/views"
 	"github.com/golang-jwt/jwt/v5"
 )
 

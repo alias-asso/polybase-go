@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
-	"git.sr.ht/~alias/polybase-go/libpolybase"
+	"github.com/alias-asso/polybase-go/libpolybase"
 	_ "github.com/mattn/go-sqlite3"
 )
 

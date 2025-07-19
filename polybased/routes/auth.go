@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"git.sr.ht/~alias/polybase-go/polybased/config"
+	"github.com/alias-asso/polybase-go/polybased/config"
 	"github.com/go-ldap/ldap/v3"
 	"github.com/golang-jwt/jwt/v5"
 )

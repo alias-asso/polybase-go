@@ -1,4 +1,4 @@
-module git.sr.ht/~alias/polybase-go
+module github.com/alias-asso/polybase-go
 
 go 1.23
 
