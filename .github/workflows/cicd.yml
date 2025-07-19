@@ -1,0 +1,54 @@
+name: Build and Deploy Polybase
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-polybase
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build polybase package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v22
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Build package
+        run: nix build
+
+      - name: Upload build result
+        uses: actions/upload-artifact@v4
+        with:
+          name: result
+          path: result/
+
+  deploy:
+    name: Deploy to openbsd server
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download build result
+        uses: actions/download-artifact@v4
+        with:
+          name: result
+          path: result/
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known_hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+
+      - name: Deploy to server
+        run: |
+          tar -czf polybase-deployment.tar.gz -C result .
+          scp polybase-deployment.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/tmp/
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'cd /tmp && tar -xzf polybase-deployment.tar.gz && sh install.sh && rm polybase-deployment.tar.gz'
