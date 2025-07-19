@@ -16,3 +16,5 @@ install -m 555 dist/usr/local/bin/polybase /usr/local/bin/
 install -m 555 dist/usr/local/bin/polybased /usr/local/bin/
 
 find migrations -name "*.sql" | sort | xargs cat | sqlite3 polybase.db
+
+rcctl restart polybased

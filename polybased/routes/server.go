@@ -8,7 +8,7 @@ import (
 
 	"github.com/alias-asso/polybase-go/libpolybase"
 	"github.com/alias-asso/polybase-go/polybased/config"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // Server represents the HTTP server and its dependencies
@@ -22,7 +22,7 @@ type Server struct {
 
 // New creates a new server instance
 func NewServer(cfg *config.Config) (*Server, error) {
-	db, err := sql.Open("sqlite3", cfg.Database.Path)
+	db, err := sql.Open("sqlite", cfg.Database.Path)
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}

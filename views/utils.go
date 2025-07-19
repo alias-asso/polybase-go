@@ -118,10 +118,10 @@ func GetRandomMessage() string {
 }
 
 func contains(courses []libpolybase.CourseID, id libpolybase.CourseID) bool {
-    for _, courseID := range courses {
-        if courseID == id {
-            return true
-        }
-    }
-    return false
+	for _, courseID := range courses {
+		if courseID == id {
+			return true
+		}
+	}
+	return false
 }

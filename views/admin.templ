@@ -12,7 +12,7 @@ templ Admin(courses []libpolybase.Course, packs []libpolybase.Pack, username str
 		@Grid(GroupCoursesBySemesterAndKind(courses), packs, true)
 		@Footer(0)
 		<div id="modal-container"></div>
-    <script>
+		<script>
     window.replaceErrors = false;
     </script>
 		@HtmxErrorHandler()
