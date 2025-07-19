@@ -37,6 +37,10 @@
 
         nativeBuildInputs = buildPkgs;
 
+        checkPhase = ''
+          go test ./...
+        '';
+
         postPatch = ''
           tailwindcss -i static/css/main.css -o static/css/styles.css -m
           templ generate
@@ -52,10 +56,10 @@
         '';
 
         installPhase = ''
-          mkdir -p $out/{usr/local/bin,usr/local/man/man1,etc/rc.d}
-          cp bin/polybased bin/polybase $out/usr/local/bin/
-          cp *.1 $out/usr/local/man/man1/
-          cp polybased.rc $out/etc/rc.d/polybased
+          mkdir -p $out/dist/{usr/local/bin,usr/local/man/man1,etc/rc.d}
+          cp bin/polybased bin/polybase $out/dist/usr/local/bin/
+          cp *.1 $out/dist/usr/local/man/man1/
+          cp polybased.rc $out/dist/etc/rc.d/polybased
           cp install.sh $out/
         '';
       };
