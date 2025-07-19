@@ -33,7 +33,8 @@
         pname = "polybase";
         version = "0.1.0";
         src = ./.;
-        vendorHash = "sha256-kqyaqTRxHJShOVu8eT4FWhoFmqmdef0l0nynotyA9uE=";
+        vendorHash = null;
+        proxyVendor = true;
 
         nativeBuildInputs = buildPkgs;
 
