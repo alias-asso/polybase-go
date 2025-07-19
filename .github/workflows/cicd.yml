@@ -49,6 +49,5 @@ jobs:
 
       - name: Deploy to server
         run: |
-          tar -czf polybase-deployment.tar.gz -C result .
-          scp polybase-deployment.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOSTNAME }}:/tmp/
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOSTNAME }} 'cd /tmp && tar -xzf polybase-deployment.tar.gz && sh install.sh && rm polybase-deployment.tar.gz'
+          scp -r result/* ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOSTNAME }}:/tmp/
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOSTNAME }} 'cd /tmp && sh install.sh'
