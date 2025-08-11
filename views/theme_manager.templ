@@ -3,20 +3,25 @@ package views
 templ ThemeManager() {
 	<script>
   document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('theme') === 'dark') {
-      document.documentElement.classList.add('dark');
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    else if (theme === 'light') document.documentElement.classList.remove('dark');
+    else {
+      const darkMode = window.matchMedia("(prefers-color-scheme: dark)");
+      const update = (b) => {
+        if (theme !== null) return; // avoid updating if theme is forced
+        if (b) document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      };
+      update(darkMode.matches)
+      darkMode.addEventListener("change", (e) => update(b));
     }
   });
 
   function toggleTheme() {
-    console.log("test");
-    if (localStorage.getItem('theme') === 'dark') {
-      localStorage.removeItem('theme', 'dark');
-      document.documentElement.classList.remove('dark');
-    } else {
-      localStorage.setItem('theme', 'dark');
-      document.documentElement.classList.add('dark');
-    }
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    localStorage.setItem('theme', isDarkMode ? 'white' : 'dark');
+    document.documentElement.classList.toggle('dark');
   }
   </script>
 }
