@@ -1,6 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-base-100: var(--base-100);
+  --color-base-200: var(--base-200);
+  --color-base-300: var(--base-300);
+  --color-base-400: var(--base-400);
+  --color-base-500: var(--base-500);
+  --color-base-600: var(--base-600);
+  --color-base-700: var(--base-700);
+  --color-base-800: var(--base-800);
+  --color-base-900: var(--base-900);
+  --color-accent-100: #d1def9;
+  --color-accent-200: #7a94cd;
+  --color-accent-300: #4968b1;
+  --color-accent-400: #2648a1;
+  --color-accent-500: #102d8c;
+  --color-accent-600: #061d7c;
+  --color-accent-700: #020e68;
+  --color-accent-800: #020e51;
+  --color-accent-900: #030f37;
+}
 
 :root {
   --base-100: #ffffff;
@@ -32,62 +51,62 @@
   }
 
   .icon-theme {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/moon.svg) no-repeat center / contain;
   }
 
   .dark .icon-theme {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/sun.svg) no-repeat center / contain;
   }
 
   .icon-show {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/show.svg) no-repeat center / contain;
   }
 
   .icon-hide {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/hide.svg) no-repeat center / contain;
   }
 
   .icon-plus {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/plus.svg) no-repeat center / contain;
   }
 
   .icon-minus {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/minus.svg) no-repeat center / contain;
   }
 
   .icon-pencil {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/pencil.svg) no-repeat center / contain;
   }
 
   .icon-cross {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/cross.svg) no-repeat center / contain;
   }
 
   .icon-up {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/up.svg) no-repeat center / contain;
   }
 
   .icon-down {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/down.svg) no-repeat center / contain;
   }
 
   .icon-left {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/left.svg) no-repeat center / contain;
   }
 
   .icon-right {
-    @apply icon-base;
+    @apply inline-block size-4 bg-current;
     mask: url(/static/svg/right.svg) no-repeat center / contain;
   }
 }

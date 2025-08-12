@@ -39,3 +39,7 @@ build-cli:
   mkdir -p target
   go build -o target/polybase ./polybase
   scdoc < polybase.1.scd | sed "s/1980-01-01/$(date '+%B %Y')/" > target/polybase.1
+
+build-docker:
+  nix build .#docker
+  docker load < result

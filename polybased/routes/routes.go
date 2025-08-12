@@ -42,6 +42,8 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("PATCH /admin/courses/{code}/{kind}/{part}/visibility", s.withAuth(s.patchAdminCoursesVisibility))
 
 	s.mux.HandleFunc("PATCH /admin/packs/{id}/quantity", s.withAuth(s.patchAdminPacksQuantity))
+
+	s.mux.HandleFunc("GET /health", s.getHealth)
 }
 
 func (s *Server) registerStatic() {
@@ -55,4 +57,8 @@ func (s *Server) registerStatic() {
 		http.StripPrefix("/static/", fs).ServeHTTP(w, r)
 	})
 	s.mux.Handle("GET /static/", staticHandler)
+}
+
+func (s *Server) getHealth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -63,11 +64,49 @@ func LoadConfig(configPath string) (Config, error) {
 		return Config{}, err
 	}
 
+	config.loadFromEnv()
+
 	if err := config.Validate(); err != nil {
 		return Config{}, fmt.Errorf("invalid configuration: %w", err)
 	}
 
 	return config, nil
+}
+
+func (c *Config) loadFromEnv() {
+	if host := os.Getenv("POLYBASE_SERVER_HOST"); host != "" {
+		c.Server.Host = host
+	}
+	if port := os.Getenv("POLYBASE_SERVER_PORT"); port != "" {
+		c.Server.Port = port
+	}
+	if mode := os.Getenv("POLYBASE_SERVER_MODE"); mode != "" {
+		c.Server.Mode = mode
+	}
+	if log := os.Getenv("POLYBASE_SERVER_LOG"); log != "" {
+		c.Server.Log = log
+	}
+
+	if path := os.Getenv("POLYBASE_DATABASE_PATH"); path != "" {
+		c.Database.Path = path
+	}
+
+	if host := os.Getenv("POLYBASE_LDAP_HOST"); host != "" {
+		c.LDAP.Host = host
+	}
+	if port := os.Getenv("POLYBASE_LDAP_PORT"); port != "" {
+		c.LDAP.Port = port
+	}
+	if userDN := os.Getenv("POLYBASE_LDAP_USER_DN"); userDN != "" {
+		c.LDAP.UserDN = userDN
+	}
+
+	if secret := os.Getenv("POLYBASE_AUTH_JWT_SECRET"); secret != "" {
+		c.Auth.JWTSecret = secret
+	}
+	if expiry := os.Getenv("POLYBASE_AUTH_JWT_EXPIRY"); expiry != "" {
+		c.Auth.JWTExpiry = expiry
+	}
 }
 
 func (c *Config) Validate() error {
