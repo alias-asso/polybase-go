@@ -1,7 +1,7 @@
 name: Build and Deploy Polybase
 on:
   push:
-    branches: [master]
+    branches: [stable]
   workflow_dispatch:
 
 permissions:
