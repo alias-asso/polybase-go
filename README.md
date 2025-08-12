@@ -26,9 +26,10 @@ just build
 
 Install dependencies:
 
-- `go install github.com/cosmtrek/air@latest`
-- `go install github.com/a-h/templ/cmd/templ@v0.2.793`
-- `npm install -g tailwindcss`
+- `go install github.com/air-verse/air@latest`
+- `go install github.com/a-h/templ/cmd/templ@v0.3.906`
+- `npm install -g tailwindcss@3`
+- requires just, Hivemind, and GLAuth 
 
 Build:
 
@@ -39,9 +40,9 @@ just build
 Development:
 
 ```shell
-just dev    # hot reload
-just setup  # initialize database
-just clean  # remove artifacts
+just dev      # hot reload
+just migrate  # initialize database
+just clean    # remove artifacts
 ```
 
 ## LDAP Development
