@@ -46,7 +46,7 @@ type DB struct {
 
 // NewDB creates a new in-memory SQLite database for testing
 func NewDB(t *testing.T) *DB {
-	db, err := sql.Open("sqlite3", ":memory:")
+	db, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
