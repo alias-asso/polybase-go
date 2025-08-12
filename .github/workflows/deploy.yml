@@ -4,6 +4,10 @@ on:
     branches: [master]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: read
+
 concurrency:
   group: deploy-polybase
   cancel-in-progress: false
