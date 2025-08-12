@@ -1,7 +1,7 @@
 name: Build Polybase
 on:
-  push:
-    branches: [master]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
