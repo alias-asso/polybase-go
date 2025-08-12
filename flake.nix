@@ -18,7 +18,7 @@
           templ
           scdoc
           go
-          tailwindcss
+          tailwindcss_4
         ];
 
         devPkgs = with pkgs; [
