@@ -47,7 +47,7 @@
             buildPhase = ''
               go test ./...
 
-              export GOOS=linux GOARCH=amd64 CGO_ENABLED=0
+              export GOOS=openbsd GOARCH=amd64 CGO_ENABLED=0
               mkdir -p bin
               go build -o bin/polybased ./polybased
               go build -o bin/polybase ./polybase
