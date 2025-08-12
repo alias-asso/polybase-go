@@ -4,13 +4,15 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
     flake-utils.lib.eachDefaultSystem (
-      system: let
+      system:
+      let
         pkgs = nixpkgs.legacyPackages.${system};
 
         buildPkgs = with pkgs; [
@@ -29,9 +31,10 @@
           openldap
           hivemind
         ];
-      in {
-        packages = {
-          default = pkgs.buildGoModule {
+
+        mkPolybase =
+          os:
+          pkgs.buildGoModule {
             pname = "polybase";
             version = "0.1.0";
             src = ./.;
@@ -45,9 +48,9 @@
             '';
 
             buildPhase = ''
-              go test ./...
+              go test ./tests/...
 
-              export GOOS=openbsd GOARCH=amd64 CGO_ENABLED=0
+              export GOOS=${os} GOARCH=amd64 CGO_ENABLED=0
               mkdir -p bin
               go build -o bin/polybased ./polybased
               go build -o bin/polybase ./polybase
@@ -61,10 +64,12 @@
               cp *.1 $out/dist/usr/local/man/man1/
               cp polybased.rc $out/dist/etc/rc.d/polybased
               cp install.sh $out/
-              mkdir -p $out/migrations/
-              cp migrations/*.sql $out/migrations/
             '';
           };
+      in
+      {
+        packages = {
+          default = mkPolybase "openbsd";
 
           docker = pkgs.dockerTools.buildImage {
             name = "polybase";
@@ -73,7 +78,7 @@
             extraCommands = ''
               mkdir -p var/lib/polybase var/log/polybase etc/polybase
 
-              find ${self.packages.${system}.default}/migrations -name "*.sql" | \
+              find ${./.}/migrations -name "*.sql" | \
                 sort -n | \
                 xargs cat | \
                 ${pkgs.sqlite}/bin/sqlite3 var/lib/polybase/polybase.db
@@ -85,9 +90,9 @@
             '';
 
             config = {
-              Cmd = ["${self.packages.${system}.default}/dist/usr/local/bin/polybased"];
+              Cmd = [ "${mkPolybase "linux"}/dist/usr/local/bin/polybased" ];
               ExposedPorts = {
-                "1265/tcp" = {};
+                "1265/tcp" = { };
               };
               Env = [
                 "POLYBASE_SERVER_HOST=0.0.0.0"
