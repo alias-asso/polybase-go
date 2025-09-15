@@ -30,6 +30,7 @@
           glauth
           openldap
           hivemind
+          watchman
         ];
 
         mkPolybase =
