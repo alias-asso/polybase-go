@@ -746,7 +746,42 @@ func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) deleteAdminPacks(w http.ResponseWriter, r *http.Request) {
-	// TODO:
+	username := getUsernameFromContext(r.Context())
+	
+	id, err := parsePackUrl("/admin/packs/", r)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	err = s.pb.DeletePack(r.Context(), username, id)
+	if err != nil {
+		http.Error(w, "Failed to delete pack", http.StatusInternalServerError)
+		log.Printf("Failed to delete pack: %v", err)
+		return
+	}
+
+	// Re-render grid
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("Failed to list courses: %v", err)
+		return
+	}
+
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("Failed to list packs: %v", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), packs, true).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
 }
 
 func getUsernameFromContext(ctx context.Context) string {

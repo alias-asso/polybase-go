@@ -145,8 +145,18 @@ func (pb *PB) UpdatePack(ctx context.Context, user string, id int, partial Parti
 }
 
 func (pb *PB) DeletePack(ctx context.Context, user string, id int) error {
+	tx, err := pb.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			log.Printf("failed to rollback transaction: %v", err)
+		}
+	}()
+
 	var exists bool
-	err := pb.db.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM packs WHERE id = ?)", id).Scan(&exists)
+	err = tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM packs WHERE id = ?)", id).Scan(&exists)
 	if err != nil {
 		return fmt.Errorf("check pack existence: %w", err)
 	}
@@ -154,9 +164,20 @@ func (pb *PB) DeletePack(ctx context.Context, user string, id int) error {
 		return fmt.Errorf("pack not found")
 	}
 
-	_, err = pb.db.ExecContext(ctx, "DELETE FROM packs WHERE id = ?", id)
+	// Delete course associations first
+	_, err = tx.ExecContext(ctx, "DELETE FROM pack_courses WHERE pack_id = ?", id)
+	if err != nil {
+		return fmt.Errorf("delete pack courses: %w", err)
+	}
+
+	// Delete pack
+	_, err = tx.ExecContext(ctx, "DELETE FROM packs WHERE id = ?", id)
 	if err != nil {
 		return fmt.Errorf("delete pack: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit transaction: %w", err)
 	}
 
 	details := fmt.Sprintf("deleted pack %d", id)
