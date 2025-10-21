@@ -43,6 +43,14 @@
   --base-700: #bebebe;
   --base-800: #d7d7d7;
   --base-900: #f0f0f0;
+  --color-accent-100: #7a94cd;
+  --color-accent-200: #4968b1;
+  --color-accent-300: #2648a1;
+  --color-accent-400: #102d8c;
+  --color-accent-500: #061d7c;
+  --color-accent-600: #020e68;
+  --color-accent-700: #020e51;
+  --color-accent-800: #030f37;
 }
 
 @layer components {
