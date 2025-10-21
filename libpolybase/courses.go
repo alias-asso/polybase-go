@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 )
+
+var codeRegexp = regexp.MustCompile(`^[LMU]{2}(\d)IN\d{3}$`)
 
 func (pb *PB) CreateCourse(ctx context.Context, user string, course Course) (Course, error) {
 	tx, err := pb.db.BeginTx(ctx, nil)
@@ -251,13 +254,15 @@ func (pb *PB) GetCourse(ctx context.Context, id CourseID) (Course, error) {
 
 	course.Shown = shown == 1
 
-	return course, nil
+	course.Year, err = getYear(course.Code)
+
+	return course, err
 }
 
 func (pb *PB) ListCourse(ctx context.Context, showHidden bool, filterSemester *string, filterCode *string, filterKind *string, filterPart *int) ([]Course, error) {
 	var courses []Course
 	var conditions []string
-	var args []interface{}
+	var args []any
 
 	if !showHidden {
 		conditions = append(conditions, "shown = 1")
@@ -301,6 +306,11 @@ func (pb *PB) ListCourse(ctx context.Context, showHidden bool, filterSemester *s
 		if err := rows.Scan(&c.Code, &c.Kind, &c.Part, &c.Parts, &c.Name,
 			&c.Quantity, &c.Total, &c.Shown, &c.Semester); err != nil {
 			return nil, fmt.Errorf("scan course: %w", err)
+		}
+
+		c.Year, err = getYear(c.Code)
+		if err != nil {
+			return nil, err
 		}
 
 		courses = append(courses, c)
@@ -391,14 +401,25 @@ func (pb *PB) setParts(ctx context.Context, courseID CourseID, tx *sql.Tx) error
 	return nil
 }
 
+func getYear(code string) (int, error) {
+	res := codeRegexp.FindStringSubmatch(code)
+	if len(res) != 2 {
+		return 0, fmt.Errorf("CODE can only contain letters, numbers, and the characters {},._")
+	}
+	return strconv.Atoi(res[1])
+
+}
+
 func validateCourse(course Course) (Course, error) {
 	// Validate Code
 	course.Code = strings.TrimSpace(course.Code)
 	if course.Code == "" {
 		return Course{}, fmt.Errorf("CODE cannot be empty")
 	}
-	if ok, _ := regexp.MatchString(`^[A-Za-z0-9{},._-]+$`, course.Code); !ok {
-		return Course{}, fmt.Errorf("CODE can only contain letters, numbers, and the characters {},._")
+	var err error
+	course.Year, err = getYear(course.Code)
+	if err != nil {
+		return Course{}, err
 	}
 
 	// Validate Kind

@@ -22,6 +22,7 @@ type Course struct {
 	Total    int
 	Shown    bool
 	Semester string
+	Year     int
 }
 
 type PartialCourse struct {
