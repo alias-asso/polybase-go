@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"strings"
 	"github.com/alias-asso/polybase-go/libpolybase"
 )
 
@@ -39,7 +40,7 @@ templ CourseHeader(course libpolybase.Course) {
 // while hidden courses use base colors.
 templ CourseCode(course libpolybase.Course) {
 	if course.Shown {
-		<p class="text-lg font-mono truncate text-accent-600 bg-accent-100 px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
+		<p data-kind={strings.ToLower(course.Kind)} class="text-lg font-mono truncate text-course-light bg-course px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
 	} else {
 		<p class="text-lg font-mono truncate text-base-700 bg-base-200 px-3 py-0.5 rounded-lg" title={ course.Code }>{ course.Code }</p>
 	}
