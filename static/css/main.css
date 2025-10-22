@@ -35,12 +35,12 @@
   --base-900: #0f0f0f;
   --color-course-cm: var(--color-accent-100);
   --color-course-cm-light: var(--color-accent-600);
-  --color-course-td: var(--color-green-700);
-  --color-course-td-light: var(--color-green-100);
-  --color-course-tme: var(--color-cyan-600);
-  --color-course-tme-light: var(--color-cyan-100);
-  --color-course-memento: var(--color-indigo-600);
-  --color-course-memento-light: var(--color-indigo-100);
+  --color-course-td: hsl(145, 40%, 80%);
+  --color-course-td-light: hsl(145, 40%, 10%);
+  --color-course-tme: hsl(170, 60%, 80%);
+  --color-course-tme-light: hsl(170, 60%, 10%);
+  --color-course-memento: hsl(247, 65%, 85%);
+  --color-course-memento-light: hsl(247, 65%, 10%);
 }
 
 .dark {
