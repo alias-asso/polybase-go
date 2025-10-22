@@ -18,7 +18,7 @@ func TestDeletePackSuccessfully(t *testing.T) {
 	// Create test courses
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -29,7 +29,7 @@ func TestDeletePackSuccessfully(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -50,8 +50,8 @@ func TestDeletePackSuccessfully(t *testing.T) {
 
 	// Create pack
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS102", Kind: "TME", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
+		{Code: "UL1IN002", Kind: "TME", Part: 1},
 	}
 
 	pack, err := pb.CreatePack(ctx, "testuser", "Test Pack", courseIDs)
@@ -136,7 +136,7 @@ func TestDeletePackRemovesCourseLinks(t *testing.T) {
 
 	// Create test course
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -191,7 +191,7 @@ func TestRecreateDeletedPack(t *testing.T) {
 
 	// Create test course
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -262,17 +262,17 @@ func TestDeleteMultiplePacksSequentially(t *testing.T) {
 	// Create test courses
 	courses := []libpolybase.Course{
 		{
-			Code: "CS101", Kind: "Cours", Part: 1, Parts: 1,
+			Code: "UL1IN001", Kind: "Cours", Part: 1, Parts: 1,
 			Name: "Programming I", Quantity: 50, Total: 100,
 			Shown: true, Semester: "S1",
 		},
 		{
-			Code: "CS102", Kind: "TME", Part: 1, Parts: 1,
+			Code: "UL1IN002", Kind: "TME", Part: 1, Parts: 1,
 			Name: "Programming Lab", Quantity: 30, Total: 60,
 			Shown: true, Semester: "S1",
 		},
 		{
-			Code: "CS103", Kind: "TD", Part: 1, Parts: 1,
+			Code: "UL1IN003", Kind: "TD", Part: 1, Parts: 1,
 			Name: "Programming Tutorial", Quantity: 20, Total: 40,
 			Shown: true, Semester: "S1",
 		},
@@ -293,22 +293,22 @@ func TestDeleteMultiplePacksSequentially(t *testing.T) {
 		{
 			name: "Pack 1",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name: "Pack 2",
 			courses: []libpolybase.CourseID{
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS103", Kind: "TD", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
+				{Code: "UL1IN003", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name: "Pack 3",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS103", Kind: "TD", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
+				{Code: "UL1IN003", Kind: "TD", Part: 1},
 			},
 		},
 	}
@@ -370,9 +370,9 @@ func TestDeletePackWithManyCourses(t *testing.T) {
 
 	// Create 20 test courses
 	var courseIDs []libpolybase.CourseID
-	for i := 1; i <= 20; i++ {
+	for i := range 20 {
 		course := libpolybase.Course{
-			Code: fmt.Sprintf("CS%03d", 100+i), Kind: "Cours", Part: 1, Parts: 1,
+			Code: fmt.Sprintf("UL1IN%03d", 100+i), Kind: "Cours", Part: 1, Parts: 1,
 			Name: fmt.Sprintf("Course %d", i), Quantity: 10, Total: 50,
 			Shown: true, Semester: "S1",
 		}
@@ -429,7 +429,7 @@ func TestDeleteAlreadyDeletedPack(t *testing.T) {
 
 	// Create test course and pack
 	course := libpolybase.Course{
-		Code: "CS101", Kind: "Cours", Part: 1, Parts: 1,
+		Code: "UL1IN001", Kind: "Cours", Part: 1, Parts: 1,
 		Name: "Programming", Quantity: 50, Total: 100,
 		Shown: true, Semester: "S1",
 	}
@@ -506,7 +506,7 @@ func TestDeletePackStressTest(t *testing.T) {
 
 	// Create test course
 	course := libpolybase.Course{
-		Code: "CS101", Kind: "Cours", Part: 1, Parts: 1,
+		Code: "UL1IN001", Kind: "Cours", Part: 1, Parts: 1,
 		Name: "Programming", Quantity: 50, Total: 100,
 		Shown: true, Semester: "S1",
 	}
@@ -521,7 +521,7 @@ func TestDeletePackStressTest(t *testing.T) {
 	}
 
 	// Create and delete 100 packs
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		// Create pack
 		pack, err := pb.CreatePack(ctx, "testuser",
 			fmt.Sprintf("Pack %d", i), []libpolybase.CourseID{courseID})

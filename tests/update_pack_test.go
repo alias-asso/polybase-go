@@ -17,7 +17,7 @@ func TestUpdatePackNameOnly(t *testing.T) {
 	// Create test courses
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -28,7 +28,7 @@ func TestUpdatePackNameOnly(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -51,8 +51,8 @@ func TestUpdatePackNameOnly(t *testing.T) {
 	// Create initial pack
 	initialName := "Programming Pack"
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS102", Kind: "TME", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
+		{Code: "UL1IN002", Kind: "TME", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, courseIDs)
@@ -105,7 +105,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 	// Create test courses
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -116,7 +116,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -127,7 +127,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS103",
+			Code:     "UL1IN003",
 			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
@@ -150,8 +150,8 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 	// Create initial pack with subset of courses
 	packName := "Programming Pack"
 	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS102", Kind: "TME", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
+		{Code: "UL1IN002", Kind: "TME", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", packName, initialCourses)
@@ -161,8 +161,8 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 
 	// Update pack courses
 	newCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS103", Kind: "TD", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
+		{Code: "UL1IN003", Kind: "TD", Part: 1},
 	}
 
 	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
@@ -195,7 +195,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 
 	// Verify removed courses are no longer in pack
 	db.AssertCourseNotInPack(created.ID, libpolybase.CourseID{
-		Code: "CS102",
+		Code: "UL1IN002",
 		Kind: "TME",
 		Part: 1,
 	})
@@ -215,7 +215,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	// Create test courses
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -226,7 +226,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -237,7 +237,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS103",
+			Code:     "UL1IN003",
 			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
@@ -260,8 +260,8 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	// Create initial pack
 	initialName := "Programming Pack"
 	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS102", Kind: "TME", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
+		{Code: "UL1IN002", Kind: "TME", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
@@ -272,8 +272,8 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 	// Update both name and courses
 	newName := "Advanced Programming Pack"
 	newCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS103", Kind: "TD", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
+		{Code: "UL1IN003", Kind: "TD", Part: 1},
 	}
 
 	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
@@ -307,7 +307,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 
 	// Verify removed courses are no longer in pack
 	db.AssertCourseNotInPack(created.ID, libpolybase.CourseID{
-		Code: "CS102",
+		Code: "UL1IN002",
 		Kind: "TME",
 		Part: 1,
 	})
@@ -361,7 +361,7 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 
 	// Create initial course
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -380,7 +380,7 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 	// Create initial pack
 	initialName := "Programming Pack"
 	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
@@ -446,7 +446,7 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 
 	// Create initial course
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -484,21 +484,21 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 		{
 			name: "single non-existent course",
 			updateCourses: []libpolybase.CourseID{
-				{Code: "FAKE101", Kind: "Missing", Part: 1},
+				{Code: "ML9IN101", Kind: "Missing", Part: 1},
 			},
 		},
 		{
 			name: "multiple non-existent courses",
 			updateCourses: []libpolybase.CourseID{
-				{Code: "FAKE101", Kind: "Missing", Part: 1},
-				{Code: "FAKE102", Kind: "Missing", Part: 1},
+				{Code: "ML9IN101", Kind: "Missing", Part: 1},
+				{Code: "ML9IN102", Kind: "Missing", Part: 1},
 			},
 		},
 		{
 			name: "mix of existing and non-existent courses",
 			updateCourses: []libpolybase.CourseID{
 				existingID,
-				{Code: "FAKE101", Kind: "Missing", Part: 1},
+				{Code: "ML9IN101", Kind: "Missing", Part: 1},
 			},
 		},
 		{
@@ -555,7 +555,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -566,7 +566,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -587,7 +587,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 
 	initialName := "Programming Pack"
 	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
@@ -602,25 +602,25 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 		{
 			name: "same course repeated",
 			updateCourses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name: "multiple duplicate courses",
 			updateCourses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
 			},
 		},
 		{
 			name: "duplicates with different order",
 			updateCourses: []libpolybase.CourseID{
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
 			},
 		},
 	}
@@ -658,7 +658,7 @@ func TestUpdateNonExistentPack(t *testing.T) {
 	ctx := context.Background()
 
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -691,7 +691,7 @@ func TestUpdateNonExistentPack(t *testing.T) {
 			packID: 0,
 			update: libpolybase.PartialPack{
 				Courses: &[]libpolybase.CourseID{
-					{Code: "CS101", Kind: "Cours", Part: 1},
+					{Code: "UL1IN001", Kind: "Cours", Part: 1},
 				},
 			},
 		},
@@ -700,7 +700,7 @@ func TestUpdateNonExistentPack(t *testing.T) {
 			packID: -1,
 			update: libpolybase.PartialPack{
 				Name:    stringPtr("New Name"),
-				Courses: &[]libpolybase.CourseID{{Code: "CS101", Kind: "Cours", Part: 1}},
+				Courses: &[]libpolybase.CourseID{{Code: "UL1IN001", Kind: "Cours", Part: 1}},
 			},
 		},
 	}
@@ -725,7 +725,7 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 
 	// Create test course
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -744,7 +744,7 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 	// Create initial pack
 	initialName := "Programming Pack"
 	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
 	}
 
 	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)

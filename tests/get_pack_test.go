@@ -16,7 +16,7 @@ func TestGetExistingPack(t *testing.T) {
 
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -27,7 +27,7 @@ func TestGetExistingPack(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -38,7 +38,7 @@ func TestGetExistingPack(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS103",
+			Code:     "UL1IN003",
 			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
@@ -66,24 +66,24 @@ func TestGetExistingPack(t *testing.T) {
 			name:     "single course pack",
 			packName: "Basic Pack",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name:     "multiple course pack",
 			packName: "Complete Pack",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS103", Kind: "TD", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
+				{Code: "UL1IN003", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name:     "pack with spaces in name",
 			packName: "Programming   Course   Pack",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
 			},
 		},
 	}
@@ -162,7 +162,7 @@ func TestGetNonExistentPack(t *testing.T) {
 			packID: 1,
 			setup: func(t *testing.T, pb *libpolybase.PB) {
 				course := libpolybase.Course{
-					Code:     "CS101",
+					Code:     "UL1IN001",
 					Kind:     "Cours",
 					Part:     1,
 					Parts:    1,
@@ -240,7 +240,7 @@ func TestPackCourseOrder(t *testing.T) {
 
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     2,
 			Parts:    2,
@@ -251,7 +251,7 @@ func TestPackCourseOrder(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    2,
@@ -262,7 +262,7 @@ func TestPackCourseOrder(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -273,7 +273,7 @@ func TestPackCourseOrder(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
@@ -284,7 +284,7 @@ func TestPackCourseOrder(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS100",
+			Code:     "UL1IN000",
 			Kind:     "Memento",
 			Part:     1,
 			Parts:    1,
@@ -311,52 +311,52 @@ func TestPackCourseOrder(t *testing.T) {
 		{
 			name: "already sorted order",
 			inputOrder: []libpolybase.CourseID{
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS102", Kind: "TD", Part: 1},
+				{Code: "UL1IN000", Kind: "Memento", Part: 1},
+				{Code: "UL1IN001", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 2},
+				{Code: "UL1IN002", Kind: "TD", Part: 1},
 			},
 			wantOrder: []libpolybase.CourseID{
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS102", Kind: "TD", Part: 1},
+				{Code: "UL1IN000", Kind: "Memento", Part: 1},
+				{Code: "UL1IN001", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 2},
+				{Code: "UL1IN002", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name: "reversed input order",
 			inputOrder: []libpolybase.CourseID{
-				{Code: "CS102", Kind: "TD", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS100", Kind: "Memento", Part: 1},
+				{Code: "UL1IN002", Kind: "TD", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 2},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "TME", Part: 1},
+				{Code: "UL1IN000", Kind: "Memento", Part: 1},
 			},
 			wantOrder: []libpolybase.CourseID{
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS102", Kind: "TD", Part: 1},
+				{Code: "UL1IN000", Kind: "Memento", Part: 1},
+				{Code: "UL1IN001", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 2},
+				{Code: "UL1IN002", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name: "mixed input order",
 			inputOrder: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS102", Kind: "TD", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 2},
+				{Code: "UL1IN000", Kind: "Memento", Part: 1},
+				{Code: "UL1IN002", Kind: "TD", Part: 1},
+				{Code: "UL1IN001", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
 			},
 			wantOrder: []libpolybase.CourseID{
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS102", Kind: "TD", Part: 1},
+				{Code: "UL1IN000", Kind: "Memento", Part: 1},
+				{Code: "UL1IN001", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 2},
+				{Code: "UL1IN002", Kind: "TD", Part: 1},
 			},
 		},
 	}

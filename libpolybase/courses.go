@@ -254,7 +254,7 @@ func (pb *PB) GetCourse(ctx context.Context, id CourseID) (Course, error) {
 
 	course.Shown = shown == 1
 
-	course.Year, err = getYear(course.Code)
+	course.Year, err = GetYear(course.Code)
 
 	return course, err
 }
@@ -308,7 +308,7 @@ func (pb *PB) ListCourse(ctx context.Context, showHidden bool, filterSemester *s
 			return nil, fmt.Errorf("scan course: %w", err)
 		}
 
-		c.Year, err = getYear(c.Code)
+		c.Year, err = GetYear(c.Code)
 		if err != nil {
 			return nil, err
 		}
@@ -401,10 +401,10 @@ func (pb *PB) setParts(ctx context.Context, courseID CourseID, tx *sql.Tx) error
 	return nil
 }
 
-func getYear(code string) (int, error) {
+func GetYear(code string) (int, error) {
 	res := codeRegexp.FindStringSubmatch(code)
 	if len(res) != 2 {
-		return 0, fmt.Errorf("CODE can only contain letters, numbers, and the characters {},._")
+		return 0, fmt.Errorf("invalid course id")
 	}
 	return strconv.Atoi(res[1])
 
@@ -417,7 +417,7 @@ func validateCourse(course Course) (Course, error) {
 		return Course{}, fmt.Errorf("CODE cannot be empty")
 	}
 	var err error
-	course.Year, err = getYear(course.Code)
+	course.Year, err = GetYear(course.Code)
 	if err != nil {
 		return Course{}, err
 	}

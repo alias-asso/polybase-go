@@ -16,7 +16,7 @@ func TestUpdatePackQuantityIncrease(t *testing.T) {
 
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Lecture",
 			Part:     1,
 			Parts:    1,
@@ -27,7 +27,7 @@ func TestUpdatePackQuantityIncrease(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "Lab",
 			Part:     1,
 			Parts:    1,
@@ -40,8 +40,8 @@ func TestUpdatePackQuantityIncrease(t *testing.T) {
 	}
 
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
+		{Code: "UL1IN001", Kind: "Lecture", Part: 1},
+		{Code: "UL1IN002", Kind: "Lab", Part: 1},
 	}
 
 	tests := []struct {
@@ -55,8 +55,8 @@ func TestUpdatePackQuantityIncrease(t *testing.T) {
 			delta:     10,
 			wantError: false,
 			quantities: map[string]int{
-				"CS101": 30,
-				"CS102": 25,
+				"UL1IN001": 30,
+				"UL1IN002": 25,
 			},
 		},
 		{
@@ -64,8 +64,8 @@ func TestUpdatePackQuantityIncrease(t *testing.T) {
 			delta:     15,
 			wantError: false,
 			quantities: map[string]int{
-				"CS101": 35,
-				"CS102": 30,
+				"UL1IN001": 35,
+				"UL1IN002": 30,
 			},
 		},
 		{
@@ -130,7 +130,7 @@ func TestUpdatePackQuantityDecrease(t *testing.T) {
 	ctx := context.Background()
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Lecture",
 			Part:     1,
 			Parts:    1,
@@ -141,7 +141,7 @@ func TestUpdatePackQuantityDecrease(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "Lab",
 			Part:     1,
 			Parts:    1,
@@ -153,8 +153,8 @@ func TestUpdatePackQuantityDecrease(t *testing.T) {
 		},
 	}
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
+		{Code: "UL1IN001", Kind: "Lecture", Part: 1},
+		{Code: "UL1IN002", Kind: "Lab", Part: 1},
 	}
 	tests := []struct {
 		name       string
@@ -165,24 +165,24 @@ func TestUpdatePackQuantityDecrease(t *testing.T) {
 			name:  "decrease by 10",
 			delta: -10,
 			quantities: map[string]int{
-				"CS101": 10,
-				"CS102": 5,
+				"UL1IN001": 10,
+				"UL1IN002": 5,
 			},
 		},
 		{
 			name:  "decrease to zero",
 			delta: -20,
 			quantities: map[string]int{
-				"CS101": 0,
-				"CS102": 0,
+				"UL1IN001": 0,
+				"UL1IN002": 0,
 			},
 		},
 		{
 			name:  "attempt decrease below zero",
 			delta: -30,
 			quantities: map[string]int{
-				"CS101": 0,
-				"CS102": 0,
+				"UL1IN001": 0,
+				"UL1IN002": 0,
 			},
 		},
 	}
@@ -230,7 +230,7 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 	ctx := context.Background()
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Lecture",
 			Part:     1,
 			Parts:    1,
@@ -241,7 +241,7 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "Lab",
 			Part:     1,
 			Parts:    1,
@@ -253,8 +253,8 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 		},
 	}
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
+		{Code: "UL1IN001", Kind: "Lecture", Part: 1},
+		{Code: "UL1IN002", Kind: "Lab", Part: 1},
 	}
 	tests := []struct {
 		name       string
@@ -267,8 +267,8 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 			delta:     3,
 			wantError: false,
 			quantities: map[string]int{
-				"CS101": 23,
-				"CS102": 18,
+				"UL1IN001": 23,
+				"UL1IN002": 18,
 			},
 		},
 		{
@@ -276,8 +276,8 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 			delta:     7,
 			wantError: true,
 			quantities: map[string]int{
-				"CS101": 20, // Should remain unchanged
-				"CS102": 15, // Should remain unchanged
+				"UL1IN001": 20, // Should remain unchanged
+				"UL1IN002": 15, // Should remain unchanged
 			},
 		},
 		{
@@ -285,8 +285,8 @@ func TestUpdatePackQuantityCourseLimits(t *testing.T) {
 			delta:     5,
 			wantError: false,
 			quantities: map[string]int{
-				"CS101": 25,
-				"CS102": 20,
+				"UL1IN001": 25,
+				"UL1IN002": 20,
 			},
 		},
 	}
@@ -355,7 +355,7 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 	ctx := context.Background()
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Lecture",
 			Part:     1,
 			Parts:    1,
@@ -366,7 +366,7 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "Lab",
 			Part:     1,
 			Parts:    1,
@@ -378,8 +378,8 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 		},
 	}
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
-		{Code: "CS102", Kind: "Lab", Part: 1},
+		{Code: "UL1IN001", Kind: "Lecture", Part: 1},
+		{Code: "UL1IN002", Kind: "Lab", Part: 1},
 	}
 	tests := []struct {
 		name       string
@@ -392,8 +392,8 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 			delta:     0,
 			wantError: false,
 			quantities: map[string]int{
-				"CS101": 20,
-				"CS102": 15,
+				"UL1IN001": 20,
+				"UL1IN002": 15,
 			},
 		},
 		{
@@ -401,8 +401,8 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 			delta:     -0,
 			wantError: false,
 			quantities: map[string]int{
-				"CS101": 20,
-				"CS102": 15,
+				"UL1IN001": 20,
+				"UL1IN002": 15,
 			},
 		},
 		{
@@ -410,8 +410,8 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 			delta:     math.MinInt,
 			wantError: false,
 			quantities: map[string]int{
-				"CS101": 0,
-				"CS102": 0,
+				"UL1IN001": 0,
+				"UL1IN002": 0,
 			},
 		},
 		{
@@ -419,8 +419,8 @@ func TestUpdatePackQuantityEdgeCases(t *testing.T) {
 			delta:     -999999,
 			wantError: false,
 			quantities: map[string]int{
-				"CS101": 0,
-				"CS102": 0,
+				"UL1IN001": 0,
+				"UL1IN002": 0,
 			},
 		},
 	}
@@ -496,7 +496,7 @@ func TestUpdatePackQuantityNonExistent(t *testing.T) {
 	ctx := context.Background()
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Lecture",
 			Part:     1,
 			Parts:    1,
@@ -508,7 +508,7 @@ func TestUpdatePackQuantityNonExistent(t *testing.T) {
 		},
 	}
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Lecture", Part: 1},
+		{Code: "UL1IN001", Kind: "Lecture", Part: 1},
 	}
 
 	tests := []struct {
@@ -570,7 +570,7 @@ func TestUpdatePackQuantityNonExistent(t *testing.T) {
 			var initialQuantity int
 			if err := db.DB.QueryRowContext(ctx,
 				"SELECT quantity FROM courses WHERE code = ? AND kind = ? AND part = ?",
-				"CS101", "Lecture", 1).Scan(&initialQuantity); err != nil {
+				"UL1IN001", "Lecture", 1).Scan(&initialQuantity); err != nil {
 				t.Fatalf("failed to get initial quantity: %v", err)
 			}
 
@@ -584,7 +584,7 @@ func TestUpdatePackQuantityNonExistent(t *testing.T) {
 			var finalQuantity int
 			if err := db.DB.QueryRowContext(ctx,
 				"SELECT quantity FROM courses WHERE code = ? AND kind = ? AND part = ?",
-				"CS101", "Lecture", 1).Scan(&finalQuantity); err != nil {
+				"UL1IN001", "Lecture", 1).Scan(&finalQuantity); err != nil {
 				t.Fatalf("failed to get final quantity: %v", err)
 			}
 

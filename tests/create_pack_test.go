@@ -16,7 +16,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -27,7 +27,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -38,7 +38,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS103",
+			Code:     "UL1IN003",
 			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
@@ -66,24 +66,24 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 			name:     "single course pack",
 			packName: "Programming Basics",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name:     "multiple course pack",
 			packName: "Complete Programming",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS103", Kind: "TD", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
+				{Code: "UL1IN003", Kind: "TD", Part: 1},
 			},
 		},
 		{
 			name:     "pack with spaces in name",
 			packName: "   Programming Pack   ",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
 			},
 		},
 	}
@@ -178,7 +178,7 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 	ctx := context.Background()
 
 	existingCourse := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -216,8 +216,8 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 			name:     "multiple non-existent courses",
 			packName: "Invalid Pack Multiple",
 			courses: []libpolybase.CourseID{
-				{Code: "FAKE101", Kind: "Missing", Part: 1},
-				{Code: "FAKE102", Kind: "Missing", Part: 1},
+				{Code: "UL9IN990", Kind: "Missing", Part: 1},
+				{Code: "UL9IN991", Kind: "Missing", Part: 1},
 			},
 		},
 		{
@@ -225,7 +225,7 @@ func TestCreatePackWithNonExistentCourses(t *testing.T) {
 			packName: "Mixed Pack",
 			courses: []libpolybase.CourseID{
 				existingID,
-				{Code: "FAKE101", Kind: "Missing", Part: 1},
+				{Code: "UL9IN990", Kind: "Missing", Part: 1},
 			},
 		},
 		{
@@ -287,7 +287,7 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -298,7 +298,7 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -326,27 +326,27 @@ func TestCreatePackWithDuplicateCourses(t *testing.T) {
 			name:     "exact duplicate course",
 			packName: "Duplicate Pack",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
 			},
 		},
 		{
 			name:     "multiple duplicates",
 			packName: "Multiple Duplicates Pack",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
 			},
 		},
 		{
 			name:     "duplicate with valid courses",
 			packName: "Mixed Pack",
 			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
+				{Code: "UL1IN002", Kind: "TME", Part: 1},
+				{Code: "UL1IN001", Kind: "Cours", Part: 1},
 			},
 		},
 	}
@@ -392,7 +392,7 @@ func TestCreatePackNameTrimming(t *testing.T) {
 	ctx := context.Background()
 
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,

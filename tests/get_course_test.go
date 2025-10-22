@@ -13,7 +13,7 @@ func TestGetExistingCourse(t *testing.T) {
 	pb := libpolybase.New(db.DB, "", false)
 
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    2,
@@ -22,6 +22,7 @@ func TestGetExistingCourse(t *testing.T) {
 		Total:    100,
 		Shown:    true,
 		Semester: "S1",
+		Year:     1,
 	}
 
 	db.Insert(course)
@@ -48,7 +49,7 @@ func TestGetNonexistentCourse(t *testing.T) {
 	pb := libpolybase.New(db.DB, "", false)
 
 	id := libpolybase.CourseID{
-		Code: "NOTFOUND",
+		Code: "ML9IN999",
 		Kind: "Missing",
 		Part: 1,
 	}
@@ -73,19 +74,19 @@ func TestGetInvalidCourseID(t *testing.T) {
 	}{
 		{
 			name: "invalid code with lowercase",
-			id:   libpolybase.CourseID{Code: "lowercase", Kind: "Cours", Part: 1},
+			id:   libpolybase.CourseID{Code: "ul1in001", Kind: "Cours", Part: 1},
 		},
 		{
 			name: "invalid code with special chars",
-			id:   libpolybase.CourseID{Code: "CS101!", Kind: "Cours", Part: 1},
+			id:   libpolybase.CourseID{Code: "UL1IN001!", Kind: "Cours", Part: 1},
 		},
 		{
 			name: "invalid kind with numbers",
-			id:   libpolybase.CourseID{Code: "CS101", Kind: "Lecture1", Part: 1},
+			id:   libpolybase.CourseID{Code: "UL1IN001", Kind: "Lecture1", Part: 1},
 		},
 		{
 			name: "invalid kind with special chars",
-			id:   libpolybase.CourseID{Code: "CS101", Kind: "Lecture!", Part: 1},
+			id:   libpolybase.CourseID{Code: "UL1IN001", Kind: "Lecture!", Part: 1},
 		},
 	}
 
@@ -107,7 +108,7 @@ func TestGetAfterDeletion(t *testing.T) {
 	pb := libpolybase.New(db.DB, "", false)
 
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -150,7 +151,7 @@ func TestGetMultiPartCourse(t *testing.T) {
 
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    3,
@@ -159,9 +160,10 @@ func TestGetMultiPartCourse(t *testing.T) {
 			Total:    100,
 			Shown:    true,
 			Semester: "S1",
+			Year:     1,
 		},
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     2,
 			Parts:    3,
@@ -170,9 +172,10 @@ func TestGetMultiPartCourse(t *testing.T) {
 			Total:    100,
 			Shown:    true,
 			Semester: "S1",
+			Year:     1,
 		},
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     3,
 			Parts:    3,
@@ -181,6 +184,7 @@ func TestGetMultiPartCourse(t *testing.T) {
 			Total:    100,
 			Shown:    true,
 			Semester: "S1",
+			Year:     1,
 		},
 	}
 
