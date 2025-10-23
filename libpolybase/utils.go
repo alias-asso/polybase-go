@@ -78,6 +78,21 @@ func (c CourseID) PID() string {
 	return fmt.Sprintf("%s %s %d", c.Code, c.Kind, c.Part)
 }
 
+func PCPT(ammount_list []CourseAmmount) CourseAmmount {
+	ammount_min := CourseAmmount{ Quantity: -1, Total: -1}
+	for _, ammount := range ammount_list {
+		if ammount.Quantity != -1 && ammount.Total != -1 {
+			if ammount_min.Quantity == -1 || ammount.Quantity < ammount_min.Quantity {
+				ammount_min.Quantity = ammount.Quantity
+			}
+			if ammount_min.Total == -1 || ammount.Total < ammount_min.Total {
+				ammount_min.Total = ammount.Total
+			}
+		}
+	}
+	return ammount_min
+}
+
 func validateSemester(semester string) error {
 	if semester == "" {
 		return fmt.Errorf("semester cannot be empty")

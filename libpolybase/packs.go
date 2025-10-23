@@ -235,6 +235,10 @@ func (pb *PB) GetPack(ctx context.Context, id int) (Pack, error) {
 			Kind: course.Kind,
 			Part: course.Part,
 		})
+		pack.Ammount = append(pack.Ammount, CourseAmmount{
+			Quantity: course.Quantity,
+			Total: course.Total,
+		})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -280,11 +284,24 @@ func (pb *PB) ListPacks(ctx context.Context) ([]Pack, error) {
 
 		// Add course if one exists for this row
 		if code.Valid && kind.Valid && part.Valid {
-			currentPack.Courses = append(currentPack.Courses, CourseID{
+			course := CourseID{
 				Code: code.String,
 				Kind: kind.String,
 				Part: int(part.Int64),
-			})
+			}
+			currentPack.Courses = append(currentPack.Courses, course)
+			course_info, course_err := pb.GetCourse(ctx, course)
+			if course_err == nil {
+				currentPack.Ammount = append(currentPack.Ammount, CourseAmmount{
+					Quantity: course_info.Quantity,
+					Total: course_info.Total,
+				})
+			} else {
+				currentPack.Ammount = append(currentPack.Ammount, CourseAmmount{
+					Quantity: -1,
+					Total: -1,
+				})
+			}
 		}
 	}
 
