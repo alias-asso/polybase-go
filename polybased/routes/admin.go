@@ -493,18 +493,39 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	course, err := s.pb.UpdateCourseQuantity(r.Context(), username, id, delta)
+	_, err = s.pb.UpdateCourseQuantity(r.Context(), username, id, delta)
 	if err != nil {
 		log.Println("Patch admin course quantity - error:", err)
 		http.Error(w, "Failed to update quantity", http.StatusInternalServerError)
 		return
 	}
 
+	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
+	if err != nil {
+		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	packs, err := s.pb.ListPacks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to list packs", http.StatusInternalServerError)
+		log.Printf("%s", err)
+		return
+	}
+
+	err = views.Grid(views.GroupCoursesBySemesterAndKind(courses), packs, true).Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, "Failed to render template", http.StatusInternalServerError)
+		log.Printf("Failed to render template: %v", err)
+	}
+	/*
 	err = views.CardQuantity(course.Quantity).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Failed to render template: %v", err)
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 	}
+	*/
 }
 
 // patchAdminCoursesVisibility
