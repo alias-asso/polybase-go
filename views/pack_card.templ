@@ -12,6 +12,7 @@ templ PackCard(pack libpolybase.Pack, expanded bool) {
 		@PackBadges(pack, expanded)
 		<div class="mt-auto flex justify-between items-baseline">
 			@PackAdminControl(pack)
+                        @PackAmmount(libpolybase.PCPT(pack.Ammount))
 			@PackDetailsButton(pack.ID, expanded)
 		</div>
 	</div>
@@ -29,6 +30,15 @@ templ PackCode(pack libpolybase.Pack) {
 
 templ PackName(pack libpolybase.Pack) {
 	<p class="text-left leading-6 min-h-12 line-clamp-2" title={ pack.Name }>{ pack.Name }</p>
+}
+
+templ PackAmmount(ammount libpolybase.CourseAmmount) {
+      <div class="ml-auto shrink-0">
+            <span class="text-2xl font-bold">
+                  { fmt.Sprint(ammount.Quantity) }
+            </span>
+            <span class="text-lg">/{ fmt.Sprint(ammount.Total) }</span>
+      </div>
 }
 
 templ PackBadges(pack libpolybase.Pack, expanded bool) {
