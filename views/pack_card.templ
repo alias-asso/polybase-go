@@ -12,7 +12,7 @@ templ PackCard(pack libpolybase.Pack, expanded bool) {
 		@PackBadges(pack, expanded)
 		<div class="mt-auto flex justify-between items-baseline">
 			@PackAdminControl(pack)
-                        @PackAmmount(libpolybase.PCPT(pack.Ammount))
+                        @PackAmmount(pack.PCPT())
 			@PackDetailsButton(pack.ID, expanded)
 		</div>
 	</div>
@@ -50,13 +50,23 @@ templ PackBadges(pack libpolybase.Pack, expanded bool) {
 		}
 	>
 		for _, course := range pack.Courses {
+                    if course.Quantity == 0 {
 			<div
+				class="border flex justify-center items-center rounded-full px-3 h-7 text-sm font-mono text-red-500 border-base-300 hover:border-accent-200/50 hover:text-accent-300/70 hover:bg-accent-300/10 select-none"
+			>
+				<span>
+					{ course.PID() }
+				</span>
+			</div>
+                    } else {
+                      	<div
 				class="border flex justify-center items-center rounded-full px-3 h-7 text-sm font-mono text-base-500 border-base-300 hover:border-accent-200/50 hover:text-accent-300/70 hover:bg-accent-300/10 select-none"
 			>
 				<span>
 					{ course.PID() }
 				</span>
 			</div>
+                    }
 		}
 	</div>
 }
