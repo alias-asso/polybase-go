@@ -78,19 +78,31 @@ func (c CourseID) PID() string {
 	return fmt.Sprintf("%s %s %d", c.Code, c.Kind, c.Part)
 }
 
-func PCPT(ammount_list []CourseAmmount) CourseAmmount {
-	ammount_min := CourseAmmount{ Quantity: -1, Total: -1}
-	for _, ammount := range ammount_list {
-		if ammount.Quantity != -1 && ammount.Total != -1 {
-			if ammount_min.Quantity == -1 || ammount.Quantity < ammount_min.Quantity {
-				ammount_min.Quantity = ammount.Quantity
+func (pack Pack) PCPT() CourseAmmount {
+	ammountMin := CourseAmmount{ Quantity: 0, Total: 0}
+	for _, course := range pack.Courses {
+		if course.Quantity != -1 && course.Total != -1 {
+			if course.Quantity != 0 && (ammountMin.Quantity == 0 || course.Quantity < ammountMin.Quantity) {
+				ammountMin.Quantity = course.Quantity
 			}
-			if ammount_min.Total == -1 || ammount.Total < ammount_min.Total {
-				ammount_min.Total = ammount.Total
+			if course.Total != 0 && (ammountMin.Total == 0 || course.Total < ammountMin.Total) {
+				ammountMin.Total = course.Total
 			}
 		}
 	}
-	return ammount_min
+	return ammountMin
+}
+
+func ToCIDList(pcourses []PackCourse) []CourseID {
+	var cids []CourseID
+	for _, course := range pcourses {
+		cids = append(cids, CourseID{
+				Code: course.Code,
+				Kind: course.Kind,
+				Part: course.Part,
+			})
+	}
+	return cids
 }
 
 func validateSemester(semester string) error {
