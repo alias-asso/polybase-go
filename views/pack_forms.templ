@@ -80,7 +80,7 @@ templ EditPackForm(pack libpolybase.Pack, courses []libpolybase.Course) {
 									name="courses"
 									value={ course.ID() }
 									class="mr-3"
-									checked?={ contains(pack.Courses, course.CID()) }
+									checked?={ contains(libpolybase.ToCIDList(pack.Courses), course.CID()) }
 								/>
 								<label for={ fmt.Sprintf("course-%s", course.ID()) }>
 									{ fmt.Sprintf("%s %s %d - %s", course.Code, course.Kind, course.Part, course.Name) }
