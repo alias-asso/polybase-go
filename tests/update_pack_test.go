@@ -50,12 +50,12 @@ func TestUpdatePackNameOnly(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS102", Kind: "TME", Part: 1},
+	courseIDs := []libpolybase.PackCourse{
+		{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
+		{CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TME", Part: 1},},
 	}
 
-	created, err := pb.CreatePack(ctx, "testuser", initialName, courseIDs)
+	created, err := pb.CreatePack(ctx, "testuser", initialName, libpolybase.ToCIDList(courseIDs))
 	if err != nil {
 		t.Fatalf("failed to create pack: %v", err)
 	}
@@ -87,7 +87,7 @@ func TestUpdatePackNameOnly(t *testing.T) {
 
 	// Verify all courses are still in the pack
 	for _, courseID := range courseIDs {
-		db.AssertCourseInPack(created.ID, courseID)
+		db.AssertCourseInPack(created.ID, courseID.CourseID)
 	}
 
 	// Verify course count hasn't changed
@@ -149,24 +149,25 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 
 	// Create initial pack with subset of courses
 	packName := "Programming Pack"
-	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS102", Kind: "TME", Part: 1},
+	initialCourses := []libpolybase.PackCourse{
+		{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
+		{CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TME", Part: 1},},
 	}
 
-	created, err := pb.CreatePack(ctx, "testuser", packName, initialCourses)
+	created, err := pb.CreatePack(ctx, "testuser", packName, libpolybase.ToCIDList(initialCourses))
 	if err != nil {
 		t.Fatalf("failed to create pack: %v", err)
 	}
 
 	// Update pack courses
-	newCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS103", Kind: "TD", Part: 1},
+	newCourses := []libpolybase.PackCourse{
+		{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
+		{CourseID: libpolybase.CourseID{Code: "CS103", Kind: "TD", Part: 1},},
 	}
 
+	newCoursesCID := libpolybase.ToCIDList(newCourses)
 	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
-		Courses: &newCourses,
+		Courses: &newCoursesCID,
 	})
 	if err != nil {
 		t.Fatalf("failed to update pack courses: %v", err)
@@ -190,7 +191,7 @@ func TestUpdatePackCoursesOnly(t *testing.T) {
 
 	// Verify new course membership
 	for _, courseID := range newCourses {
-		db.AssertCourseInPack(created.ID, courseID)
+		db.AssertCourseInPack(created.ID, courseID.CourseID)
 	}
 
 	// Verify removed courses are no longer in pack
@@ -271,14 +272,15 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 
 	// Update both name and courses
 	newName := "Advanced Programming Pack"
-	newCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS103", Kind: "TD", Part: 1},
+	newCourses := []libpolybase.PackCourse{
+		{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
+		{CourseID: libpolybase.CourseID{Code: "CS103", Kind: "TD", Part: 1},},
 	}
+	newCoursesCID := libpolybase.ToCIDList(newCourses)
 
 	updated, err := pb.UpdatePack(ctx, "testuser", created.ID, libpolybase.PartialPack{
 		Name:    &newName,
-		Courses: &newCourses,
+		Courses: &newCoursesCID,
 	})
 	if err != nil {
 		t.Fatalf("failed to update pack: %v", err)
@@ -302,7 +304,7 @@ func TestUpdatePackNameAndCourses(t *testing.T) {
 
 	// Verify new course membership
 	for _, courseID := range newCourses {
-		db.AssertCourseInPack(created.ID, courseID)
+		db.AssertCourseInPack(created.ID, courseID.CourseID)
 	}
 
 	// Verify removed courses are no longer in pack
@@ -379,11 +381,11 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
+	initialCourses := []libpolybase.PackCourse{
+		{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
 	}
 
-	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
+	created, err := pb.CreatePack(ctx, "testuser", initialName, libpolybase.ToCIDList(initialCourses))
 	if err != nil {
 		t.Fatalf("failed to create pack: %v", err)
 	}
@@ -428,7 +430,7 @@ func TestUpdatePackWithNoCourses(t *testing.T) {
 
 			// Verify course relationships remain intact
 			for _, courseID := range initialCourses {
-				db.AssertCourseInPack(created.ID, courseID)
+				db.AssertCourseInPack(created.ID, courseID.CourseID)
 			}
 
 			if count := db.CountPackCourses(created.ID); count != len(initialCourses) {
@@ -470,9 +472,9 @@ func TestUpdatePackWithNonExistentCourses(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	initialCourses := []libpolybase.CourseID{existingID}
+	initialCourses := []libpolybase.PackCourse{{CourseID: existingID,},}
 
-	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
+	created, err := pb.CreatePack(ctx, "testuser", initialName, libpolybase.ToCIDList(initialCourses))
 	if err != nil {
 		t.Fatalf("failed to create pack: %v", err)
 	}
@@ -586,11 +588,11 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 	}
 
 	initialName := "Programming Pack"
-	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
+	initialCourses := []libpolybase.PackCourse{
+		{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
 	}
 
-	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
+	created, err := pb.CreatePack(ctx, "testuser", initialName, libpolybase.ToCIDList(initialCourses))
 	if err != nil {
 		t.Fatalf("failed to create pack: %v", err)
 	}
@@ -641,7 +643,7 @@ func TestUpdatePackWithDuplicateCourses(t *testing.T) {
 			})
 
 			for _, courseID := range initialCourses {
-				db.AssertCourseInPack(created.ID, courseID)
+				db.AssertCourseInPack(created.ID, courseID.CourseID)
 			}
 
 			if count := db.CountPackCourses(created.ID); count != len(initialCourses) {
@@ -743,11 +745,12 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 
 	// Create initial pack
 	initialName := "Programming Pack"
-	initialCourses := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
+	initialCourses := []libpolybase.PackCourse{
+		{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
 	}
+	initialCoursesCID := libpolybase.ToCIDList(initialCourses)
 
-	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCourses)
+	created, err := pb.CreatePack(ctx, "testuser", initialName, initialCoursesCID)
 	if err != nil {
 		t.Fatalf("failed to create pack: %v", err)
 	}
@@ -765,14 +768,14 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 		{
 			name: "same courses",
 			update: libpolybase.PartialPack{
-				Courses: &initialCourses,
+				Courses: &initialCoursesCID,
 			},
 		},
 		{
 			name: "same name and courses",
 			update: libpolybase.PartialPack{
 				Name:    &initialName,
-				Courses: &initialCourses,
+				Courses: &initialCoursesCID,
 			},
 		},
 	}
@@ -795,7 +798,7 @@ func TestUpdatePackWithNoChanges(t *testing.T) {
 			})
 
 			for _, courseID := range initialCourses {
-				db.AssertCourseInPack(created.ID, courseID)
+				db.AssertCourseInPack(created.ID, courseID.CourseID)
 			}
 
 			if count := db.CountPackCourses(created.ID); count != len(initialCourses) {

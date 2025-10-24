@@ -245,7 +245,7 @@ func TestRecreateDeletedPack(t *testing.T) {
 		t.Errorf("recreated pack name = %q, want %q", pack2.Name, packName)
 	}
 
-	if len(pack2.Courses) != 1 || pack2.Courses[0] != courseID {
+	if len(pack2.Courses) != 1 || pack2.Courses[0].CourseID != courseID {
 		t.Errorf("recreated pack courses = %v, want %v", pack2.Courses, []libpolybase.CourseID{courseID})
 	}
 

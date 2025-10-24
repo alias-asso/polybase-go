@@ -220,7 +220,7 @@ func (db *DB) InsertPack(p libpolybase.Pack) {
 
 	// Insert pack courses if any
 	for _, courseID := range p.Courses {
-		db.InsertPackCourse(p.ID, courseID)
+		db.InsertPackCourse(p.ID, courseID.CourseID)
 	}
 }
 
@@ -266,7 +266,7 @@ func (db *DB) GetPack(id int) libpolybase.Pack {
 		if err := rows.Scan(&courseID.Code, &courseID.Kind, &courseID.Part); err != nil {
 			db.t.Fatalf("failed to scan pack course: %v", err)
 		}
-		pack.Courses = append(pack.Courses, courseID)
+		pack.Courses = append(pack.Courses, libpolybase.PackCourse{CourseID: courseID})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -335,12 +335,12 @@ func (db *DB) AssertPackEqual(id int, want libpolybase.Pack) {
 	// Convert courses to maps for set comparison
 	wantCourses := make(map[string]libpolybase.CourseID)
 	for _, course := range want.Courses {
-		wantCourses[course.ID()] = course
+		wantCourses[course.CourseID.ID()] = course.CourseID
 	}
 
 	gotCourses := make(map[string]libpolybase.CourseID)
 	for _, course := range got.Courses {
-		gotCourses[course.ID()] = course
+		gotCourses[course.CourseID.ID()] = course.CourseID
 	}
 
 	// Check for missing courses

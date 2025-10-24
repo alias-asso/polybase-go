@@ -60,37 +60,37 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 	tests := []struct {
 		name     string
 		packName string
-		courses  []libpolybase.CourseID
+		courses  []libpolybase.PackCourse
 	}{
 		{
 			name:     "single course pack",
 			packName: "Programming Basics",
-			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
+			courses: []libpolybase.PackCourse{
+				{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
 			},
 		},
 		{
 			name:     "multiple course pack",
 			packName: "Complete Programming",
-			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS103", Kind: "TD", Part: 1},
+			courses: []libpolybase.PackCourse{
+				{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
+				{CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TME", Part: 1},},
+				{CourseID: libpolybase.CourseID{Code: "CS103", Kind: "TD", Part: 1},},
 			},
 		},
 		{
 			name:     "pack with spaces in name",
 			packName: "   Programming Pack   ",
-			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
+			courses: []libpolybase.PackCourse{
+				{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
+				{CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TME", Part: 1},},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			created, err := pb.CreatePack(ctx, "testuser", tt.packName, tt.courses)
+			created, err := pb.CreatePack(ctx, "testuser", tt.packName, libpolybase.ToCIDList(tt.courses))
 			if err != nil {
 				t.Fatalf("failed to create pack: %v", err)
 			}
@@ -105,7 +105,7 @@ func TestCreatePackWithValidCourses(t *testing.T) {
 			db.AssertPackEqual(created.ID, want)
 
 			for _, courseID := range tt.courses {
-				db.AssertCourseInPack(created.ID, courseID)
+				db.AssertCourseInPack(created.ID, courseID.CourseID)
 			}
 
 			if got := db.CountPackCourses(created.ID); got != len(tt.courses) {
@@ -418,49 +418,49 @@ func TestCreatePackNameTrimming(t *testing.T) {
 		name      string
 		inputName string
 		wantName  string
-		courses   []libpolybase.CourseID
+		courses   []libpolybase.PackCourse
 	}{
 		{
 			name:      "leading spaces",
 			inputName: "   Programming Pack",
 			wantName:  "Programming Pack",
-			courses:   []libpolybase.CourseID{courseID},
+			courses:   []libpolybase.PackCourse{{CourseID: courseID},},
 		},
 		{
 			name:      "trailing spaces",
 			inputName: "Programming Pack   ",
 			wantName:  "Programming Pack",
-			courses:   []libpolybase.CourseID{courseID},
+			courses:   []libpolybase.PackCourse{{CourseID: courseID},},
 		},
 		{
 			name:      "leading and trailing spaces",
 			inputName: "   Programming Pack   ",
 			wantName:  "Programming Pack",
-			courses:   []libpolybase.CourseID{courseID},
+			courses:   []libpolybase.PackCourse{{CourseID: courseID},},
 		},
 		{
 			name:      "multiple libpolybase spaces preserved",
 			inputName: "   Programming    Pack   ",
 			wantName:  "Programming    Pack",
-			courses:   []libpolybase.CourseID{courseID},
+			courses:   []libpolybase.PackCourse{{CourseID: courseID},},
 		},
 		{
 			name:      "tabs and newlines",
 			inputName: "\tProgramming\nPack\t",
 			wantName:  "Programming\nPack",
-			courses:   []libpolybase.CourseID{courseID},
+			courses:   []libpolybase.PackCourse{{CourseID: courseID},},
 		},
 		{
 			name:      "only whitespace",
 			inputName: "     ",
 			wantName:  "",
-			courses:   []libpolybase.CourseID{courseID},
+			courses:   []libpolybase.PackCourse{{CourseID: courseID},},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			created, err := pb.CreatePack(ctx, "testuser", tt.inputName, tt.courses)
+			created, err := pb.CreatePack(ctx, "testuser", tt.inputName, libpolybase.ToCIDList(tt.courses))
 			if tt.wantName == "" {
 				if err == nil {
 					t.Fatal("expected error for empty pack name, got nil")

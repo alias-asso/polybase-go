@@ -93,14 +93,14 @@ func TestListSinglePack(t *testing.T) {
 
 	pack := libpolybase.Pack{
 		Name: "Programming Bundle",
-		Courses: []libpolybase.CourseID{
-			{Code: "CS101", Kind: "Cours", Part: 1},
-			{Code: "CS101", Kind: "Cours", Part: 2},
-			{Code: "CS101", Kind: "TME", Part: 1},
+		Courses: []libpolybase.PackCourse{
+			{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},},
+			{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 2},},
+			{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "TME", Part: 1},},
 		},
 	}
 
-	created, err := pb.CreatePack(ctx, "testuser", pack.Name, pack.Courses)
+	created, err := pb.CreatePack(ctx, "testuser", pack.Name, libpolybase.ToCIDList(pack.Courses))
 	if err != nil {
 		t.Fatalf("failed to create pack: %v", err)
 	}
@@ -159,7 +159,7 @@ func TestListSinglePack(t *testing.T) {
 	db.AssertPackEqual(created.ID, want)
 
 	for _, courseID := range pack.Courses {
-		db.AssertCourseInPack(created.ID, courseID)
+		db.AssertCourseInPack(created.ID, courseID.CourseID)
 	}
 
 	if got := db.CountPackCourses(created.ID); got != len(pack.Courses) {
