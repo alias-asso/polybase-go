@@ -41,11 +41,16 @@ type CourseAmmount struct {
 	Total    int
 }
 
+type PackCourse struct {
+	CourseID
+	Quantity int
+	Total    int
+}
+
 type Pack struct {
 	ID      int
 	Name    string
-	Courses []CourseID
-	Ammount []CourseAmmount
+	Courses []PackCourse
 }
 
 type PartialPack struct {

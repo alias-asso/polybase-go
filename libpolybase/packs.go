@@ -230,12 +230,12 @@ func (pb *PB) GetPack(ctx context.Context, id int) (Pack, error) {
 			&course.Semester); err != nil {
 			return Pack{}, fmt.Errorf("scan course: %w", err)
 		}
-		pack.Courses = append(pack.Courses, CourseID{
-			Code: course.Code,
-			Kind: course.Kind,
-			Part: course.Part,
-		})
-		pack.Ammount = append(pack.Ammount, CourseAmmount{
+		pack.Courses = append(pack.Courses, PackCourse{
+			CourseID: CourseID{
+				Code: course.Code,
+				Kind: course.Kind,
+				Part: course.Part,
+			},
 			Quantity: course.Quantity,
 			Total: course.Total,
 		})
@@ -289,15 +289,16 @@ func (pb *PB) ListPacks(ctx context.Context) ([]Pack, error) {
 				Kind: kind.String,
 				Part: int(part.Int64),
 			}
-			currentPack.Courses = append(currentPack.Courses, course)
 			course_info, course_err := pb.GetCourse(ctx, course)
 			if course_err == nil {
-				currentPack.Ammount = append(currentPack.Ammount, CourseAmmount{
+				currentPack.Courses = append(currentPack.Courses, PackCourse{
+					CourseID: course,
 					Quantity: course_info.Quantity,
 					Total: course_info.Total,
 				})
 			} else {
-				currentPack.Ammount = append(currentPack.Ammount, CourseAmmount{
+				currentPack.Courses = append(currentPack.Courses, PackCourse{
+					CourseID: course,
 					Quantity: -1,
 					Total: -1,
 				})
