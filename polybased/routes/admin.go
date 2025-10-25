@@ -747,7 +747,7 @@ func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) deleteAdminPacks(w http.ResponseWriter, r *http.Request) {
 	username := getUsernameFromContext(r.Context())
-	
+
 	id, err := parsePackUrl("/admin/packs/", r)
 	if err != nil {
 		log.Println(err)
