@@ -32,15 +32,6 @@ templ PackName(pack libpolybase.Pack) {
 	<p class="text-left leading-6 min-h-12 line-clamp-2" title={ pack.Name }>{ pack.Name }</p>
 }
 
-templ PackAmmount(ammount libpolybase.CourseAmmount) {
-      <div class="ml-auto shrink-0">
-            <span class="text-2xl font-bold">
-                  { fmt.Sprint(ammount.Quantity) }
-            </span>
-            <span class="text-lg">/{ fmt.Sprint(ammount.Total) }</span>
-      </div>
-}
-
 templ PackBadges(pack libpolybase.Pack, expanded bool) {
 	<div
 		class={
@@ -103,6 +94,14 @@ templ PackQuantityButton(pack libpolybase.Pack, delta int) {
 			}
 		</button>
 	}
+}
+
+templ PackAmmount(ammount libpolybase.CourseAmmount) {
+      <div class="ml-auto shrink-0">
+            <span class="text-2xl font-bold" style="margin-right: calc(var(--spacing)*4);">
+                  { fmt.Sprint(ammount.Quantity) }
+            </span>
+      </div>
 }
 
 templ PackDetailsButton(packID int, expanded bool) {
