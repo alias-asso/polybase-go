@@ -81,11 +81,11 @@ func (c CourseID) PID() string {
 func (pack Pack) PCPT() CourseAmmount {
 	ammountMin := CourseAmmount{ Quantity: 0, Total: 0}
 	for _, course := range pack.Courses {
-		if course.Quantity != -1 && course.Total != -1 {
-			if course.Quantity != 0 && (ammountMin.Quantity == 0 || course.Quantity < ammountMin.Quantity) {
+		if course.Quantity > 0 && course.Total > 0 {
+			if ammountMin.Quantity == 0 || course.Quantity < ammountMin.Quantity {
 				ammountMin.Quantity = course.Quantity
 			}
-			if course.Total != 0 && (ammountMin.Total == 0 || course.Total < ammountMin.Total) {
+			if ammountMin.Total == 0 || course.Total < ammountMin.Total {
 				ammountMin.Total = course.Total
 			}
 		}
