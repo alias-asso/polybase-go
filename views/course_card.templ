@@ -89,7 +89,7 @@ templ CourseQuantityButton(course libpolybase.Course, delta int) {
 	@Button(Small, Default) {
 		<button
 			hx-patch={ fmt.Sprintf("/admin/courses/%s/quantity?delta=%d", course.ID(), delta) }
-			hx-target={ fmt.Sprintf("#%s-quantity", course.SID()) }
+			hx-target="#courses-grid"
 		>
 			if delta > 0 {
 				<span class="icon-plus size-4 text-base-600"></span>

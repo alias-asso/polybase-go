@@ -60,37 +60,61 @@ func TestGetExistingPack(t *testing.T) {
 	tests := []struct {
 		name     string
 		packName string
-		courses  []libpolybase.CourseID
+		courses  []libpolybase.PackCourse
 	}{
 		{
 			name:     "single course pack",
 			packName: "Basic Pack",
-			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
+			courses: []libpolybase.PackCourse{
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
 			},
 		},
 		{
 			name:     "multiple course pack",
 			packName: "Complete Pack",
-			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
-				{Code: "CS103", Kind: "TD", Part: 1},
+			courses: []libpolybase.PackCourse{
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TME", Part: 1},
+					Quantity: 30,
+					Total: 60,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS103", Kind: "TD", Part: 1},
+					Quantity: 20,
+					Total: 40,
+				},
 			},
 		},
 		{
 			name:     "pack with spaces in name",
 			packName: "Programming   Course   Pack",
-			courses: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS102", Kind: "TME", Part: 1},
+			courses: []libpolybase.PackCourse{
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TME", Part: 1},
+					Quantity: 30,
+					Total: 60,
+				},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			created, err := pb.CreatePack(ctx, "testuser", tt.packName, tt.courses)
+			created, err := pb.CreatePack(ctx, "testuser", tt.packName, libpolybase.ToCIDList(tt.courses))
 			if err != nil {
 				t.Fatalf("failed to create pack: %v", err)
 			}
@@ -127,7 +151,7 @@ func TestGetExistingPack(t *testing.T) {
 			db.AssertPackEqual(created.ID, want)
 
 			for _, courseID := range tt.courses {
-				db.AssertCourseInPack(created.ID, courseID)
+				db.AssertCourseInPack(created.ID, courseID.CourseID)
 			}
 		})
 	}
@@ -305,65 +329,177 @@ func TestPackCourseOrder(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		inputOrder []libpolybase.CourseID
-		wantOrder  []libpolybase.CourseID
+		inputOrder []libpolybase.PackCourse
+		wantOrder  []libpolybase.PackCourse
 	}{
 		{
 			name: "already sorted order",
-			inputOrder: []libpolybase.CourseID{
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS102", Kind: "TD", Part: 1},
+			inputOrder: []libpolybase.PackCourse{
+				{
+					CourseID: libpolybase.CourseID{Code: "CS100", Kind: "Memento", Part: 1},
+					Quantity: 25,
+					Total: 50,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "TME", Part: 1},
+					Quantity: 30,
+					Total: 60,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 2},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TD", Part: 1},
+					Quantity: 20,
+					Total: 40,
+				},
 			},
-			wantOrder: []libpolybase.CourseID{
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS102", Kind: "TD", Part: 1},
+			wantOrder: []libpolybase.PackCourse{
+				{
+					CourseID: libpolybase.CourseID{Code: "CS100", Kind: "Memento", Part: 1},
+					Quantity: 25,
+					Total: 50,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "TME", Part: 1},
+					Quantity: 30,
+					Total: 60,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 2},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TD", Part: 1},
+					Quantity: 20,
+					Total: 40,
+				},
 			},
 		},
 		{
 			name: "reversed input order",
-			inputOrder: []libpolybase.CourseID{
-				{Code: "CS102", Kind: "TD", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS100", Kind: "Memento", Part: 1},
+			inputOrder: []libpolybase.PackCourse{
+				{CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TD", Part: 1},},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 2},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "TME", Part: 1},
+					Quantity: 30,
+					Total: 60,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS100", Kind: "Memento", Part: 1},
+					Quantity: 25,
+					Total: 50,
+				},
 			},
-			wantOrder: []libpolybase.CourseID{
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS102", Kind: "TD", Part: 1},
+			wantOrder: []libpolybase.PackCourse{
+				{
+					CourseID: libpolybase.CourseID{Code: "CS100", Kind: "Memento", Part: 1},
+					Quantity: 25,
+					Total: 50,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "TME", Part: 1},
+					Quantity: 30,
+					Total: 60,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 2},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TD", Part: 1},
+					Quantity: 20,
+					Total: 40,
+				},
 			},
 		},
 		{
 			name: "mixed input order",
-			inputOrder: []libpolybase.CourseID{
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS102", Kind: "TD", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
+			inputOrder: []libpolybase.PackCourse{
+				{CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 2},},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS100", Kind: "Memento", Part: 1},
+					Quantity: 25,
+					Total: 50,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TD", Part: 1},
+					Quantity: 20,
+					Total: 40,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "TME", Part: 1},
+					Quantity: 30,
+					Total: 60,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
 			},
-			wantOrder: []libpolybase.CourseID{
-				{Code: "CS100", Kind: "Memento", Part: 1},
-				{Code: "CS101", Kind: "TME", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 1},
-				{Code: "CS101", Kind: "Cours", Part: 2},
-				{Code: "CS102", Kind: "TD", Part: 1},
+			wantOrder: []libpolybase.PackCourse{
+				{
+					CourseID: libpolybase.CourseID{Code: "CS100", Kind: "Memento", Part: 1},
+					Quantity: 25,
+					Total: 50,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "TME", Part: 1},
+					Quantity: 30,
+					Total: 60,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 1},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS101", Kind: "Cours", Part: 2},
+					Quantity: 50,
+					Total: 100,
+				},
+				{
+					CourseID: libpolybase.CourseID{Code: "CS102", Kind: "TD", Part: 1},
+					Quantity: 20,
+					Total: 40,
+				},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			created, err := pb.CreatePack(ctx, "testuser", "Test Pack", tt.inputOrder)
+			created, err := pb.CreatePack(ctx, "testuser", "Test Pack", libpolybase.ToCIDList(tt.inputOrder))
 			if err != nil {
 				t.Fatalf("failed to create pack: %v", err)
 			}

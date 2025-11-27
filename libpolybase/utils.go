@@ -77,6 +77,33 @@ func (c CourseID) PID() string {
 	return fmt.Sprintf("%s %s %d", c.Code, c.Kind, c.Part)
 }
 
+func (pack Pack) PCPT() CourseAmmount {
+	ammountMin := CourseAmmount{ Quantity: 0, Total: 0}
+	for _, course := range pack.Courses {
+		if course.Quantity > 0 && course.Total > 0 {
+			if ammountMin.Quantity == 0 || course.Quantity < ammountMin.Quantity {
+				ammountMin.Quantity = course.Quantity
+			}
+			if ammountMin.Total == 0 || course.Total < ammountMin.Total {
+				ammountMin.Total = course.Total
+			}
+		}
+	}
+	return ammountMin
+}
+
+func ToCIDList(pcourses []PackCourse) []CourseID {
+	var cids []CourseID
+	for _, course := range pcourses {
+		cids = append(cids, CourseID{
+				Code: course.Code,
+				Kind: course.Kind,
+				Part: course.Part,
+			})
+	}
+	return cids
+}
+
 func validateSemester(semester string) error {
 	if semester == "" {
 		return fmt.Errorf("semester cannot be empty")
