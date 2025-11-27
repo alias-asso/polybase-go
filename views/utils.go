@@ -3,6 +3,7 @@ package views
 import (
 	"fmt"
 	"math/rand"
+	"slices"
 	"sort"
 	"time"
 
@@ -41,15 +42,15 @@ func GroupCoursesBySemesterAndKind(courses []libpolybase.Course) []SemesterGroup
 	})
 
 	// Step 2: Get unique sorted kinds
-	kindMap := make(map[string]bool)
+	kindMap := make(map[int]bool)
 	for _, course := range courses {
-		kindMap[course.Kind] = true
+		kindMap[course.Year] = true
 	}
-	kinds := make([]string, 0, len(kindMap))
+	kinds := make([]int, 0, len(kindMap))
 	for kind := range kindMap {
 		kinds = append(kinds, kind)
 	}
-	sort.Strings(kinds)
+	slices.Sort(kinds)
 
 	// Step 3: Create the structured result
 	result := make([]SemesterGroup, len(semesters))
@@ -64,24 +65,18 @@ func GroupCoursesBySemesterAndKind(courses []libpolybase.Course) []SemesterGroup
 		// Initialize kind groups
 		for j, kind := range kinds {
 			result[i].Kinds[j] = KindGroup{
-				Name:    kind,
+				Name:    GetYear(kind),
 				Courses: make([]libpolybase.Course, 0),
 			}
-			result[i].KindMap[kind] = j
+			result[i].KindMap[GetYear(kind)] = j
 		}
 	}
 
 	// Group courses
 	for _, course := range courses {
-		semIdx := -1
-		for i, sg := range result {
-			if sg.Name == course.Semester {
-				semIdx = i
-				break
-			}
-		}
+		semIdx := slices.IndexFunc(result, func(sg SemesterGroup) bool { return sg.Name == course.Semester })
 		if semIdx != -1 {
-			kindIdx := result[semIdx].KindMap[course.Kind]
+			kindIdx := result[semIdx].KindMap[GetYear(course.Year)]
 			result[semIdx].Kinds[kindIdx].Courses = append(
 				result[semIdx].Kinds[kindIdx].Courses,
 				course,
@@ -109,6 +104,7 @@ var niceMessages = []string{
 	"Tu as manqué à Polybase !",
 	"Tu es mon membre préféré (ne le dis à personne).",
 	"Tu es une personne très... très.",
+	":3",
 }
 
 // GetRandomMessage returns a random nice message
@@ -117,11 +113,13 @@ func GetRandomMessage() string {
 	return niceMessages[r.Intn(len(niceMessages))]
 }
 
-func contains(courses []libpolybase.CourseID, id libpolybase.CourseID) bool {
-	for _, courseID := range courses {
-		if courseID == id {
-			return true
-		}
+func GetYear(i int) string {
+	if i < 4 {
+		return fmt.Sprintf("L%d", i)
 	}
-	return false
+	return fmt.Sprintf("M%d", i%3)
+}
+
+func contains(courses []libpolybase.CourseID, id libpolybase.CourseID) bool {
+	return slices.Contains(courses, id)
 }

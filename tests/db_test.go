@@ -192,6 +192,17 @@ func (db *DB) AssertNotExists(id libpolybase.CourseID) {
 func (db *DB) AssertCourseEqual(id libpolybase.CourseID, want libpolybase.Course) {
 	db.t.Helper()
 	got := db.Get(id)
+	var err error
+	// because year is not stored in database
+	got.Year, err = libpolybase.GetYear(got.Code)
+	if err != nil {
+		db.t.Fatalf("%#v", err)
+	}
+	// because I don't want to update all the tests
+	want.Year, err = libpolybase.GetYear(want.Code)
+	if err != nil {
+		db.t.Fatalf("%#v", err)
+	}
 	if got != want {
 		db.t.Errorf("course mismatch\ngot: %+v\nwant: %+v", got, want)
 	}

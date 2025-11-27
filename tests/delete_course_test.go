@@ -16,7 +16,7 @@ func TestDeleteExistingCourse(t *testing.T) {
 
 	// Create test course
 	course := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -90,7 +90,7 @@ func TestDeleteNonExistentCourse(t *testing.T) {
 		{
 			name: "never existed",
 			id: libpolybase.CourseID{
-				Code: "NOTFOUND",
+				Code: "ML9IN999",
 				Kind: "MISSING",
 				Part: 1,
 			},
@@ -98,13 +98,13 @@ func TestDeleteNonExistentCourse(t *testing.T) {
 		{
 			name: "already deleted",
 			id: libpolybase.CourseID{
-				Code: "CS101",
+				Code: "UL1IN001",
 				Kind: "Cours",
 				Part: 1,
 			},
 			setup: func(t *testing.T, pb *libpolybase.PB) {
 				course := libpolybase.Course{
-					Code:     "CS101",
+					Code:     "UL1IN001",
 					Kind:     "Cours",
 					Part:     1,
 					Parts:    1,
@@ -165,7 +165,7 @@ func TestDeleteAndRecreateCourse(t *testing.T) {
 	ctx := context.Background()
 
 	original := libpolybase.Course{
-		Code:     "CS101",
+		Code:     "UL1IN001",
 		Kind:     "Cours",
 		Part:     1,
 		Parts:    1,
@@ -248,7 +248,7 @@ func TestDeleteCourseWithInvalidID(t *testing.T) {
 		{
 			name: "empty kind",
 			id: libpolybase.CourseID{
-				Code: "CS101",
+				Code: "UL1IN001",
 				Kind: "",
 				Part: 1,
 			},
@@ -282,7 +282,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 	// Create a three-part course
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    3,
@@ -293,7 +293,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     2,
 			Parts:    3,
@@ -304,7 +304,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     3,
 			Parts:    3,
@@ -340,7 +340,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 	for _, d := range deletions {
 		t.Run(fmt.Sprintf("delete_part_%d", d.part), func(t *testing.T) {
 			err := pb.DeleteCourse(ctx, "testuser", libpolybase.CourseID{
-				Code: "CS101",
+				Code: "UL1IN001",
 				Kind: "Cours",
 				Part: d.part,
 			})
@@ -367,7 +367,7 @@ func TestDeleteLastPartOfMultiPartCourse(t *testing.T) {
 
 			// Verify deleted part doesn't exist
 			db.AssertNotExists(libpolybase.CourseID{
-				Code: "CS101",
+				Code: "UL1IN001",
 				Kind: "Cours",
 				Part: d.part,
 			})

@@ -55,6 +55,7 @@ func TestUpdateAllFields(t *testing.T) {
 	newTotal := 60
 	newShown := false
 	newSemester := "S2"
+	newYear := 3
 
 	partial := libpolybase.PartialCourse{
 		Code:     &newCode,
@@ -92,6 +93,7 @@ func TestUpdateAllFields(t *testing.T) {
 		Total:    newTotal,
 		Shown:    newShown,
 		Semester: newSemester,
+		Year:     newYear,
 	}
 
 	if updated != expected {
@@ -156,6 +158,7 @@ func TestUpdateSingleField(t *testing.T) {
 				Total:    50,
 				Shown:    true,
 				Semester: "S1",
+				Year:     3,
 			},
 		},
 		{
@@ -173,6 +176,7 @@ func TestUpdateSingleField(t *testing.T) {
 				Total:    50,
 				Shown:    true,
 				Semester: "S1",
+				Year:     3,
 			},
 		},
 		{
@@ -190,6 +194,7 @@ func TestUpdateSingleField(t *testing.T) {
 				Total:    50,
 				Shown:    true,
 				Semester: "S1",
+				Year:     3,
 			},
 		},
 		{
@@ -207,6 +212,7 @@ func TestUpdateSingleField(t *testing.T) {
 				Total:    50,
 				Shown:    true,
 				Semester: "S1",
+				Year:     3,
 			},
 		},
 		{
@@ -224,6 +230,7 @@ func TestUpdateSingleField(t *testing.T) {
 				Total:    60,
 				Shown:    true,
 				Semester: "S1",
+				Year:     3,
 			},
 		},
 		{
@@ -241,6 +248,7 @@ func TestUpdateSingleField(t *testing.T) {
 				Total:    50,
 				Shown:    false,
 				Semester: "S1",
+				Year:     3,
 			},
 		},
 		{
@@ -258,6 +266,7 @@ func TestUpdateSingleField(t *testing.T) {
 				Total:    50,
 				Shown:    true,
 				Semester: "S2",
+				Year:     3,
 			},
 		},
 	}
@@ -307,7 +316,7 @@ func TestUpdateNonExistentCourse(t *testing.T) {
 	}
 
 	id := libpolybase.CourseID{
-		Code: "NOTFOUND",
+		Code: "ML9IN999",
 		Kind: "MISSING",
 		Part: 1,
 	}
@@ -514,6 +523,7 @@ func TestUpdateCourseWithSameInfo(t *testing.T) {
 		Total:    60,
 		Shown:    true,
 		Semester: "S1",
+		Year:     3,
 	}
 
 	t.Log("Creating initial course...")

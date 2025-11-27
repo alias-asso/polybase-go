@@ -4,7 +4,7 @@ tmp_dir = "target/cache"
 [build]
 cmd = "templ generate && go build -o target/cache/polybased ./polybased"
 full_bin = "./target/cache/polybased -c polybase.cfg"
-include_ext = ["go", "templ"]
+include_ext = ["go", "templ", "css"]
 exclude_dir = ["target"]
 exclude_regex = ["_templ\\.go$"]
 delay = 100

@@ -31,7 +31,8 @@ func (e *CourseNotFound) Error() string {
 
 func ValidateCourseID(id CourseID) (CourseID, error) {
 	// Validate code: only uppercase, numbers, dashes, and curly braces
-	if !regexp.MustCompile(`^[A-Z0-9\-{},]+$`).MatchString(id.Code) {
+	if !codeRegexp.MatchString(id.Code) {
+		//TODO: update error
 		return CourseID{}, fmt.Errorf("invalid code format: must only contain uppercase letters, numbers, dashes, and curly braces")
 	}
 
@@ -115,17 +116,11 @@ func validateQuantity(quantity int, total int) error {
 }
 
 func clampQuantity(quantity, total int) int {
-	if quantity < 0 {
-		return 0
-	}
-	if quantity > total {
-		return total
-	}
-	return quantity
+	return min(max(quantity, 0), total)
 }
 
 func (pb *PB) exists(ctx context.Context, id CourseID, querier interface {
-	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
+	QueryRowContext(context.Context, string, ...any) *sql.Row
 }) (bool, error) {
 	var exists int
 	err := querier.QueryRowContext(ctx, `
@@ -141,7 +136,7 @@ func (pb *PB) exists(ctx context.Context, id CourseID, querier interface {
 }
 
 func (pb *PB) getCourse(ctx context.Context, id CourseID, querier interface {
-	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
+	QueryRowContext(context.Context, string, ...any) *sql.Row
 }) (Course, error) {
 	var course Course
 	var shown int

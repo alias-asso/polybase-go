@@ -23,6 +23,7 @@ func TestCreateBasicCourse(t *testing.T) {
 		Total:    50,
 		Shown:    true,
 		Semester: "S1",
+		Year:     3,
 	}
 
 	created, err := pb.CreateCourse(context.Background(), "testuser", course)
@@ -297,19 +298,6 @@ func TestCreateCourseFieldValidation(t *testing.T) {
 			},
 			wantErr: "",
 		},
-		{
-			name: "valid course with special code characters",
-			course: libpolybase.Course{
-				Code:     "LU3IN009-{A},B",
-				Kind:     "TD",
-				Part:     1,
-				Name:     "Test Course",
-				Quantity: 10,
-				Total:    10,
-				Semester: "S2",
-			},
-			wantErr: "",
-		},
 	}
 
 	for _, tt := range tests {
@@ -347,7 +335,7 @@ func TestCreateWithMaxValues(t *testing.T) {
 	pb := libpolybase.New(db.DB, "", false)
 
 	course := libpolybase.Course{
-		Code:     "COURSE-123{A,B,C}-456",
+		Code:     "UM9IN999",
 		Kind:     "Cours",
 		Part:     999,
 		Parts:    999,
@@ -356,6 +344,7 @@ func TestCreateWithMaxValues(t *testing.T) {
 		Total:    10000,
 		Shown:    true,
 		Semester: "S1",
+		Year:     9,
 	}
 
 	created, err := pb.CreateCourse(context.Background(), "testUser", course)
@@ -385,7 +374,7 @@ func TestCreateWithMinValues(t *testing.T) {
 	pb := libpolybase.New(db.DB, "", false)
 
 	course := libpolybase.Course{
-		Code:     "A",
+		Code:     "UL0IN000",
 		Kind:     "TD",
 		Part:     1,
 		Parts:    1,

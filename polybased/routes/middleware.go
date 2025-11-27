@@ -21,7 +21,7 @@ func (s *Server) withAuth(next http.HandlerFunc) http.HandlerFunc {
 			jwt.RegisteredClaims
 		}
 
-		token, err := jwt.ParseWithClaims(cookie.Value, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(cookie.Value, &Claims{}, func(token *jwt.Token) (any, error) {
 			return []byte(s.cfg.Auth.JWTSecret), nil
 		})
 

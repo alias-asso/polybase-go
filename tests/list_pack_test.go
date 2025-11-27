@@ -50,7 +50,7 @@ func TestListSinglePack(t *testing.T) {
 
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    2,
@@ -61,7 +61,7 @@ func TestListSinglePack(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     2,
 			Parts:    2,
@@ -72,7 +72,7 @@ func TestListSinglePack(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -94,9 +94,9 @@ func TestListSinglePack(t *testing.T) {
 	pack := libpolybase.Pack{
 		Name: "Programming Bundle",
 		Courses: []libpolybase.CourseID{
-			{Code: "CS101", Kind: "Cours", Part: 1},
-			{Code: "CS101", Kind: "Cours", Part: 2},
-			{Code: "CS101", Kind: "TME", Part: 1},
+			{Code: "UL1IN001", Kind: "Cours", Part: 1},
+			{Code: "UL1IN001", Kind: "Cours", Part: 2},
+			{Code: "UL1IN001", Kind: "TME", Part: 1},
 		},
 	}
 
@@ -176,7 +176,7 @@ func TestListPacksOrder(t *testing.T) {
 	// Create three distinct courses
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -187,7 +187,7 @@ func TestListPacksOrder(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -198,7 +198,7 @@ func TestListPacksOrder(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS103",
+			Code:     "UL1IN003",
 			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
@@ -220,9 +220,9 @@ func TestListPacksOrder(t *testing.T) {
 
 	// Prepare course IDs
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS102", Kind: "TME", Part: 1},
-		{Code: "CS103", Kind: "TD", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
+		{Code: "UL1IN002", Kind: "TME", Part: 1},
+		{Code: "UL1IN003", Kind: "TD", Part: 1},
 	}
 
 	// Create packs
@@ -271,7 +271,7 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 	// Create courses
 	courses := []libpolybase.Course{
 		{
-			Code:     "CS101",
+			Code:     "UL1IN001",
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -282,7 +282,7 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS102",
+			Code:     "UL1IN002",
 			Kind:     "TME",
 			Part:     1,
 			Parts:    1,
@@ -293,7 +293,7 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 			Semester: "S1",
 		},
 		{
-			Code:     "CS103",
+			Code:     "UL1IN003",
 			Kind:     "TD",
 			Part:     1,
 			Parts:    1,
@@ -315,9 +315,9 @@ func TestListPackIncludesAllCourses(t *testing.T) {
 
 	// Prepare course IDs
 	courseIDs := []libpolybase.CourseID{
-		{Code: "CS101", Kind: "Cours", Part: 1},
-		{Code: "CS102", Kind: "TME", Part: 1},
-		{Code: "CS103", Kind: "TD", Part: 1},
+		{Code: "UL1IN001", Kind: "Cours", Part: 1},
+		{Code: "UL1IN002", Kind: "TME", Part: 1},
+		{Code: "UL1IN003", Kind: "TD", Part: 1},
 	}
 
 	// Create packs
@@ -380,9 +380,9 @@ func TestListPacksLargeNumberOfPacks(t *testing.T) {
 
 	// Create 10 courses
 	courses := make([]libpolybase.Course, 10)
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		courses[i] = libpolybase.Course{
-			Code:     fmt.Sprintf("CS%03d", 100+i),
+			Code:     fmt.Sprintf("UL1IN%03d", 100+i),
 			Kind:     "Cours",
 			Part:     1,
 			Parts:    1,
@@ -414,7 +414,7 @@ func TestListPacksLargeNumberOfPacks(t *testing.T) {
 	var createdPackIDs []int
 	packCount := 0
 
-	for i := 0; i < len(courseIDs); i++ {
+	for i := range len(courseIDs) {
 		for j := i + 1; j < len(courseIDs); j++ {
 			// Create a pack with these two courses
 			packName := fmt.Sprintf("Pack %d", packCount)
