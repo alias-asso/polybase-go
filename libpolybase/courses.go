@@ -3,6 +3,7 @@ package libpolybase
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -308,12 +309,16 @@ func (pb *PB) ListCourse(ctx context.Context, showHidden bool, filterSemester *s
 			return nil, fmt.Errorf("scan course: %w", err)
 		}
 
-		c.Year, err = GetYear(c.Code)
-		if err != nil {
-			return nil, err
+		var errIn error
+		c.Year, errIn = GetYear(c.Code)
+		if errIn != nil {
+			err = errors.Join(err, errIn, fmt.Errorf("invalid course %s (%s)", c.Name, c.Code))
+		} else {
+			courses = append(courses, c)
 		}
-
-		courses = append(courses, c)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	if err = rows.Err(); err != nil {
