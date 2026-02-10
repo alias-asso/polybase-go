@@ -19,17 +19,17 @@ func main() {
 func run() error {
 	dbPath, args, err := parseArgs()
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		return fmt.Errorf("failed to open database: %w", err)
+		panic(err)
 	}
 	defer db.Close()
 
 	if err := db.Ping(); err != nil {
-		return fmt.Errorf("invalid database file: %w", err)
+		panic(err)
 	}
 
 	return dispatch(libpolybase.New(db, "/var/log/polybase/polybase.log", false), args)
