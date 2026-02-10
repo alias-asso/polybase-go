@@ -16,13 +16,12 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.23
+      - uses: actions/checkout@v6
 
-      - name: Code
-        uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24'
 
       - name: Check diff between gofmt and code
         run: diff <(gofmt -d .) <(echo -n)
@@ -30,13 +29,21 @@ jobs:
     name: Build polybase package
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install nix
-        uses: cachix/install-nix-action@v22
+      - name: Install Go
+        uses: actions/setup-go@v6
         with:
-          nix_path: nixpkgs=channel:nixos-unstable
+          go-version: '1.24'
+
+      - name: Install Bun 
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install just and scdoc
+        run: sudo apt install -y just scdoc
+
+      - name: Install deps
+        run: bun i
 
       - name: Build package
-        run: nix build
+        run: just build
