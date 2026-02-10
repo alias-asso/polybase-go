@@ -31,7 +31,7 @@ clean:
 build-server:
   mkdir -p target
   bun run build
-  templ generate
+  go tool templ generate
   go build -o target/polybased ./polybased
   scdoc < polybased.1.scd | sed "s/1980-01-01/$(date '+%B %Y')/" > target/polybased.1
 
