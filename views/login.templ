@@ -18,7 +18,7 @@ templ Login() {
 }
 
 templ LoginForm() {
-	<form hx-post="/auth" class="rounded-lg px-6 py-8 border border-base-300">
+	<form hx-post="/auth" class="rounded-lg px-6 py-8 border border-base-300" method="post" action="/auth">
 		<h2 class="text-2xl font-bold mb-6">Bienvenue sur Polybase !</h2>
 		<div class="space-y-4">
 			@LoginFormInput("username", "Nom d'utilisateur", "text")
