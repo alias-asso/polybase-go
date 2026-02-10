@@ -1,0 +1,14 @@
+{
+  "name": "polybase-go",
+  "module": "",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i static/css/main.css -o static/css/styles.css -m"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "@types/bun": "latest",
+    "tailwindcss": "^4.1.18"
+  }
+}
