@@ -8,53 +8,37 @@ Self-hosted user database with LDAP authentication.
 - `polybased/`: Web interface (Go + HTMX)
 - `internal/`: Core backend logic with tests
 
-## Requirements
+## Usage
 
-- Go 1.21+
-- SQLite
-- Tailwind CSS
-- Templ
+To develop or to build polybase, you must have Go 1.24+ and Bun installed.
+We are using `just` as a command runner.
 
-## Nix Users
-
-```shell
-nix develop
+Build:
+```bash
 just build
 ```
 
-## Other Users
-
-Install dependencies:
-
-- `go install github.com/air-verse/air@latest`
-- `go install github.com/a-h/templ/cmd/templ@v0.3.906`
-- `npm install -g tailwindcss@3`
-- requires just, Hivemind, and GLAuth 
-
-Build:
-
-```shell
-just build
+Publish:
+```bash
+just publish
 ```
 
 Development:
-
-```shell
+```bash
 just dev      # hot reload
 just migrate  # initialize database
 just clean    # remove artifacts
 ```
 
-## LDAP Development
+### LDAP Development
 
-Start GLAuth development LDAP server:
-
-```shell
+We use GLAuth as a development LDAP server.
+Start it with:
+```bash
 glauth -c glauth.cfg
 ```
 
-Test accounts:
-
+Test accounts are:
 - `paul:paul*`
 - `ionys:ionys*`
 - `lydia:lydia*`
