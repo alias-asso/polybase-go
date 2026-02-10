@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "dev": "tailwindcss -w -i static/css/main.css -o static/css/styles.css -m",
     "build": "tailwindcss -i static/css/main.css -o static/css/styles.css -m"
   },
   "devDependencies": {
