@@ -31,6 +31,10 @@ Use "polybase help command" for more information about a command.
 `, defaultDBPath)
 }
 
+func printVersion() {
+	fmt.Printf("polybase version %s\n", version)
+}
+
 func printCreateUsage() {
 	fmt.Print(`Usage: polybase create <CODE> <KIND> <PART> [OPTIONS]
     Create a new course entry.
@@ -153,7 +157,7 @@ func printCourses(courses []libpolybase.Course, jsonOutput bool) error {
 
 func printCourse(c libpolybase.Course, jsonOutput bool) error {
 	if jsonOutput {
-		courseJSON := CourseJSON{
+		return json.NewEncoder(os.Stdout).Encode(CourseJSON{
 			Code:     c.Code,
 			Kind:     c.Kind,
 			Part:     c.Part,
@@ -163,8 +167,7 @@ func printCourse(c libpolybase.Course, jsonOutput bool) error {
 			Total:    c.Total,
 			Shown:    c.Shown,
 			Semester: c.Semester,
-		}
-		return json.NewEncoder(os.Stdout).Encode(courseJSON)
+		})
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
