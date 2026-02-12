@@ -32,12 +32,8 @@ func scope(args []string, usage func()) ([]string, string, string, uint8, error)
 }
 
 func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	args, code, kind, part, err := scope(args, printCreateUsage)
-	if err != nil {
-		return err
-	}
-
-	flags := flag.NewFlagSet("create", flag.PanicOnError)
+	flags := flag.NewFlagSet("create", flag.ExitOnError)
+	flags.Usage = createUsage(flags)
 
 	name := flags.String("n", "", "course name")
 	quantity := flags.Int("q", -1, "initial quantity")
@@ -45,12 +41,17 @@ func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	semester := flags.String("s", "", "semester")
 	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
+	args, code, kind, part, err := scope(args, flags.Usage)
+	if err != nil {
+		return err
+	}
+
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 
 	if *name == "" || *quantity == -1 || *semester == "" {
-		printCreateUsage()
+		createUsage(flags)
 		return errors.Join(ErrInvalidUsage, fmt.Errorf("name (-n), quantity (-q) and semester (-s) are required"))
 	}
 
@@ -62,7 +63,6 @@ func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 		Code:     code,
 		Kind:     kind,
 		Part:     int(part),
-		Parts:    0,
 		Name:     *name,
 		Quantity: *quantity,
 		Total:    *total,
@@ -77,13 +77,15 @@ func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 }
 
 func runGet(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	args, code, kind, part, err := scope(args, printCreateUsage)
+	flags := flag.NewFlagSet("get", flag.ExitOnError)
+	flags.Usage = getUsage(flags)
+
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
+
+	args, code, kind, part, err := scope(args, flags.Usage)
 	if err != nil {
 		return err
 	}
-
-	flags := flag.NewFlagSet("get", flag.ContinueOnError)
-	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
 	if err := flags.Parse(args); err != nil {
 		return err
@@ -104,7 +106,19 @@ func runGet(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 }
 
 func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	args, code, kind, part, err := scope(args, printCreateUsage)
+	flags := flag.NewFlagSet("update", flag.ExitOnError)
+	flags.Usage = updateUsage(flags)
+
+	newCode := flags.String("c", "", "update code")
+	newKind := flags.String("k", "", "update kind")
+	newPart := flags.Int("p", 0, "update part")
+	newName := flags.String("n", "", "update name")
+	newQuantity := flags.Int("q", 0, "update quantity")
+	newTotal := flags.Int("t", 0, "update total")
+	newSemester := flags.String("s", "", "update semester")
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
+
+	args, code, kind, part, err := scope(args, flags.Usage)
 	if err != nil {
 		return err
 	}
@@ -114,16 +128,6 @@ func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 		Kind: kind,
 		Part: int(part),
 	}
-
-	flags := flag.NewFlagSet("update", flag.ContinueOnError)
-	newCode := flags.String("c", "", "update code")
-	newKind := flags.String("k", "", "update kind")
-	newPart := flags.Int("p", 0, "update part")
-	newName := flags.String("n", "", "update name")
-	newQuantity := flags.Int("q", 0, "update quantity")
-	newTotal := flags.Int("t", 0, "update total")
-	newSemester := flags.String("s", "", "update semester")
-	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
 	if err := flags.Parse(args); err != nil {
 		return err
@@ -159,7 +163,7 @@ func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 }
 
 func runDelete(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	args, code, kind, part, err := scope(args, printCreateUsage)
+	args, code, kind, part, err := scope(args, deleteUsage(nil))
 	if err != nil {
 		return err
 	}
@@ -204,7 +208,9 @@ func runDelete(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 }
 
 func runList(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	flags := flag.NewFlagSet("list", flag.ContinueOnError)
+	flags := flag.NewFlagSet("list", flag.ExitOnError)
+	flags.Usage = listUsage(flags)
+
 	showHidden := flags.Bool("a", false, "show hidden courses")
 	semester := flags.String("s", "", "filter by semester")
 	code := flags.String("c", "", "filter by course code")
@@ -240,11 +246,17 @@ func runList(pb libpolybase.Polybase, ctx context.Context, args []string) error 
 }
 
 func runQuantity(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+	flags := flag.NewFlagSet("get", flag.ExitOnError)
+	flags.Usage = quantityUsage(flags)
+
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
+
 	if len(args) < 4 {
-		printQuantityUsage()
+		flags.Usage()
 		return fmt.Errorf("CODE, KIND, PART and DELTA are required")
 	}
-	args, code, kind, part, err := scope(args, printCreateUsage)
+
+	args, code, kind, part, err := scope(args, flags.Usage)
 	if err != nil {
 		return err
 	}
@@ -253,9 +265,6 @@ func runQuantity(pb libpolybase.Polybase, ctx context.Context, args []string) er
 	if err != nil {
 		return fmt.Errorf("invalid delta value: %s", args[0])
 	}
-
-	flags := flag.NewFlagSet("get", flag.ContinueOnError)
-	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
 	if err := flags.Parse(args[1:]); err != nil {
 		return err
@@ -277,14 +286,16 @@ func runQuantity(pb libpolybase.Polybase, ctx context.Context, args []string) er
 }
 
 func runVisibility(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	args, code, kind, part, err := scope(args, printCreateUsage)
+	flags := flag.NewFlagSet("visibility", flag.ExitOnError)
+	flags.Usage = visibilityUsage(flags)
+
+	shown := flags.Bool("s", true, "visibility state")
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
+
+	args, code, kind, part, err := scope(args, flags.Usage)
 	if err != nil {
 		return err
 	}
-
-	flags := flag.NewFlagSet("visibility", flag.ContinueOnError)
-	shown := flags.Bool("s", true, "visibility state")
-	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
 	if err := flags.Parse(args); err != nil {
 		return err
@@ -303,34 +314,6 @@ func runVisibility(pb libpolybase.Polybase, ctx context.Context, args []string) 
 	}
 
 	return printCourse(updated, *jsonOutput)
-}
-
-func runHelp(args []string) error {
-	if len(args) == 0 {
-		printUsage()
-		return nil
-	}
-
-	switch args[0] {
-	case "create":
-		printCreateUsage()
-	case "get":
-		printGetUsage()
-	case "update":
-		printUpdateUsage()
-	case "delete":
-		printDeleteUsage()
-	case "list":
-		printListUsage()
-	case "quantity":
-		printQuantityUsage()
-	case "visibility":
-		printVisibilityUsage()
-	default:
-		printUsage()
-		return fmt.Errorf("unknown command %q", args[0])
-	}
-	return nil
 }
 
 func getCurrentUser() string {

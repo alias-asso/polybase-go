@@ -96,8 +96,6 @@ func dispatch(pb libpolybase.Polybase, args []string) error {
 		return runQuantity(pb, ctx, cmdArgs)
 	case "visibility":
 		return runVisibility(pb, ctx, cmdArgs)
-	case "help":
-		return runHelp(cmdArgs)
 	default:
 		printUsage()
 		return errors.Join(ErrUnknownCommand, fmt.Errorf("command %s not supported", cmd))
