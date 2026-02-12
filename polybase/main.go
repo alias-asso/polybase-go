@@ -6,6 +6,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os/user"
+	"strings"
 
 	"github.com/alias-asso/polybase-go/libpolybase"
 	_ "modernc.org/sqlite"
@@ -100,4 +102,18 @@ func dispatch(pb libpolybase.Polybase, args []string) error {
 		printUsage()
 		return errors.Join(ErrUnknownCommand, fmt.Errorf("command %s not supported", cmd))
 	}
+}
+
+func getCurrentUser() string {
+	currentUser, err := user.Current()
+	if err != nil {
+		return "unknown-user"
+	}
+
+	// Extract just the username part, removing domain if present
+	username := currentUser.Username
+	if i := strings.LastIndex(username, "\\"); i >= 0 {
+		username = username[i+1:]
+	}
+	return username
 }

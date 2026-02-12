@@ -6,9 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/user"
 	"strconv"
-	"strings"
 
 	"golang.org/x/term"
 
@@ -150,6 +148,8 @@ func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 			partial.Total = newTotal
 		case "s":
 			partial.Semester = newSemester
+		default:
+			panic(errors.Join(ErrInvalidUsage, fmt.Errorf("unknown flag %s", f.Name)))
 		}
 	})
 
@@ -314,18 +314,4 @@ func runVisibility(pb libpolybase.Polybase, ctx context.Context, args []string) 
 	}
 
 	return printCourse(updated, *jsonOutput)
-}
-
-func getCurrentUser() string {
-	currentUser, err := user.Current()
-	if err != nil {
-		return "unknown-user"
-	}
-
-	// Extract just the username part, removing domain if present
-	username := currentUser.Username
-	if i := strings.LastIndex(username, "\\"); i >= 0 {
-		username = username[i+1:]
-	}
-	return username
 }
