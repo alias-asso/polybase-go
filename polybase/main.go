@@ -85,19 +85,19 @@ func dispatch(pb libpolybase.Polybase, args []string) error {
 
 	switch cmd {
 	case "create":
-		return runCreate(pb, ctx, cmdArgs)
+		return runCreate(ctx, pb, cmdArgs)
 	case "get":
-		return runGet(pb, ctx, cmdArgs)
+		return runGet(ctx, pb, cmdArgs)
 	case "update":
-		return runUpdate(pb, ctx, cmdArgs)
+		return runUpdate(ctx, pb, cmdArgs)
 	case "delete":
-		return runDelete(pb, ctx, cmdArgs)
+		return runDelete(ctx, pb, cmdArgs)
 	case "list":
-		return runList(pb, ctx, cmdArgs)
+		return runList(ctx, pb, cmdArgs)
 	case "quantity":
-		return runQuantity(pb, ctx, cmdArgs)
+		return runQuantity(ctx, pb, cmdArgs)
 	case "visibility":
-		return runVisibility(pb, ctx, cmdArgs)
+		return runVisibility(ctx, pb, cmdArgs)
 	default:
 		printUsage()
 		return errors.Join(ErrUnknownCommand, fmt.Errorf("command %s not supported", cmd))

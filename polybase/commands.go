@@ -29,7 +29,7 @@ func scope(args []string, usage func()) ([]string, string, string, uint8, error)
 	return args[3:], args[0], args[1], uint8(part), nil
 }
 
-func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+func runCreate(ctx context.Context, pb libpolybase.Polybase, args []string) error {
 	flags := flag.NewFlagSet("create", flag.ExitOnError)
 	flags.Usage = createUsage(flags)
 
@@ -74,7 +74,7 @@ func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	return printCourse(created, *jsonOutput)
 }
 
-func runGet(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+func runGet(ctx context.Context, pb libpolybase.Polybase, args []string) error {
 	flags := flag.NewFlagSet("get", flag.ExitOnError)
 	flags.Usage = getUsage(flags)
 
@@ -103,7 +103,7 @@ func runGet(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	return printCourse(course, *jsonOutput)
 }
 
-func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+func runUpdate(ctx context.Context, pb libpolybase.Polybase, args []string) error {
 	flags := flag.NewFlagSet("update", flag.ExitOnError)
 	flags.Usage = updateUsage(flags)
 
@@ -162,7 +162,7 @@ func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	return printCourse(updated, *jsonOutput)
 }
 
-func runDelete(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+func runDelete(ctx context.Context, pb libpolybase.Polybase, args []string) error {
 	args, code, kind, part, err := scope(args, deleteUsage(nil))
 	if err != nil {
 		return err
@@ -207,7 +207,7 @@ func runDelete(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	return pb.DeleteCourse(ctx, username, id)
 }
 
-func runList(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+func runList(ctx context.Context, pb libpolybase.Polybase, args []string) error {
 	flags := flag.NewFlagSet("list", flag.ExitOnError)
 	flags.Usage = listUsage(flags)
 
@@ -245,7 +245,7 @@ func runList(pb libpolybase.Polybase, ctx context.Context, args []string) error 
 	return printCourses(courses, *jsonOutput)
 }
 
-func runQuantity(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+func runQuantity(ctx context.Context, pb libpolybase.Polybase, args []string) error {
 	flags := flag.NewFlagSet("get", flag.ExitOnError)
 	flags.Usage = quantityUsage(flags)
 
@@ -285,7 +285,7 @@ func runQuantity(pb libpolybase.Polybase, ctx context.Context, args []string) er
 	return printCourse(updated, *jsonOutput)
 }
 
-func runVisibility(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+func runVisibility(ctx context.Context, pb libpolybase.Polybase, args []string) error {
 	flags := flag.NewFlagSet("visibility", flag.ExitOnError)
 	flags.Usage = visibilityUsage(flags)
 
