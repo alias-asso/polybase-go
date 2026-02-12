@@ -124,21 +124,25 @@ type CourseJSON struct {
 	Semester string `json:"semester"`
 }
 
+func newCourseJSON(c *libpolybase.Course) CourseJSON {
+	return CourseJSON{
+		Code:     c.Code,
+		Kind:     c.Kind,
+		Part:     c.Part,
+		Parts:    c.Parts,
+		Name:     c.Name,
+		Quantity: c.Quantity,
+		Total:    c.Total,
+		Shown:    c.Shown,
+		Semester: c.Semester,
+	}
+}
+
 func printCourses(courses []libpolybase.Course, jsonOutput bool) error {
 	if jsonOutput {
 		var coursesJSON []CourseJSON
 		for _, c := range courses {
-			coursesJSON = append(coursesJSON, CourseJSON{
-				Code:     c.Code,
-				Kind:     c.Kind,
-				Part:     c.Part,
-				Parts:    c.Parts,
-				Name:     c.Name,
-				Quantity: c.Quantity,
-				Total:    c.Total,
-				Shown:    c.Shown,
-				Semester: c.Semester,
-			})
+			coursesJSON = append(coursesJSON, newCourseJSON(&c))
 		}
 
 		return json.NewEncoder(os.Stdout).Encode(courses)
@@ -157,17 +161,7 @@ func printCourses(courses []libpolybase.Course, jsonOutput bool) error {
 
 func printCourse(c libpolybase.Course, jsonOutput bool) error {
 	if jsonOutput {
-		return json.NewEncoder(os.Stdout).Encode(CourseJSON{
-			Code:     c.Code,
-			Kind:     c.Kind,
-			Part:     c.Part,
-			Parts:    c.Parts,
-			Name:     c.Name,
-			Quantity: c.Quantity,
-			Total:    c.Total,
-			Shown:    c.Shown,
-			Semester: c.Semester,
-		})
+		return json.NewEncoder(os.Stdout).Encode(newCourseJSON(&c))
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
