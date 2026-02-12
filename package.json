@@ -1,0 +1,20 @@
+{
+  "name": "polybase-go",
+  "module": "",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "tailwindcss -w -i static/css/main.css -o static/css/styles.css -m",
+    "build:css": "tailwindcss -i static/css/main.css -o static/css/styles.css -m",
+    "build:js": "bun build --minify --outfile=static/js/scripts.js index.ts",
+    "build": "bun run build:css && bun run build:js"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "@types/bun": "latest",
+    "tailwindcss": "^4.1.18"
+  },
+  "dependencies": {
+    "htmx.org": "^2.0.8"
+  }
+}
