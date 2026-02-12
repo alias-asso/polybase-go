@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "target/cache"
 
 [build]
-cmd = "go tool templ generate && go build -o target/cache/polybased ./polybased"
+cmd = "go build -o target/cache/polybased ./polybased"
 full_bin = "./target/cache/polybased -c polybase.cfg"
 include_ext = ["go", "templ", "css"]
 exclude_dir = ["target"]

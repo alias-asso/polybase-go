@@ -28,7 +28,6 @@ Development:
 just dev            # basic backend
 just dev-ldap       # ldap
 just dev-frontend   # frontend
-just dev-air        # hot reload with air
 just dev-rw         # test high packet loss
 just dev-hivemind   # if you have hivemind installed (start dev, dev-ldap, dev-frontend and dev-air)
 just migrate  # initialize database
