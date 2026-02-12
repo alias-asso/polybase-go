@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/alias-asso/polybase-go/polybased/config"
 	"github.com/alias-asso/polybase-go/static"
@@ -50,13 +52,19 @@ func (s *Server) registerRoutes() {
 func (s *Server) registerStatic() {
 	fs := http.FileServer(static.FileSystem())
 	staticHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg := config.GetConfig(r.Context())
-		if cfg.Server.Mode == "dev" {
-			w.Header().Set("Cache-Control", "public, max-age=0")
-		} else {
+		if !config.IsDev(r.Context()) {
 			w.Header().Set("Cache-Control", "public, max-age=63072000")
+		} else {
+			w.Header().Set("Cache-Control", "public, max-age=0")
+			pwd, err := os.Getwd()
+			if err != nil {
+				http.Error(w, "internal error", http.StatusInternalServerError)
+				log.Printf("error: %v", err)
+			}
+			fs = http.FileServer(http.FS(os.DirFS(pwd + "/static/")))
 		}
 		http.StripPrefix("/static/", fs).ServeHTTP(w, r)
+
 	})
 	s.mux.Handle("GET /static/", staticHandler)
 }

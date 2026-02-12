@@ -13,10 +13,12 @@ const (
 	cfgKey   key = 0
 	userKey  key = 1
 	loggedIn key = 2
+	devMode  key = 3
 )
 
-func CreateContext(ctx context.Context, cfg *Config) context.Context {
+func CreateContext(ctx context.Context, cfg *Config, dev bool) context.Context {
 	ctx = context.WithValue(ctx, cfgKey, cfg)
+	ctx = context.WithValue(ctx, devMode, dev)
 	return ctx
 }
 
@@ -61,4 +63,8 @@ func IsLogged(ctx context.Context) bool {
 
 func GetUsername(ctx context.Context) string {
 	return ctx.Value(userKey).(string)
+}
+
+func IsDev(ctx context.Context) bool {
+	return ctx.Value(devMode).(bool)
 }

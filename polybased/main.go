@@ -16,6 +16,7 @@ var (
 	showHelp    bool   = false
 	showVersion bool   = false
 	skipLdap    bool   = false
+	devMode     bool   = false
 	configPath  string = ""
 )
 
@@ -24,6 +25,7 @@ func init() {
 	flag.BoolVar(&showHelp, "help", showHelp, "show the help")
 	flag.BoolVar(&showVersion, "v", showVersion, "show the version")
 	flag.BoolVar(&skipLdap, "skip-ldap", skipLdap, "skip ldap checks")
+	flag.BoolVar(&devMode, "dev", devMode, "enable dev mode")
 	flag.StringVar(&configPath, "c", configPath, "set the config path")
 }
 
@@ -49,7 +51,7 @@ func main() {
 	if err != nil {
 		log.Printf("Could not create server %s", err)
 	}
-	srv.Run(config.CreateContext(context.Background(), &cfg))
+	srv.Run(config.CreateContext(context.Background(), &cfg, devMode))
 }
 
 func printUsage() {
@@ -62,6 +64,7 @@ Options:
   -v          Print version information
   -h          Print this help message
   -skip-ldap  Skip LDAP verification
+  -dev        Enable dev mode
 
 For bug reporting and more information, please see:
 https://github.com/alias-asso/polybase-go

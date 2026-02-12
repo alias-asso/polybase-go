@@ -15,7 +15,6 @@ import (
 type Server struct {
 	Host string
 	Port string
-	Mode string
 	Log  string
 }
 
@@ -46,7 +45,6 @@ func DefaultConfig() Config {
 		Server: Server{
 			Host: "127.0.0.1",
 			Port: "1265",
-			Mode: "prod",
 			Log:  "/var/log/polybase/polybase.log",
 		},
 		Database: Database{
@@ -79,9 +77,6 @@ func (c *Config) loadFromEnv() {
 	}
 	if port := os.Getenv("POLYBASE_SERVER_PORT"); port != "" {
 		c.Server.Port = port
-	}
-	if mode := os.Getenv("POLYBASE_SERVER_MODE"); mode != "" {
-		c.Server.Mode = mode
 	}
 	if log := os.Getenv("POLYBASE_SERVER_LOG"); log != "" {
 		c.Server.Log = log
@@ -123,10 +118,6 @@ func (c *Config) Validate(skipLdap bool) error {
 	}
 	if port, err := strconv.Atoi(c.Server.Port); err != nil || port < 1 || port > 65535 {
 		return fmt.Errorf("server.port must be a valid port number (1-65535)")
-	}
-
-	if c.Server.Mode == "" {
-		return fmt.Errorf("server.mode is required")
 	}
 
 	if c.Server.Log == "" {
