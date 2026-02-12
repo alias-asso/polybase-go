@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 
+	"github.com/alias-asso/polybase-go/polybased/config"
 	"github.com/alias-asso/polybase-go/static"
 )
 
@@ -49,7 +50,8 @@ func (s *Server) registerRoutes() {
 func (s *Server) registerStatic() {
 	fs := http.FileServer(static.FileSystem())
 	staticHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if s.cfg.Server.Mode == "dev" {
+		cfg := config.GetConfig(r.Context())
+		if cfg.Server.Mode == "dev" {
 			w.Header().Set("Cache-Control", "public, max-age=0")
 		} else {
 			w.Header().Set("Cache-Control", "public, max-age=63072000")
