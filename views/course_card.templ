@@ -55,7 +55,7 @@ templ CoursePart(course libpolybase.Course) {
 // CourseName presents the course title in a two-line clamped format with hover
 // tooltip for longer names.
 templ CourseName(course libpolybase.Course) {
-	<p class="text-left leading-6 line-clamp-2" title={ course.Name }>{ course.Kind } - { course.Name }</p>
+	<p class="text-left leading-6 line-clamp-2" title={ course.Name }><b>{ course.Kind }</b> - { course.Name }</p>
 }
 
 // CourseAdminControl provides administrative functionality including edit,
