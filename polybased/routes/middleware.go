@@ -2,16 +2,29 @@ package routes
 
 import (
 	"context"
+	"errors"
+	"log"
 	"net/http"
 
+	"github.com/alias-asso/polybase-go/polybased/config"
 	"github.com/golang-jwt/jwt/v5"
 )
+
+func (s *Server) withContext(ctx context.Context, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
 
 func (s *Server) withAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("X-Auth-Token")
 		if err != nil {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			if errors.Is(err, http.ErrNoCookie) {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			}
+			log.Printf("error: %v", err)
 			return
 		}
 
@@ -38,7 +51,6 @@ func (s *Server) withAuth(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Add username to request context
-		ctx := context.WithValue(r.Context(), "username", claims.Username)
-		next(w, r.WithContext(ctx))
+		next(w, r.WithContext(config.SetAuth(r.Context(), claims.Username)))
 	}
 }

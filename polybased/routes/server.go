@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -43,9 +44,9 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	return srv, nil
 }
 
-func (s *Server) Run() {
+func (s *Server) Run(ctx context.Context) {
 	log.Printf("Starting server on %s", s.addr)
-	if err := http.ListenAndServe(s.addr, s.mux); err != nil {
+	if err := http.ListenAndServe(s.addr, s.withContext(ctx, s.mux)); err != nil {
 		log.Fatalf("Error when listening and serving %s", err)
 	}
 }

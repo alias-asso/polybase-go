@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,12 +8,12 @@ import (
 	"strings"
 
 	"github.com/alias-asso/polybase-go/libpolybase"
+	"github.com/alias-asso/polybase-go/polybased/config"
 	"github.com/alias-asso/polybase-go/views"
 )
 
-// getAdmin
 func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
-	username := r.Context().Value("username").(string)
+	username := config.ConnectedUsername(r.Context())
 
 	courses, err := s.pb.ListCourse(r.Context(), true, nil, nil, nil, nil)
 	if err != nil {
@@ -37,7 +36,6 @@ func (s *Server) getAdmin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getAdminCoursesNew
 func (s *Server) getAdminCoursesNew(w http.ResponseWriter, r *http.Request) {
 	err := views.NewCourseForm().Render(r.Context(), w)
 	if err != nil {
@@ -46,7 +44,6 @@ func (s *Server) getAdminCoursesNew(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getAdminCoursesEdit
 func (s *Server) getAdminCoursesEdit(w http.ResponseWriter, r *http.Request) {
 	id, err := parseCourseUrl("/admin/courses/edit/", r)
 	if err != nil {
@@ -68,7 +65,6 @@ func (s *Server) getAdminCoursesEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getAdminCoursesDelete
 func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
 	id, err := parseCourseUrl("/admin/courses/delete/", r)
 	if err != nil {
@@ -90,7 +86,6 @@ func (s *Server) getAdminCoursesDelete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getAdminPacksNew
 func (s *Server) getAdminPacksNew(w http.ResponseWriter, r *http.Request) {
 	courses, err := s.pb.ListCourse(r.Context(), false, nil, nil, nil, nil)
 	if err != nil {
@@ -105,7 +100,6 @@ func (s *Server) getAdminPacksNew(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getAdminPacksEdit
 func (s *Server) getAdminPacksEdit(w http.ResponseWriter, r *http.Request) {
 	id, err := parsePackUrl("/admin/packs/edit/", r)
 	if err != nil {
@@ -133,7 +127,6 @@ func (s *Server) getAdminPacksEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getAdminPacksDelete
 func (s *Server) getAdminPacksDelete(w http.ResponseWriter, r *http.Request) {
 	id, err := parsePackUrl("/admin/packs/delete/", r)
 	if err != nil {
@@ -196,13 +189,11 @@ func (s *Server) getAdminPack(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getAdminPacksNew
-func (s *Server) getAdminStatistics(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Get admin statistics - Config: %+v, Polybase: %+v", s.cfg, s.pb)
-	w.Write([]byte("Get admin statistics"))
-}
+//func (s *Server) getAdminStatistics(w http.ResponseWriter, r *http.Request) {
+//	log.Printf("Get admin statistics - Config: %+v, Polybase: %+v", s.cfg, s.pb)
+//	w.Write([]byte("Get admin statistics"))
+//}
 
-// postAdminCourses
 func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
@@ -211,7 +202,7 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	err = r.ParseForm()
 	if err != nil {
@@ -307,7 +298,6 @@ func (s *Server) postAdminCourses(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// putAdminCourses
 func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
@@ -316,7 +306,7 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	err = r.ParseForm()
 	if err != nil {
@@ -418,7 +408,6 @@ func (s *Server) putAdminCourses(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// deleteAdminCourses
 func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
@@ -427,7 +416,7 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	_, err = s.pb.GetCourse(r.Context(), id)
 	exists := true
@@ -475,7 +464,6 @@ func (s *Server) deleteAdminCourses(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// patchAdminCoursesQuantity
 func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Request) {
 	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
@@ -484,7 +472,7 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	delta, err := strconv.Atoi(r.URL.Query().Get("delta"))
 	if err != nil {
@@ -507,7 +495,6 @@ func (s *Server) patchAdminCoursesQuantity(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// patchAdminCoursesVisibility
 func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Request) {
 	id, err := parseCourseUrl("/admin/courses/", r)
 	if err != nil {
@@ -516,7 +503,7 @@ func (s *Server) patchAdminCoursesVisibility(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	visibility, err := strconv.ParseBool(r.URL.Query().Get("visibility"))
 	if err != nil {
@@ -547,7 +534,7 @@ func (s *Server) patchAdminPacksQuantity(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	delta, err := strconv.Atoi(r.URL.Query().Get("delta"))
 	if err != nil {
@@ -585,7 +572,7 @@ func (s *Server) patchAdminPacksQuantity(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *Server) postAdminPacks(w http.ResponseWriter, r *http.Request) {
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	// Parse form data
 	err := r.ParseForm()
@@ -661,7 +648,7 @@ func (s *Server) postAdminPacks(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
 	log.Println("putAdminPacks")
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	// Parse the pack ID from URL
 	id, err := parsePackUrl("/admin/packs/", r)
@@ -746,7 +733,7 @@ func (s *Server) putAdminPacks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) deleteAdminPacks(w http.ResponseWriter, r *http.Request) {
-	username := getUsernameFromContext(r.Context())
+	username := config.ConnectedUsername(r.Context())
 
 	id, err := parsePackUrl("/admin/packs/", r)
 	if err != nil {
@@ -782,12 +769,4 @@ func (s *Server) deleteAdminPacks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
 	}
-}
-
-func getUsernameFromContext(ctx context.Context) string {
-	username, ok := ctx.Value("username").(string)
-	if !ok {
-		return ""
-	}
-	return username
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -39,16 +40,16 @@ func main() {
 		return
 	}
 
-	config, err := config.LoadConfig(configPath, skipLdap)
+	cfg, err := config.LoadConfig(configPath, skipLdap)
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	srv, err := routes.NewServer(&config)
+	srv, err := routes.NewServer(&cfg)
 	if err != nil {
 		log.Printf("Could not create server %s", err)
 	}
-	srv.Run()
+	srv.Run(config.CreateContext(context.Background(), &cfg))
 }
 
 func printUsage() {
