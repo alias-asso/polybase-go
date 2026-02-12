@@ -1,30 +1,45 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
-	"os"
 
 	"github.com/alias-asso/polybase-go/polybased/config"
 	"github.com/alias-asso/polybase-go/polybased/routes"
 )
 
+const version = "0.1.0"
+
+var (
+	showHelp    bool   = false
+	showVersion bool   = false
+	skipLdap    bool   = false
+	configPath  string = ""
+)
+
+func init() {
+	flag.BoolVar(&showHelp, "h", showHelp, "show the help")
+	flag.BoolVar(&showHelp, "help", showHelp, "show the help")
+	flag.BoolVar(&showVersion, "v", showVersion, "show the version")
+	flag.BoolVar(&skipLdap, "skip-ldap", skipLdap, "skip ldap checks")
+	flag.StringVar(&configPath, "c", configPath, "set the config path")
+}
+
 func main() {
-	args, err := parseArgs()
-	if err != nil {
-		log.Fatal(err)
-	}
+	flag.Parse()
 
-	if args.ShowHelp {
+	if showHelp {
 		printUsage()
-		os.Exit(0)
+		return
 	}
 
-	if args.ShowVersion {
+	if showVersion {
 		printVersion()
-		os.Exit(0)
+		return
 	}
 
-	config, err := config.LoadConfig(args.ConfigPath)
+	config, err := config.LoadConfig(configPath, skipLdap)
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
@@ -34,4 +49,24 @@ func main() {
 		log.Printf("Could not create server %s", err)
 	}
 	srv.Run()
+}
+
+func printUsage() {
+	fmt.Printf(`Usage: polybased [OPTIONS]
+
+Manage polybase database from the web browser.
+
+Options:
+  -c <path>   Path to config file (default: /etc/polybase/config.cfg)
+  -v          Print version information
+  -h          Print this help message
+  -skip-ldap  Skip LDAP verification
+
+For bug reporting and more information, please see:
+https://github.com/alias-asso/polybase-go
+`)
+}
+
+func printVersion() {
+	fmt.Printf("polybased version %s\n", version)
 }

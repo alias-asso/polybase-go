@@ -58,7 +58,7 @@ func DefaultConfig() Config {
 	}
 }
 
-func LoadConfig(configPath string) (Config, error) {
+func LoadConfig(configPath string, skipLdap bool) (Config, error) {
 	config := DefaultConfig()
 	if _, err := toml.DecodeFile(configPath, &config); err != nil {
 		return Config{}, err
@@ -66,7 +66,7 @@ func LoadConfig(configPath string) (Config, error) {
 
 	config.loadFromEnv()
 
-	if err := config.Validate(); err != nil {
+	if err := config.Validate(skipLdap); err != nil {
 		return Config{}, fmt.Errorf("invalid configuration: %w", err)
 	}
 
@@ -109,7 +109,7 @@ func (c *Config) loadFromEnv() {
 	}
 }
 
-func (c *Config) Validate() error {
+func (c *Config) Validate(skipLdap bool) error {
 	// Server validation
 	if c.Server.Host == "" {
 		return fmt.Errorf("server.host is required")
@@ -138,29 +138,31 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("database.path is required")
 	}
 
-	// LDAP validation
-	if c.LDAP.Host == "" {
-		return fmt.Errorf("ldap.host is required")
-	}
-	if c.LDAP.Port == "" {
-		return fmt.Errorf("ldap.port is required")
-	}
-	if port, err := strconv.Atoi(c.LDAP.Port); err != nil || port < 1 || port > 65535 {
-		return fmt.Errorf("ldap.port must be a valid port number (1-65535)")
-	}
-	if c.LDAP.UserDN == "" {
-		return fmt.Errorf("ldap.user_dn is required")
-	}
-	if !strings.Contains(c.LDAP.UserDN, "%s") {
-		return fmt.Errorf("ldap.user_dn must contain %%s placeholder for username")
-	}
+	if !skipLdap {
+		// LDAP validation
+		if c.LDAP.Host == "" {
+			return fmt.Errorf("ldap.host is required")
+		}
+		if c.LDAP.Port == "" {
+			return fmt.Errorf("ldap.port is required")
+		}
+		if port, err := strconv.Atoi(c.LDAP.Port); err != nil || port < 1 || port > 65535 {
+			return fmt.Errorf("ldap.port must be a valid port number (1-65535)")
+		}
+		if c.LDAP.UserDN == "" {
+			return fmt.Errorf("ldap.user_dn is required")
+		}
+		if !strings.Contains(c.LDAP.UserDN, "%s") {
+			return fmt.Errorf("ldap.user_dn must contain %%s placeholder for username")
+		}
 
-	// Test LDAP connection
-	l, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%s", c.LDAP.Host, c.LDAP.Port))
-	if err != nil {
-		return fmt.Errorf("failed to connect to LDAP server: %w", err)
+		// Test LDAP connection
+		l, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%s", c.LDAP.Host, c.LDAP.Port))
+		if err != nil {
+			return fmt.Errorf("failed to connect to LDAP server: %w", err)
+		}
+		defer l.Close()
 	}
-	defer l.Close()
 
 	// Auth validation
 	if c.Auth.JWTSecret == "" {
