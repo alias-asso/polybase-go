@@ -21,6 +21,10 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s", err)
 		return
 	}
+	for i, c := range courses {
+		c.Semester = "Semestre " + string([]rune(c.Semester)[1:])
+		courses[i] = c
+	}
 
 	s.count += 1
 
