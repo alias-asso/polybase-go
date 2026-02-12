@@ -49,7 +49,7 @@ func runCreate(ctx context.Context, pb libpolybase.Polybase, args []string) erro
 	}
 
 	if *name == "" || *quantity == -1 || *semester == "" {
-		createUsage(flags)
+		flags.Usage()
 		return errors.Join(ErrInvalidUsage, fmt.Errorf("name (-n), quantity (-q) and semester (-s) are required"))
 	}
 
@@ -234,6 +234,8 @@ func runList(ctx context.Context, pb libpolybase.Polybase, args []string) error 
 			filterKind = kind
 		case "p":
 			filterPart = part
+		default:
+			panic(errors.Join(ErrInvalidUsage, fmt.Errorf("unknown flag %s", f.Name)))
 		}
 	})
 
