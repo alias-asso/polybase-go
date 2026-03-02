@@ -454,10 +454,7 @@ func validateCourse(course Course) (Course, error) {
 
 	// Validate Semester
 	course.Semester = strings.TrimSpace(course.Semester)
-	switch course.Semester {
-	case "S1", "S2":
-		// valid
-	default:
+	if course.Semester != "S1" && course.Semester != "S2" {
 		return Course{}, fmt.Errorf("SEMESTER must be either S1 or S2")
 	}
 
