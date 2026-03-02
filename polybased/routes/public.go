@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alias-asso/polybase-go/polybased/config"
 	"github.com/alias-asso/polybase-go/views"
-	"github.com/golang-jwt/jwt/v5"
 )
 
-// getHome
 func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
-	if ok := s.isLoggedIn(r); ok {
+	if ok := config.IsLogged(r.Context()); ok {
 		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 		return
 	}
@@ -32,7 +31,6 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getLogin
 func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 	err := views.Login().Render(r.Context(), w)
 	if err != nil {
@@ -41,7 +39,6 @@ func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// postAuth
 func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Échec de l'analyse du formulaire", http.StatusBadRequest)
@@ -51,7 +48,9 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	authorized, err := authenticate(username, password, s.cfg)
+	cfg := config.GetConfig(r.Context())
+
+	authorized, err := authenticate(username, password, cfg)
 	if err != nil {
 		log.Print(err)
 		http.Error(w, "Service LDAP temporairement indisponible", http.StatusInternalServerError)
@@ -64,13 +63,13 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := generateToken(username, s.cfg)
+	token, err := generateToken(username, cfg)
 	if err != nil {
 		http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 		return
 	}
 
-	expiry, err := time.ParseDuration(s.cfg.Auth.JWTExpiry)
+	expiry, err := time.ParseDuration(cfg.Auth.JWTExpiry)
 	if err != nil {
 		http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 		return
@@ -96,26 +95,4 @@ func (s *Server) getNotFound(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
 	}
-}
-
-func (s *Server) isLoggedIn(r *http.Request) bool {
-	cookie, err := r.Cookie("X-Auth-Token")
-	if err != nil {
-		return false
-	}
-
-	type Claims struct {
-		Username string `json:"username"`
-		jwt.RegisteredClaims
-	}
-
-	token, err := jwt.ParseWithClaims(cookie.Value, &Claims{}, func(token *jwt.Token) (any, error) {
-		return []byte(s.cfg.Auth.JWTSecret), nil
-	})
-	if err != nil || !token.Valid {
-		return false
-	}
-
-	_, ok := token.Claims.(*Claims)
-	return ok
 }

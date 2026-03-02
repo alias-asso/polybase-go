@@ -4,41 +4,24 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/alias-asso/polybase-go/polybased/config"
 )
+
+func (s *Server) withContext(ctx context.Context, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx = config.SetAuth(ctx, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
 
 func (s *Server) withAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("X-Auth-Token")
-		if err != nil {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-
-		// Parse and validate the token
-		type Claims struct {
-			Username string `json:"username"`
-			jwt.RegisteredClaims
-		}
-
-		token, err := jwt.ParseWithClaims(cookie.Value, &Claims{}, func(token *jwt.Token) (any, error) {
-			return []byte(s.cfg.Auth.JWTSecret), nil
-		})
-
-		if err != nil || !token.Valid {
+		connected := config.IsLogged(r.Context())
+		if !connected {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
-		// Get username from claims
-		claims, ok := token.Claims.(*Claims)
-		if !ok {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-
-		// Add username to request context
-		ctx := context.WithValue(r.Context(), "username", claims.Username)
-		next(w, r.WithContext(ctx))
+		next(w, r)
 	}
 }
