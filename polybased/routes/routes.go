@@ -17,7 +17,7 @@ func (s *Server) registerRoutes() {
 
 	s.mux.HandleFunc("GET /{$}", s.getHome)
 	s.mux.HandleFunc("GET /login", s.getLogin)
-	s.mux.HandleFunc("POST /auth", s.postAuth)
+	s.mux.HandleFunc("GET /auth/callback", s.getAuthCallback)
 
 	s.mux.HandleFunc("GET /admin", s.withAuth(s.getAdmin))
 

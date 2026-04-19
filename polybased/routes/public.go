@@ -36,38 +36,47 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
-	err := views.Login().Render(r.Context(), w)
+	state, err := generateState()
 	if err != nil {
-		http.Error(w, "Failed to render template", http.StatusInternalServerError)
-		log.Printf("Failed to render template: %v", err)
-	}
-}
-
-func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Échec de l'analyse du formulaire", http.StatusBadRequest)
+		http.Error(w, "Erreur lors de la génération de l'état", http.StatusInternalServerError)
 		return
 	}
 
-	username := r.FormValue("username")
-	password := r.FormValue("password")
+	setOIDCState(state)
 
 	cfg := config.GetConfig(r.Context())
-
-	authorized, err := authenticate(username, password, cfg)
+	authURL, err := getOIDCURL(cfg, state)
 	if err != nil {
-		log.Print(err)
-		http.Error(w, "Service LDAP temporairement indisponible", http.StatusInternalServerError)
+		http.Error(w, "Failed to generate OIDC login URL", http.StatusInternalServerError)
 		return
 	}
 
-	if !authorized {
-		log.Print("Ldap wrong username or password")
-		http.Error(w, "Nom d'utilisateur ou mot de passe incorrect", http.StatusUnauthorized)
+	http.Redirect(w, r, authURL, http.StatusSeeOther)
+}
+
+func (s *Server) getAuthCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	state := r.URL.Query().Get("state")
+
+	if code == "" || state == "" {
+		http.Error(w, "Missing code or state parameter", http.StatusBadRequest)
 		return
 	}
 
-	token, err := generateToken(username, cfg)
+	if !validOIDCState(state) {
+		http.Error(w, "CSRF validation failed, try again", http.StatusForbidden)
+		return
+	}
+
+	cfg := config.GetConfig(r.Context())
+	givenName, err := verifyOIDCCode(cfg, code)
+	if err != nil {
+		log.Printf("OIDC verification failed: %v", err)
+		http.Error(w, "Erreur d'authentification", http.StatusUnauthorized)
+		return
+	}
+
+	token, err := generateToken(givenName, cfg)
 	if err != nil {
 		http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 		return

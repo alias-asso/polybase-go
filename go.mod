@@ -4,8 +4,9 @@ go 1.25.0
 
 require (
 	github.com/BurntSushi/toml v1.5.0
-	github.com/go-ldap/ldap/v3 v3.4.11
+	github.com/coreos/go-oidc/v3 v3.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.3
+	golang.org/x/oauth2 v0.30.0
 	golang.org/x/term v0.40.0
 	modernc.org/sqlite v1.46.1
 )
@@ -22,6 +23,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.1 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gohugoio/hugo v0.149.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
@@ -49,9 +51,7 @@ require (
 )
 
 require (
-	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/a-h/templ v0.3.977
-	github.com/go-asn1-ber/asn1-ber v1.5.8-0.20250403174932-29230038a667 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	golang.org/x/crypto v0.48.0 // indirect
 )

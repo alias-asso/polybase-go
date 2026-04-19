@@ -5,11 +5,9 @@ import (
 	"net"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/go-ldap/ldap/v3"
 )
 
 type Server struct {
@@ -22,10 +20,11 @@ type Database struct {
 	Path string
 }
 
-type LDAP struct {
-	Host   string `toml:"host"`
-	Port   string `toml:"port"`
-	UserDN string `toml:"user_dn"`
+type OIDC struct {
+	ClientID     string `toml:"client_id"`
+	ClientSecret string `toml:"client_secret"`
+	IssuerURL    string `toml:"issuer_url"`
+	RedirectURI  string `toml:"redirect_uri"`
 }
 
 type Auth struct {
@@ -36,7 +35,7 @@ type Auth struct {
 type Config struct {
 	Server   Server
 	Database Database
-	LDAP     LDAP
+	OIDC     OIDC
 	Auth     Auth
 }
 
@@ -51,12 +50,12 @@ func DefaultConfig() Config {
 			Path: "/var/lib/polybase/polybase.db",
 		},
 		Auth: Auth{
-			JWTExpiry: "4320h",
+			JWTExpiry: "72h",
 		},
 	}
 }
 
-func LoadConfig(configPath string, skipLdap bool) (Config, error) {
+func LoadConfig(configPath string) (Config, error) {
 	config := DefaultConfig()
 	if _, err := toml.DecodeFile(configPath, &config); err != nil {
 		return Config{}, err
@@ -64,7 +63,7 @@ func LoadConfig(configPath string, skipLdap bool) (Config, error) {
 
 	config.loadFromEnv()
 
-	if err := config.Validate(skipLdap); err != nil {
+	if err := config.Validate(); err != nil {
 		return Config{}, fmt.Errorf("invalid configuration: %w", err)
 	}
 
@@ -86,14 +85,17 @@ func (c *Config) loadFromEnv() {
 		c.Database.Path = path
 	}
 
-	if host := os.Getenv("POLYBASE_LDAP_HOST"); host != "" {
-		c.LDAP.Host = host
+	if clientID := os.Getenv("POLYBASE_OIDC_CLIENT_ID"); clientID != "" {
+		c.OIDC.ClientID = clientID
 	}
-	if port := os.Getenv("POLYBASE_LDAP_PORT"); port != "" {
-		c.LDAP.Port = port
+	if clientSecret := os.Getenv("POLYBASE_OIDC_CLIENT_SECRET"); clientSecret != "" {
+		c.OIDC.ClientSecret = clientSecret
 	}
-	if userDN := os.Getenv("POLYBASE_LDAP_USER_DN"); userDN != "" {
-		c.LDAP.UserDN = userDN
+	if issuerURL := os.Getenv("POLYBASE_OIDC_ISSUER_URL"); issuerURL != "" {
+		c.OIDC.IssuerURL = issuerURL
+	}
+	if redirectURI := os.Getenv("POLYBASE_OIDC_REDIRECT_URI"); redirectURI != "" {
+		c.OIDC.RedirectURI = redirectURI
 	}
 
 	if secret := os.Getenv("POLYBASE_AUTH_JWT_SECRET"); secret != "" {
@@ -104,7 +106,7 @@ func (c *Config) loadFromEnv() {
 	}
 }
 
-func (c *Config) Validate(skipLdap bool) error {
+func (c *Config) Validate() error {
 	// Server validation
 	if c.Server.Host == "" {
 		return fmt.Errorf("server.host is required")
@@ -129,30 +131,18 @@ func (c *Config) Validate(skipLdap bool) error {
 		return fmt.Errorf("database.path is required")
 	}
 
-	if !skipLdap {
-		// LDAP validation
-		if c.LDAP.Host == "" {
-			return fmt.Errorf("ldap.host is required")
-		}
-		if c.LDAP.Port == "" {
-			return fmt.Errorf("ldap.port is required")
-		}
-		if port, err := strconv.Atoi(c.LDAP.Port); err != nil || port < 1 || port > 65535 {
-			return fmt.Errorf("ldap.port must be a valid port number (1-65535)")
-		}
-		if c.LDAP.UserDN == "" {
-			return fmt.Errorf("ldap.user_dn is required")
-		}
-		if !strings.Contains(c.LDAP.UserDN, "%s") {
-			return fmt.Errorf("ldap.user_dn must contain %%s placeholder for username")
-		}
-
-		// Test LDAP connection
-		l, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%s", c.LDAP.Host, c.LDAP.Port))
-		if err != nil {
-			return fmt.Errorf("failed to connect to LDAP server: %w", err)
-		}
-		defer l.Close()
+	// OIDC validation
+	if c.OIDC.ClientID == "" {
+		return fmt.Errorf("oidc.client_id is required")
+	}
+	if c.OIDC.ClientSecret == "" {
+		return fmt.Errorf("oidc.client_secret is required")
+	}
+	if c.OIDC.IssuerURL == "" {
+		return fmt.Errorf("oidc.issuer_url is required")
+	}
+	if c.OIDC.RedirectURI == "" {
+		return fmt.Errorf("oidc.redirect_uri is required")
 	}
 
 	// Auth validation
