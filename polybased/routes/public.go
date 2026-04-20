@@ -88,13 +88,19 @@ func (s *Server) getAuthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	isDev := config.IsDev(r.Context())
+	cookieSameSite := http.SameSiteStrictMode
+	if isDev {
+		cookieSameSite = http.SameSiteLaxMode
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "X-Auth-Token",
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		Secure:   !isDev,
+		SameSite: cookieSameSite,
 		MaxAge:   int(expiry.Hours()) * 3600,
 	})
 
