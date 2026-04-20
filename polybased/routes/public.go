@@ -36,6 +36,11 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
+	if config.IsLogged(r.Context()) {
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		return
+	}
+
 	state, err := generateState()
 	if err != nil {
 		http.Error(w, "Erreur lors de la génération de l'état", http.StatusInternalServerError)
