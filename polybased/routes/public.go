@@ -115,8 +115,7 @@ func (s *Server) getAuthCallback(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   int(expiry.Hours()) * 3600,
 	})
 
-	w.Header().Set("HX-Redirect", "/admin")
-	w.WriteHeader(http.StatusOK)
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 }
 
 func (s *Server) getNotFound(w http.ResponseWriter, r *http.Request) {
