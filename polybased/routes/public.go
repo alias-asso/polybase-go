@@ -41,15 +41,20 @@ func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cfg := config.GetConfig(r.Context())
+	isDev := config.IsDev(r.Context())
+
 	state, err := generateState()
 	if err != nil {
 		http.Error(w, "Erreur lors de la génération de l'état", http.StatusInternalServerError)
 		return
 	}
 
-	setOIDCState(state)
+	if err := setOIDCStateCookie(w, state, cfg, isDev); err != nil {
+		http.Error(w, "Failed to prepare OIDC state", http.StatusInternalServerError)
+		return
+	}
 
-	cfg := config.GetConfig(r.Context())
 	authURL, err := getOIDCURL(cfg, state)
 	if err != nil {
 		http.Error(w, "Failed to generate OIDC login URL", http.StatusInternalServerError)
@@ -62,18 +67,20 @@ func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 func (s *Server) getAuthCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	state := r.URL.Query().Get("state")
+	cfg := config.GetConfig(r.Context())
+	isDev := config.IsDev(r.Context())
+	defer clearOIDCStateCookie(w, isDev)
 
 	if code == "" || state == "" {
 		http.Error(w, "Missing code or state parameter", http.StatusBadRequest)
 		return
 	}
 
-	if !validOIDCState(state) {
+	if !validOIDCState(r, state, cfg) {
 		http.Error(w, "CSRF validation failed, try again", http.StatusForbidden)
 		return
 	}
 
-	cfg := config.GetConfig(r.Context())
 	givenName, err := verifyOIDCCode(cfg, code)
 	if err != nil {
 		log.Printf("OIDC verification failed: %v", err)
@@ -93,7 +100,6 @@ func (s *Server) getAuthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isDev := config.IsDev(r.Context())
 	cookieSameSite := http.SameSiteStrictMode
 	if isDev {
 		cookieSameSite = http.SameSiteLaxMode

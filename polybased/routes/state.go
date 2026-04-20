@@ -1,61 +1,86 @@
 package routes
 
 import (
-	"sync"
+	"net/http"
 	"time"
+
+	"github.com/alias-asso/polybase-go/polybased/config"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-var (
-	stateStore    = make(map[string]time.Time)
-	stateMutex    = &sync.Mutex{}
-	cleanupTicker *time.Ticker
-)
+const oidcStateCookieName = "X-OIDC-State"
 
-// startStateCleanupRoutine begins a periodic cleanup goroutine
-func startStateCleanupRoutine() {
-	cleanupTicker = time.NewTicker(1 * time.Minute)
-	go func() {
-		for range cleanupTicker.C {
-			cleanupOIDCState()
-		}
-	}()
+type oidcStateClaims struct {
+	State string `json:"state"`
+	jwt.RegisteredClaims
 }
 
-// cleanupOIDCState removes all expired entries from the state store
-func cleanupOIDCState() {
-	stateMutex.Lock()
-	defer stateMutex.Unlock()
-
-	now := time.Now()
-	for state, expiry := range stateStore {
-		if now.After(expiry) {
-			delete(stateStore, state)
-		}
+func createOIDCStateToken(state string, cfg *config.Config) (string, error) {
+	claims := oidcStateClaims{
+		State: state,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
 	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(cfg.Auth.JWTSecret))
 }
 
-// setOIDCState stores a state with 5-minute expiry
-func setOIDCState(state string) {
-	stateMutex.Lock()
-	defer stateMutex.Unlock()
-	stateStore[state] = time.Now().Add(5 * time.Minute)
+func setOIDCStateCookie(w http.ResponseWriter, state string, cfg *config.Config, isDev bool) error {
+	token, err := createOIDCStateToken(state, cfg)
+	if err != nil {
+		return err
+	}
+
+	cookieSameSite := http.SameSiteStrictMode
+	if isDev {
+		cookieSameSite = http.SameSiteLaxMode
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     oidcStateCookieName,
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   !isDev,
+		SameSite: cookieSameSite,
+		MaxAge:   int((5 * time.Minute).Seconds()),
+	})
+
+	return nil
 }
 
-// validOIDCState checks if state exists and is not expired, then deletes it
-func validOIDCState(state string) bool {
-	stateMutex.Lock()
-	defer stateMutex.Unlock()
-
-	expiry, exists := stateStore[state]
-	if !exists {
+func validOIDCState(r *http.Request, state string, cfg *config.Config) bool {
+	cookie, err := r.Cookie(oidcStateCookieName)
+	if err != nil {
 		return false
 	}
 
-	if time.Now().After(expiry) {
-		delete(stateStore, state)
+	token, err := jwt.ParseWithClaims(cookie.Value, &oidcStateClaims{}, func(token *jwt.Token) (any, error) {
+		return []byte(cfg.Auth.JWTSecret), nil
+	})
+	if err != nil || !token.Valid {
 		return false
 	}
 
-	delete(stateStore, state)
-	return true
+	claims, ok := token.Claims.(*oidcStateClaims)
+	if !ok {
+		return false
+	}
+
+	return claims.State == state
+}
+
+func clearOIDCStateCookie(w http.ResponseWriter, isDev bool) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     oidcStateCookieName,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   !isDev,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   -1,
+	})
 }
