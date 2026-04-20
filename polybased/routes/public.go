@@ -55,7 +55,7 @@ func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authURL, err := getOIDCURL(cfg, state)
+	authURL, err := s.getOIDCURL(state)
 	if err != nil {
 		http.Error(w, "Failed to generate OIDC login URL", http.StatusInternalServerError)
 		return
@@ -81,7 +81,7 @@ func (s *Server) getAuthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	givenName, err := verifyOIDCCode(cfg, code)
+	givenName, err := s.verifyOIDCCode(code)
 	if err != nil {
 		log.Printf("OIDC verification failed: %v", err)
 		http.Error(w, "Erreur d'authentification", http.StatusUnauthorized)

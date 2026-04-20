@@ -9,15 +9,19 @@ import (
 
 	"github.com/alias-asso/polybase-go/libpolybase"
 	"github.com/alias-asso/polybase-go/polybased/config"
+	"github.com/coreos/go-oidc/v3/oidc"
+	"golang.org/x/oauth2"
 	_ "modernc.org/sqlite"
 )
 
 // Server represents the HTTP server and its dependencies
 type Server struct {
-	mux   *http.ServeMux
-	addr  string
-	pb    libpolybase.Polybase
-	count int
+	mux          *http.ServeMux
+	addr         string
+	pb           libpolybase.Polybase
+	oauth2Config *oauth2.Config
+	oidcVerifier *oidc.IDTokenVerifier
+	count        int
 }
 
 // New creates a new server instance
@@ -28,12 +32,21 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	}
 
 	pb := libpolybase.New(db, cfg.Server.Log, true)
+	ctx := context.Background()
+	provider, err := oidc.NewProvider(ctx, cfg.OIDC.IssuerURL)
+	if err != nil {
+		return nil, fmt.Errorf("create OIDC provider: %w", err)
+	}
+
+	oauth2Config := newOAuth2Config(cfg, provider)
 
 	srv := &Server{
-		mux:   http.NewServeMux(),
-		addr:  fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
-		pb:    pb,
-		count: 0,
+		mux:          http.NewServeMux(),
+		addr:         fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
+		pb:           pb,
+		oauth2Config: oauth2Config,
+		oidcVerifier: provider.Verifier(&oidc.Config{ClientID: cfg.OIDC.ClientID}),
+		count:        0,
 	}
 
 	// Register all routes

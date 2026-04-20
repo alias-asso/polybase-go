@@ -13,6 +13,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func generateState() (string, error) {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
+}
+
 func newOAuth2Config(cfg *config.Config, provider *oidc.Provider) *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     cfg.OIDC.ClientID,
@@ -23,35 +32,12 @@ func newOAuth2Config(cfg *config.Config, provider *oidc.Provider) *oauth2.Config
 	}
 }
 
-func generateState() (string, error) {
-	b := make([]byte, 16)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(b), nil
+func (s *Server) getOIDCURL(state string) (string, error) {
+	return s.oauth2Config.AuthCodeURL(state), nil
 }
 
-func getOIDCURL(cfg *config.Config, state string) (string, error) {
-	ctx := context.Background()
-	provider, err := oidc.NewProvider(ctx, cfg.OIDC.IssuerURL)
-	if err != nil {
-		return "", fmt.Errorf("failed to create OIDC provider: %w", err)
-	}
-
-	oauth2Config := newOAuth2Config(cfg, provider)
-	return oauth2Config.AuthCodeURL(state), nil
-}
-
-func verifyOIDCCode(cfg *config.Config, code string) (string, error) {
-	ctx := context.Background()
-	provider, err := oidc.NewProvider(ctx, cfg.OIDC.IssuerURL)
-	if err != nil {
-		return "", fmt.Errorf("failed to create OIDC provider: %w", err)
-	}
-
-	oauth2Config := newOAuth2Config(cfg, provider)
-	token, err := oauth2Config.Exchange(ctx, code)
+func (s *Server) verifyOIDCCode(code string) (string, error) {
+	token, err := s.oauth2Config.Exchange(context.Background(), code)
 	if err != nil {
 		return "", fmt.Errorf("failed to exchange code: %w", err)
 	}
@@ -61,8 +47,7 @@ func verifyOIDCCode(cfg *config.Config, code string) (string, error) {
 		return "", fmt.Errorf("id_token not found in token response")
 	}
 
-	verifier := provider.Verifier(&oidc.Config{ClientID: cfg.OIDC.ClientID})
-	idToken, err := verifier.Verify(ctx, rawIDToken)
+	idToken, err := s.oidcVerifier.Verify(context.Background(), rawIDToken)
 	if err != nil {
 		return "", fmt.Errorf("failed to verify ID token: %w", err)
 	}
