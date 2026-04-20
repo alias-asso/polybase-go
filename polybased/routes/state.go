@@ -6,9 +6,33 @@ import (
 )
 
 var (
-	stateStore = make(map[string]time.Time)
-	stateMutex = &sync.Mutex{}
+	stateStore    = make(map[string]time.Time)
+	stateMutex    = &sync.Mutex{}
+	cleanupTicker *time.Ticker
 )
+
+// startStateCleanupRoutine begins a periodic cleanup goroutine
+func startStateCleanupRoutine() {
+	cleanupTicker = time.NewTicker(1 * time.Minute)
+	go func() {
+		for range cleanupTicker.C {
+			cleanupOIDCState()
+		}
+	}()
+}
+
+// cleanupOIDCState removes all expired entries from the state store
+func cleanupOIDCState() {
+	stateMutex.Lock()
+	defer stateMutex.Unlock()
+
+	now := time.Now()
+	for state, expiry := range stateStore {
+		if now.After(expiry) {
+			delete(stateStore, state)
+		}
+	}
+}
 
 // setOIDCState stores a state with 5-minute expiry
 func setOIDCState(state string) {

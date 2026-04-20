@@ -36,6 +36,9 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		count: 0,
 	}
 
+	// Start the OIDC state cleanup routine
+	startStateCleanupRoutine()
+
 	// Register all routes
 	srv.registerRoutes()
 
