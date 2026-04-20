@@ -13,7 +13,7 @@ POLYBASED(1) "github.com/alias-asso/polybase-go" "General Commands Manual"
 *polybased* is a web server application that provides an interface for managing
 education courses and their resources. It features both public and
 administrative views, OIDC-based authentication, and real-time course inventory
-managment. The system is designed to help track course materials, manage
+management. The system is designed to help track course materials, manage
 visibility, and handle course quantities through a responsive web interface.
 
 # OPTIONS
@@ -64,7 +64,7 @@ the following sections and parameters:
 	Secret for JWT authorization
 
 *jwt_expiry*
-	Duration before JWT expiry (default: "4320h")
+	Duration before JWT expiry (default: "72h")
 
 # DATABASE SCHEMA
 
