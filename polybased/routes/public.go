@@ -36,38 +36,59 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
-	err := views.Login().Render(r.Context(), w)
-	if err != nil {
-		http.Error(w, "Failed to render template", http.StatusInternalServerError)
-		log.Printf("Failed to render template: %v", err)
-	}
-}
-
-func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Échec de l'analyse du formulaire", http.StatusBadRequest)
+	if config.IsLogged(r.Context()) {
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 		return
 	}
-
-	username := r.FormValue("username")
-	password := r.FormValue("password")
 
 	cfg := config.GetConfig(r.Context())
+	isDev := config.IsDev(r.Context())
 
-	authorized, err := authenticate(username, password, cfg)
+	state, err := generateState()
 	if err != nil {
-		log.Print(err)
-		http.Error(w, "Service LDAP temporairement indisponible", http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de la génération de l'état", http.StatusInternalServerError)
 		return
 	}
 
-	if !authorized {
-		log.Print("Ldap wrong username or password")
-		http.Error(w, "Nom d'utilisateur ou mot de passe incorrect", http.StatusUnauthorized)
+	if err := setOIDCStateCookie(w, state, cfg, isDev); err != nil {
+		http.Error(w, "Failed to prepare OIDC state", http.StatusInternalServerError)
 		return
 	}
 
-	token, err := generateToken(username, cfg)
+	authURL, err := s.getOIDCURL(state)
+	if err != nil {
+		http.Error(w, "Failed to generate OIDC login URL", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, authURL, http.StatusSeeOther)
+}
+
+func (s *Server) getAuthCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	state := r.URL.Query().Get("state")
+	cfg := config.GetConfig(r.Context())
+	isDev := config.IsDev(r.Context())
+	defer clearOIDCStateCookie(w, isDev)
+
+	if code == "" || state == "" {
+		http.Error(w, "Missing code or state parameter", http.StatusBadRequest)
+		return
+	}
+
+	if !validOIDCState(r, state, cfg) {
+		http.Error(w, "CSRF validation failed, try again", http.StatusForbidden)
+		return
+	}
+
+	givenName, err := s.verifyOIDCCode(code)
+	if err != nil {
+		log.Printf("OIDC verification failed: %v", err)
+		http.Error(w, "Erreur d'authentification", http.StatusUnauthorized)
+		return
+	}
+
+	token, err := generateToken(givenName, cfg)
 	if err != nil {
 		http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 		return
@@ -79,18 +100,22 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cookieSameSite := http.SameSiteStrictMode
+	if isDev {
+		cookieSameSite = http.SameSiteLaxMode
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "X-Auth-Token",
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		Secure:   !isDev,
+		SameSite: cookieSameSite,
 		MaxAge:   int(expiry.Hours()) * 3600,
 	})
 
-	w.Header().Set("HX-Redirect", "/admin")
-	w.WriteHeader(http.StatusOK)
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 }
 
 func (s *Server) getNotFound(w http.ResponseWriter, r *http.Request) {

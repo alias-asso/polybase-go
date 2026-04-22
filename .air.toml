@@ -3,7 +3,7 @@ tmp_dir = "target/cache"
 
 [build]
 cmd = "go build -o target/cache/polybased ./polybased"
-full_bin = "./target/cache/polybased -c polybase.cfg -skip-ldap -dev"
+full_bin = "./target/cache/polybased -c polybase.cfg -dev"
 include_ext = ["go", "templ", "css"]
 exclude_dir = ["target"]
 exclude_regex = ["_templ\\.go$"]

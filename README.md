@@ -1,6 +1,6 @@
 # Polybase
 
-Self-hosted user database with LDAP authentication.
+Self-hosted user database with OIDC authentication.
 
 ## Components
 
@@ -26,26 +26,16 @@ just publish
 Development:
 ```bash
 just dev            # basic backend
-just dev-ldap       # ldap
 just dev-frontend   # frontend
 just dev-rw         # test high packet loss
-just dev-hivemind   # if you have hivemind installed (start dev, dev-ldap, dev-frontend and dev-air)
+just dev-hivemind   # if you have hivemind installed (start dev, dev-frontend and dev-air)
 just migrate  # initialize database
 just clean    # remove artifacts
 ```
 
-### LDAP Development
-
-We use GLAuth as a development LDAP server.
-Start it with:
-```bash
-glauth -c glauth.cfg
-```
-
-Test accounts are:
-- `paul:paul*`
-- `ionys:ionys*`
-- `lydia:lydia*`
+The server now uses OIDC for sign-in. Set the `oidc` section in `polybase.cfg`
+with your provider `client_id`, `client_secret`, `issuer_url`, and
+`redirect_uri` before starting the backend.
 
 ## Icons
 

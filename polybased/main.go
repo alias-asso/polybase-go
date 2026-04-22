@@ -15,7 +15,6 @@ const version = "0.1.0"
 var (
 	showHelp    bool   = false
 	showVersion bool   = false
-	skipLdap    bool   = false
 	devMode     bool   = false
 	configPath  string = ""
 )
@@ -24,7 +23,6 @@ func init() {
 	flag.BoolVar(&showHelp, "h", showHelp, "show the help")
 	flag.BoolVar(&showHelp, "help", showHelp, "show the help")
 	flag.BoolVar(&showVersion, "v", showVersion, "show the version")
-	flag.BoolVar(&skipLdap, "skip-ldap", skipLdap, "skip ldap checks")
 	flag.BoolVar(&devMode, "dev", devMode, "enable dev mode")
 	flag.StringVar(&configPath, "c", configPath, "set the config path")
 }
@@ -42,7 +40,7 @@ func main() {
 		return
 	}
 
-	cfg, err := config.LoadConfig(configPath, skipLdap)
+	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
@@ -63,7 +61,6 @@ Options:
   -c <path>   Path to config file (default: /etc/polybase/config.cfg)
   -v          Print version information
   -h          Print this help message
-  -skip-ldap  Skip LDAP verification
   -dev        Enable dev mode
 
 For bug reporting and more information, please see:

@@ -12,8 +12,8 @@ POLYBASED(1) "github.com/alias-asso/polybase-go" "General Commands Manual"
 
 *polybased* is a web server application that provides an interface for managing
 education courses and their resources. It features both public and
-administrative views, LDAP-based authentication, and real-time course inventory
-managment. The system is designed to help track course materials, manage
+administrative views, OIDC-based authentication, and real-time course inventory
+management. The system is designed to help track course materials, manage
 visibility, and handle course quantities through a responsive web interface.
 
 # OPTIONS
@@ -44,16 +44,19 @@ the following sections and parameters:
 *path*
 	Path to the polybase database (default: /var/lib/polybase/polybase.db)
 
-## ldap
+## oidc
 
-*host*
-	Host of the LDAP server (default: 127.0.0.1)
+*client_id*
+	OIDC client identifier
 
-*port*
-	Port of the LDAP server (default: 389)
+*client_secret*
+	OIDC client secret
 
-*user_dn*
-	User domain name of the LDAP server (must contain %s for username)
+*issuer_url*
+	OIDC issuer URL
+
+*redirect_uri*
+	OIDC callback URL registered with the provider
 
 ## auth
 
@@ -61,7 +64,7 @@ the following sections and parameters:
 	Secret for JWT authorization
 
 *jwt_expiry*
-	Duration before JWT expiry (default: "4320h")
+	Duration before JWT expiry (default: "72h")
 
 # DATABASE SCHEMA
 
@@ -104,10 +107,10 @@ The application uses SQLite with the following main table structure:
 	Public view of visible courses
 
 *GET /login*
-	Login page
+	Redirect to the configured OIDC provider
 
-*POST /auth*
-	Authentication endpoint
+*GET /auth/callback*
+	OIDC callback endpoint
 
 ## Protected Endpoints
 
@@ -137,13 +140,14 @@ The application uses SQLite with the following main table structure:
 
 # AUTHENTICATION
 
-The system uses LDAP for authentication and JWT tokens for session management.
+The system uses OIDC for authentication and JWT tokens for session management.
 The authentication flow is as follows:
 
-1. Use submits credentials via the login form
-2. Server validates credentials against LDAP server
-3. On success, a JWT is generated and stored as an HTTP-only cookie
-4. Token is validated for all protected access
+1. User follows the login redirect
+2. Server sends the browser to the configured OIDC provider
+3. Provider returns to the callback URL with an authorization code
+4. Server exchanges the code, verifies the ID token, and stores a JWT as an HTTP-only cookie
+5. Token is validated for all protected access
 
 # FILES
 

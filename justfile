@@ -2,10 +2,6 @@ dev:
     bun run build
     go tool templ generate --watch --proxy="http://127.0.0.1:8080" --cmd "go tool air"
 
-# ldap
-dev-ldap:
-    glauth -c glauth.cfg
-
 # frontend hot reloading
 dev-frontend:
     bun run dev
