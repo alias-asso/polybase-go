@@ -38,7 +38,7 @@ jobs:
         run: bun i
 
       - name: Build with bun
-        run: bun build
+        run: bun run build
 
       - name: Build and publish
         run: just publish
