@@ -66,4 +66,4 @@ jobs:
       - name: Deploy to server
         run: |
           scp -r $TARGET_FOLDER/* ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOSTNAME }}:/tmp/
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOSTNAME }} 'cd /tmp && sh install.sh'
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOSTNAME }} 'cd /tmp && sh dist/install.sh'

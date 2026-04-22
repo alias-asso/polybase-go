@@ -25,7 +25,6 @@ publish: build test
     touch target/dist/etc/polybase/polybase.cfg
     cp polybased.rc target/dist/etc/rc.d/polybased
     cp install.sh target/dist/
-    cd target && tar czf dist.tar.gz dist
 
 test:
     go test -cover ./...
