@@ -37,8 +37,11 @@ jobs:
       - name: Install deps
         run: bun i
 
+      - name: Build with bun
+        run: bun build
+
       - name: Build and publish
-        run: just publish 
+        run: just publish
 
       - name: Upload build result
         uses: actions/upload-artifact@v6
