@@ -37,9 +37,6 @@ jobs:
       - name: Install deps
         run: bun i
 
-      - name: Build with bun
-        run: bun run build
-
       - name: Build and publish
         run: just publish
 

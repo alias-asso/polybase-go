@@ -16,7 +16,7 @@ dev-hivemind:
 
 build: clean build-server build-cli
 
-publish: test build
+publish: build test
     mkdir -p target/dist/{usr/local/bin,usr/share/man/man1,etc/polybase,etc/rc.d}
     cp target/polybased target/dist/usr/local/bin
     cp target/polybase target/dist/usr/local/bin
