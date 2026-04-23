@@ -2,28 +2,36 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"os"
-	"os/user"
 	"strconv"
-	"strings"
 
 	"golang.org/x/term"
 
 	"github.com/alias-asso/polybase-go/libpolybase"
 )
 
-func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	if len(args) < 3 {
-		printCreateUsage()
-		return fmt.Errorf("CODE, KIND and PART are required")
-	}
+var (
+	ErrInvalidUsage = errors.New("invalid usage")
+)
 
-	flags := flag.NewFlagSet("create", flag.ContinueOnError)
-	flags.SetOutput(io.Discard)
-	flags.Usage = func() {}
+func scope(args []string, usage func()) ([]string, string, string, uint8, error) {
+	if len(args) < 3 {
+		usage()
+		return nil, "", "", 0, errors.Join(ErrInvalidUsage, errors.New("CODE, KIND and PART are required"))
+	}
+	part, err := strconv.Atoi(args[2])
+	if err != nil || part < 0 || part > 255 {
+		return nil, "", "", 0, errors.Join(ErrInvalidUsage, fmt.Errorf("invalid part number: %s", args[2]))
+	}
+	return args[3:], args[0], args[1], uint8(part), nil
+}
+
+func runCreate(ctx context.Context, pb libpolybase.Polybase, args []string) error {
+	flags := flag.NewFlagSet("create", flag.ExitOnError)
+	flags.Usage = createUsage(flags)
 
 	name := flags.String("n", "", "course name")
 	quantity := flags.Int("q", -1, "initial quantity")
@@ -31,38 +39,34 @@ func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	semester := flags.String("s", "", "semester")
 	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
-	if err := flags.Parse(args[3:]); err != nil {
+	args, code, kind, part, err := scope(args, flags.Usage)
+	if err != nil {
+		return err
+	}
+
+	if err := flags.Parse(args); err != nil {
 		return err
 	}
 
 	if *name == "" || *quantity == -1 || *semester == "" {
-		printCreateUsage()
-		return fmt.Errorf("name (-n), quantity (-q) and semester (-s) are required")
-	}
-
-	part, err := strconv.Atoi(args[2])
-	if err != nil {
-		return fmt.Errorf("invalid part number: %s", args[2])
+		flags.Usage()
+		return errors.Join(ErrInvalidUsage, fmt.Errorf("name (-n), quantity (-q) and semester (-s) are required"))
 	}
 
 	if *total == 0 {
 		*total = *quantity
 	}
 
-	course := libpolybase.Course{
-		Code:     args[0],
-		Kind:     args[1],
-		Part:     part,
-		Parts:    0,
+	created, err := pb.CreateCourse(ctx, getCurrentUser(), libpolybase.Course{
+		Code:     code,
+		Kind:     kind,
+		Part:     int(part),
 		Name:     *name,
 		Quantity: *quantity,
 		Total:    *total,
 		Shown:    true,
 		Semester: *semester,
-	}
-
-	username := getCurrentUser()
-	created, err := pb.CreateCourse(ctx, username, course)
+	})
 	if err != nil {
 		return err
 	}
@@ -70,28 +74,25 @@ func runCreate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	return printCourse(created, *jsonOutput)
 }
 
-func runGet(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	if len(args) < 3 {
-		printGetUsage()
-		return fmt.Errorf("CODE, KIND and PART are required")
-	}
+func runGet(ctx context.Context, pb libpolybase.Polybase, args []string) error {
+	flags := flag.NewFlagSet("get", flag.ExitOnError)
+	flags.Usage = getUsage(flags)
 
-	part, err := strconv.Atoi(args[2])
-	if err != nil {
-		return fmt.Errorf("invalid part number: %s", args[2])
-	}
-
-	flags := flag.NewFlagSet("get", flag.ContinueOnError)
 	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
-	if err := flags.Parse(args[3:]); err != nil {
+	args, code, kind, part, err := scope(args, flags.Usage)
+	if err != nil {
+		return err
+	}
+
+	if err := flags.Parse(args); err != nil {
 		return err
 	}
 
 	id := libpolybase.CourseID{
-		Code: args[0],
-		Kind: args[1],
-		Part: part,
+		Code: code,
+		Kind: kind,
+		Part: int(part),
 	}
 
 	course, err := pb.GetCourse(ctx, id)
@@ -102,26 +103,10 @@ func runGet(pb libpolybase.Polybase, ctx context.Context, args []string) error {
 	return printCourse(course, *jsonOutput)
 }
 
-func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	if len(args) < 3 {
-		printUpdateUsage()
-		return fmt.Errorf("CODE, KIND and PART are required")
-	}
+func runUpdate(ctx context.Context, pb libpolybase.Polybase, args []string) error {
+	flags := flag.NewFlagSet("update", flag.ExitOnError)
+	flags.Usage = updateUsage(flags)
 
-	code := args[0]
-	kind := args[1]
-	part, err := strconv.Atoi(args[2])
-	if err != nil {
-		return fmt.Errorf("invalid part number: %s", args[2])
-	}
-
-	id := libpolybase.CourseID{
-		Code: code,
-		Kind: kind,
-		Part: part,
-	}
-
-	flags := flag.NewFlagSet("update", flag.ContinueOnError)
 	newCode := flags.String("c", "", "update code")
 	newKind := flags.String("k", "", "update kind")
 	newPart := flags.Int("p", 0, "update part")
@@ -131,7 +116,18 @@ func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	newSemester := flags.String("s", "", "update semester")
 	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
-	if err := flags.Parse(args[3:]); err != nil {
+	args, code, kind, part, err := scope(args, flags.Usage)
+	if err != nil {
+		return err
+	}
+
+	id := libpolybase.CourseID{
+		Code: code,
+		Kind: kind,
+		Part: int(part),
+	}
+
+	if err := flags.Parse(args); err != nil {
 		return err
 	}
 
@@ -152,6 +148,8 @@ func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 			partial.Total = newTotal
 		case "s":
 			partial.Semester = newSemester
+		default:
+			panic(errors.Join(ErrInvalidUsage, fmt.Errorf("unknown flag %s", f.Name)))
 		}
 	})
 
@@ -164,21 +162,16 @@ func runUpdate(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	return printCourse(updated, *jsonOutput)
 }
 
-func runDelete(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	if len(args) < 3 {
-		printDeleteUsage()
-		return fmt.Errorf("CODE, KIND and PART are required")
-	}
-
-	part, err := strconv.Atoi(args[2])
+func runDelete(ctx context.Context, pb libpolybase.Polybase, args []string) error {
+	args, code, kind, part, err := scope(args, deleteUsage(nil))
 	if err != nil {
-		return fmt.Errorf("invalid part number: %s", args[2])
+		return err
 	}
 
 	id := libpolybase.CourseID{
-		Code: args[0],
-		Kind: args[1],
-		Part: part,
+		Code: code,
+		Kind: kind,
+		Part: int(part),
 	}
 
 	course, err := pb.GetCourse(ctx, id)
@@ -214,8 +207,10 @@ func runDelete(pb libpolybase.Polybase, ctx context.Context, args []string) erro
 	return pb.DeleteCourse(ctx, username, id)
 }
 
-func runList(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	flags := flag.NewFlagSet("list", flag.ContinueOnError)
+func runList(ctx context.Context, pb libpolybase.Polybase, args []string) error {
+	flags := flag.NewFlagSet("list", flag.ExitOnError)
+	flags.Usage = listUsage(flags)
+
 	showHidden := flags.Bool("a", false, "show hidden courses")
 	semester := flags.String("s", "", "filter by semester")
 	code := flags.String("c", "", "filter by course code")
@@ -239,6 +234,8 @@ func runList(pb libpolybase.Polybase, ctx context.Context, args []string) error 
 			filterKind = kind
 		case "p":
 			filterPart = part
+		default:
+			panic(errors.Join(ErrInvalidUsage, fmt.Errorf("unknown flag %s", f.Name)))
 		}
 	})
 
@@ -250,33 +247,35 @@ func runList(pb libpolybase.Polybase, ctx context.Context, args []string) error 
 	return printCourses(courses, *jsonOutput)
 }
 
-func runQuantity(pb libpolybase.Polybase, ctx context.Context, args []string) error {
+func runQuantity(ctx context.Context, pb libpolybase.Polybase, args []string) error {
+	flags := flag.NewFlagSet("get", flag.ExitOnError)
+	flags.Usage = quantityUsage(flags)
+
+	jsonOutput := flags.Bool("json", false, "output in JSON format")
+
 	if len(args) < 4 {
-		printQuantityUsage()
+		flags.Usage()
 		return fmt.Errorf("CODE, KIND, PART and DELTA are required")
 	}
 
-	part, err := strconv.Atoi(args[2])
+	args, code, kind, part, err := scope(args, flags.Usage)
 	if err != nil {
-		return fmt.Errorf("invalid part number: %s", args[2])
+		return err
 	}
 
-	delta, err := strconv.Atoi(args[3])
+	delta, err := strconv.Atoi(args[0])
 	if err != nil {
-		return fmt.Errorf("invalid delta value: %s", args[3])
+		return fmt.Errorf("invalid delta value: %s", args[0])
 	}
 
-	flags := flag.NewFlagSet("get", flag.ContinueOnError)
-	jsonOutput := flags.Bool("json", false, "output in JSON format")
-
-	if err := flags.Parse(args[4:]); err != nil {
+	if err := flags.Parse(args[1:]); err != nil {
 		return err
 	}
 
 	id := libpolybase.CourseID{
-		Code: args[0],
-		Kind: args[1],
-		Part: part,
+		Code: code,
+		Kind: kind,
+		Part: int(part),
 	}
 
 	username := getCurrentUser()
@@ -288,29 +287,26 @@ func runQuantity(pb libpolybase.Polybase, ctx context.Context, args []string) er
 	return printCourse(updated, *jsonOutput)
 }
 
-func runVisibility(pb libpolybase.Polybase, ctx context.Context, args []string) error {
-	if len(args) < 3 {
-		printVisibilityUsage()
-		return fmt.Errorf("CODE, KIND and PART are required")
-	}
+func runVisibility(ctx context.Context, pb libpolybase.Polybase, args []string) error {
+	flags := flag.NewFlagSet("visibility", flag.ExitOnError)
+	flags.Usage = visibilityUsage(flags)
 
-	flags := flag.NewFlagSet("visibility", flag.ContinueOnError)
 	shown := flags.Bool("s", true, "visibility state")
 	jsonOutput := flags.Bool("json", false, "output in JSON format")
 
-	if err := flags.Parse(args[3:]); err != nil {
+	args, code, kind, part, err := scope(args, flags.Usage)
+	if err != nil {
 		return err
 	}
 
-	part, err := strconv.Atoi(args[2])
-	if err != nil {
-		return fmt.Errorf("invalid part number: %s", args[2])
+	if err := flags.Parse(args); err != nil {
+		return err
 	}
 
 	id := libpolybase.CourseID{
-		Code: args[0],
-		Kind: args[1],
-		Part: part,
+		Code: code,
+		Kind: kind,
+		Part: int(part),
 	}
 
 	username := getCurrentUser()
@@ -320,46 +316,4 @@ func runVisibility(pb libpolybase.Polybase, ctx context.Context, args []string) 
 	}
 
 	return printCourse(updated, *jsonOutput)
-}
-
-func runHelp(args []string) error {
-	if len(args) == 0 {
-		printUsage()
-		return nil
-	}
-
-	switch args[0] {
-	case "create":
-		printCreateUsage()
-	case "get":
-		printGetUsage()
-	case "update":
-		printUpdateUsage()
-	case "delete":
-		printDeleteUsage()
-	case "list":
-		printListUsage()
-	case "quantity":
-		printQuantityUsage()
-	case "visibility":
-		printVisibilityUsage()
-	default:
-		printUsage()
-		return fmt.Errorf("unknown command %q", args[0])
-	}
-	return nil
-}
-
-func getCurrentUser() string {
-	currentUser, err := user.Current()
-	if err != nil {
-		return "unknown-user"
-	}
-
-	// Extract just the username part, removing domain if present
-	username := currentUser.Username
-	if i := strings.LastIndex(username, "\\"); i >= 0 {
-		username = username[i+1:]
-	}
-	return username
 }

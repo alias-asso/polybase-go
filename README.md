@@ -1,6 +1,6 @@
 # Polybase
 
-Self-hosted user database with LDAP authentication.
+Self-hosted user database with OIDC authentication.
 
 ## Components
 
@@ -8,56 +8,34 @@ Self-hosted user database with LDAP authentication.
 - `polybased/`: Web interface (Go + HTMX)
 - `internal/`: Core backend logic with tests
 
-## Requirements
+## Usage
 
-- Go 1.21+
-- SQLite
-- Tailwind CSS
-- Templ
+To develop or to build polybase, you must have Go 1.24+ and Bun installed.
+We are using `just` as a command runner.
 
-## Nix Users
-
-```shell
-nix develop
+Build:
+```bash
 just build
 ```
 
-## Other Users
-
-Install dependencies:
-
-- `go install github.com/air-verse/air@latest`
-- `go install github.com/a-h/templ/cmd/templ@v0.3.906`
-- `npm install -g tailwindcss@3`
-- requires just, Hivemind, and GLAuth 
-
-Build:
-
-```shell
-just build
+Publish:
+```bash
+just publish
 ```
 
 Development:
-
-```shell
-just dev      # hot reload
+```bash
+just dev            # basic backend
+just dev-frontend   # frontend
+just dev-rw         # test high packet loss
+just dev-hivemind   # if you have hivemind installed (start dev, dev-frontend and dev-air)
 just migrate  # initialize database
 just clean    # remove artifacts
 ```
 
-## LDAP Development
-
-Start GLAuth development LDAP server:
-
-```shell
-glauth -c glauth.cfg
-```
-
-Test accounts:
-
-- `paul:paul*`
-- `ionys:ionys*`
-- `lydia:lydia*`
+The server now uses OIDC for sign-in. Set the `oidc` section in `polybase.cfg`
+with your provider `client_id`, `client_secret`, `issuer_url`, and
+`redirect_uri` before starting the backend.
 
 ## Icons
 

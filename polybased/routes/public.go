@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alias-asso/polybase-go/polybased/config"
 	"github.com/alias-asso/polybase-go/views"
-	"github.com/golang-jwt/jwt/v5"
 )
 
-// getHome
 func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
-	if ok := s.isLoggedIn(r); ok {
+	if ok := config.IsLogged(r.Context()); ok {
 		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 		return
 	}
@@ -21,6 +20,10 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to list courses", http.StatusInternalServerError)
 		log.Printf("%s", err)
 		return
+	}
+	for i, c := range courses {
+		c.Semester = "Semestre " + string([]rune(c.Semester)[1:])
+		courses[i] = c
 	}
 
 	s.count += 1
@@ -32,45 +35,66 @@ func (s *Server) getHome(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getLogin
 func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
-	err := views.Login().Render(r.Context(), w)
-	if err != nil {
-		http.Error(w, "Failed to render template", http.StatusInternalServerError)
-		log.Printf("Failed to render template: %v", err)
+	if config.IsLogged(r.Context()) {
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		return
 	}
+
+	cfg := config.GetConfig(r.Context())
+	isDev := config.IsDev(r.Context())
+
+	state, err := generateState()
+	if err != nil {
+		http.Error(w, "Erreur lors de la génération de l'état", http.StatusInternalServerError)
+		return
+	}
+
+	if err := setOIDCStateCookie(w, state, cfg, isDev); err != nil {
+		http.Error(w, "Failed to prepare OIDC state", http.StatusInternalServerError)
+		return
+	}
+
+	authURL, err := s.getOIDCURL(state)
+	if err != nil {
+		http.Error(w, "Failed to generate OIDC login URL", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, authURL, http.StatusSeeOther)
 }
 
-// postAuth
-func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Échec de l'analyse du formulaire", http.StatusBadRequest)
+func (s *Server) getAuthCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	state := r.URL.Query().Get("state")
+	cfg := config.GetConfig(r.Context())
+	isDev := config.IsDev(r.Context())
+	defer clearOIDCStateCookie(w, isDev)
+
+	if code == "" || state == "" {
+		http.Error(w, "Missing code or state parameter", http.StatusBadRequest)
 		return
 	}
 
-	username := r.FormValue("username")
-	password := r.FormValue("password")
+	if !validOIDCState(r, state, cfg) {
+		http.Error(w, "CSRF validation failed, try again", http.StatusForbidden)
+		return
+	}
 
-	authorized, err := authenticate(username, password, s.cfg)
+	givenName, err := s.verifyOIDCCode(code)
 	if err != nil {
-		log.Print(err)
-		http.Error(w, "Service LDAP temporairement indisponible", http.StatusInternalServerError)
+		log.Printf("OIDC verification failed: %v", err)
+		http.Error(w, "Erreur d'authentification", http.StatusUnauthorized)
 		return
 	}
 
-	if !authorized {
-		log.Print("Ldap wrong username or password")
-		http.Error(w, "Nom d'utilisateur ou mot de passe incorrect", http.StatusUnauthorized)
-		return
-	}
-
-	token, err := generateToken(username, s.cfg)
+	token, err := generateToken(givenName, cfg)
 	if err != nil {
 		http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 		return
 	}
 
-	expiry, err := time.ParseDuration(s.cfg.Auth.JWTExpiry)
+	expiry, err := time.ParseDuration(cfg.Auth.JWTExpiry)
 	if err != nil {
 		http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 		return
@@ -81,13 +105,12 @@ func (s *Server) postAuth(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		Secure:   !isDev,
+		SameSite: http.SameSiteLaxMode,
 		MaxAge:   int(expiry.Hours()) * 3600,
 	})
 
-	w.Header().Set("HX-Redirect", "/admin")
-	w.WriteHeader(http.StatusOK)
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
 }
 
 func (s *Server) getNotFound(w http.ResponseWriter, r *http.Request) {
@@ -96,26 +119,4 @@ func (s *Server) getNotFound(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to render template", http.StatusInternalServerError)
 		log.Printf("Failed to render template: %v", err)
 	}
-}
-
-func (s *Server) isLoggedIn(r *http.Request) bool {
-	cookie, err := r.Cookie("X-Auth-Token")
-	if err != nil {
-		return false
-	}
-
-	type Claims struct {
-		Username string `json:"username"`
-		jwt.RegisteredClaims
-	}
-
-	token, err := jwt.ParseWithClaims(cookie.Value, &Claims{}, func(token *jwt.Token) (any, error) {
-		return []byte(s.cfg.Auth.JWTSecret), nil
-	})
-	if err != nil || !token.Valid {
-		return false
-	}
-
-	_, ok := token.Claims.(*Claims)
-	return ok
 }

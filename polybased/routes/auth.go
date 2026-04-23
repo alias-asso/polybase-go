@@ -1,31 +1,69 @@
 package routes
 
 import (
+	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"time"
 
 	"github.com/alias-asso/polybase-go/polybased/config"
-	"github.com/go-ldap/ldap/v3"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/oauth2"
 )
 
-func authenticate(username string, password string, cfg *config.Config) (bool, error) {
-	l, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%s", cfg.LDAP.Host, cfg.LDAP.Port))
+func generateState() (string, error) {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
 	if err != nil {
-		return false, fmt.Errorf("ldap connect: %w", err)
+		return "", err
 	}
-	defer l.Close()
-	l.SetTimeout(5 * time.Second)
+	return hex.EncodeToString(b), nil
+}
 
-	userDN := fmt.Sprintf(cfg.LDAP.UserDN, username)
-	err = l.Bind(userDN, password)
-	if err != nil {
-		if ldap.IsErrorWithCode(err, ldap.LDAPResultInvalidCredentials) {
-			return false, nil
-		}
-		return false, fmt.Errorf("ldap bind: %w", err)
+func newOAuth2Config(cfg *config.Config, provider *oidc.Provider) *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     cfg.OIDC.ClientID,
+		ClientSecret: cfg.OIDC.ClientSecret,
+		RedirectURL:  cfg.OIDC.RedirectURI,
+		Endpoint:     provider.Endpoint(),
+		Scopes:       []string{oidc.ScopeOpenID, "profile"},
 	}
-	return true, nil
+}
+
+func (s *Server) getOIDCURL(state string) (string, error) {
+	return s.oauth2Config.AuthCodeURL(state), nil
+}
+
+func (s *Server) verifyOIDCCode(code string) (string, error) {
+	token, err := s.oauth2Config.Exchange(context.Background(), code)
+	if err != nil {
+		return "", fmt.Errorf("failed to exchange code: %w", err)
+	}
+
+	rawIDToken, ok := token.Extra("id_token").(string)
+	if !ok {
+		return "", fmt.Errorf("id_token not found in token response")
+	}
+
+	idToken, err := s.oidcVerifier.Verify(context.Background(), rawIDToken)
+	if err != nil {
+		return "", fmt.Errorf("failed to verify ID token: %w", err)
+	}
+
+	var claims struct {
+		GivenName string `json:"given_name"`
+	}
+	if err := idToken.Claims(&claims); err != nil {
+		return "", fmt.Errorf("failed to extract claims: %w", err)
+	}
+
+	if claims.GivenName == "" {
+		return "", fmt.Errorf("given_name claim not found in token")
+	}
+
+	return claims.GivenName, nil
 }
 
 // generateToken creates a JWT token containing just the username
