@@ -34,18 +34,13 @@ func setOIDCStateCookie(w http.ResponseWriter, state string, cfg *config.Config,
 		return err
 	}
 
-	cookieSameSite := http.SameSiteStrictMode
-	if isDev {
-		cookieSameSite = http.SameSiteLaxMode
-	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name:     oidcStateCookieName,
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   !isDev,
-		SameSite: cookieSameSite,
+		SameSite: http.SameSiteLaxMode,
 		MaxAge:   int((5 * time.Minute).Seconds()),
 	})
 
@@ -80,7 +75,7 @@ func clearOIDCStateCookie(w http.ResponseWriter, isDev bool) {
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   !isDev,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 		MaxAge:   -1,
 	})
 }
