@@ -17,14 +17,13 @@ dev-hivemind:
 build: clean build-server build-cli
 
 publish: build test
-    mkdir -p target/dist/usr/local/bin target/dist/usr/share/man/man1 target/dist/etc/polybase target/dist/etc/rc.d
+    mkdir -p target/dist/usr/local/bin target/dist/usr/local/man/man1 target/dist/etc/rc.d
     cp target/polybased target/dist/usr/local/bin
     cp target/polybase target/dist/usr/local/bin
-    cp target/polybase.1 target/dist/usr/share/man/man1/
-    cp target/polybased.1 target/dist/usr/share/man/man1/
-    touch target/dist/etc/polybase/polybase.cfg
+    cp target/polybase.1 target/dist/usr/local/man/man1/
+    cp target/polybased.1 target/dist/usr/local/man/man1/
     cp polybased.rc target/dist/etc/rc.d/polybased
-    cp install.sh target/dist/
+    cp install.sh target/
 
 test:
     go test -cover ./...
