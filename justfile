@@ -39,12 +39,12 @@ build-server:
     mkdir -p target
     bun run build
     go tool templ generate
-    go build -o target/polybased ./polybased
+    GOOS=${TARGET_OS:-$(go env GOOS)} GOARCH=${TARGET_ARCH:-$(go env GOARCH)} go build -o target/polybased ./polybased
     scdoc < polybased.1.scd | sed "s/1980-01-01/$(date '+%B %Y')/" > target/polybased.1
 
 build-cli:
     mkdir -p target
-    go build -o target/polybase ./polybase
+    GOOS=${TARGET_OS:-$(go env GOOS)} GOARCH=${TARGET_ARCH:-$(go env GOARCH)} go build -o target/polybase ./polybase
     scdoc < polybase.1.scd | sed "s/1980-01-01/$(date '+%B %Y')/" > target/polybase.1
 
 build-docker:
