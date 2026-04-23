@@ -16,7 +16,7 @@ var (
 	showHelp    bool   = false
 	showVersion bool   = false
 	devMode     bool   = false
-	configPath  string = ""
+	configPath  string = "/etc/polybase/config.cfg"
 )
 
 func init() {
