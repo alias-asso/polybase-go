@@ -16,12 +16,13 @@ import (
 
 // Server represents the HTTP server and its dependencies
 type Server struct {
-	mux          *http.ServeMux
-	addr         string
-	pb           libpolybase.Polybase
-	oauth2Config *oauth2.Config
-	oidcVerifier *oidc.IDTokenVerifier
-	count        int
+	mux             *http.ServeMux
+	addr            string
+	pb              libpolybase.Polybase
+	oauth2Config    *oauth2.Config
+	oidcAuthOptions []oauth2.AuthCodeOption
+	oidcVerifier    *oidc.IDTokenVerifier
+	count           int
 }
 
 // New creates a new server instance
@@ -39,14 +40,19 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	}
 
 	oauth2Config := newOAuth2Config(cfg, provider)
+	oidcAuthOptions, err := buildOIDCAuthCodeOptions(cfg.OIDC.ExtraParams)
+	if err != nil {
+		return nil, fmt.Errorf("parse oidc.extra_params: %w", err)
+	}
 
 	srv := &Server{
-		mux:          http.NewServeMux(),
-		addr:         fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
-		pb:           pb,
-		oauth2Config: oauth2Config,
-		oidcVerifier: provider.Verifier(&oidc.Config{ClientID: cfg.OIDC.ClientID}),
-		count:        0,
+		mux:             http.NewServeMux(),
+		addr:            fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port),
+		pb:              pb,
+		oauth2Config:    oauth2Config,
+		oidcAuthOptions: oidcAuthOptions,
+		oidcVerifier:    provider.Verifier(&oidc.Config{ClientID: cfg.OIDC.ClientID}),
+		count:           0,
 	}
 
 	// Register all routes

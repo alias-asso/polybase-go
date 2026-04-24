@@ -5,6 +5,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/alias-asso/polybase-go/polybased/config"
@@ -32,8 +34,31 @@ func newOAuth2Config(cfg *config.Config, provider *oidc.Provider) *oauth2.Config
 	}
 }
 
+func buildOIDCAuthCodeOptions(moreParams string) ([]oauth2.AuthCodeOption, error) {
+	if strings.TrimSpace(moreParams) == "" {
+		return nil, nil
+	}
+
+	params, err := url.ParseQuery(moreParams)
+	if err != nil {
+		return nil, fmt.Errorf("invalid oidc.more_params query string: %w", err)
+	}
+
+	options := make([]oauth2.AuthCodeOption, 0, len(params))
+	for key, values := range params {
+		if key == "" {
+			return nil, fmt.Errorf("invalid oidc.more_params query string: empty parameter key")
+		}
+		for _, value := range values {
+			options = append(options, oauth2.SetAuthURLParam(key, value))
+		}
+	}
+
+	return options, nil
+}
+
 func (s *Server) getOIDCURL(state string) (string, error) {
-	return s.oauth2Config.AuthCodeURL(state), nil
+	return s.oauth2Config.AuthCodeURL(state, s.oidcAuthOptions...), nil
 }
 
 func (s *Server) verifyOIDCCode(code string) (string, error) {
