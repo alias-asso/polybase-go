@@ -25,6 +25,7 @@ type OIDC struct {
 	ClientSecret string `toml:"client_secret"`
 	IssuerURL    string `toml:"issuer_url"`
 	RedirectURI  string `toml:"redirect_uri"`
+	ExtraParams  string `toml:"extra_params"`
 }
 
 type Auth struct {
@@ -96,6 +97,9 @@ func (c *Config) loadFromEnv() {
 	}
 	if redirectURI := os.Getenv("POLYBASE_OIDC_REDIRECT_URI"); redirectURI != "" {
 		c.OIDC.RedirectURI = redirectURI
+	}
+	if extraParams := os.Getenv("POLYBASE_OIDC_EXTRA_PARAMS"); extraParams != "" {
+		c.OIDC.ExtraParams = extraParams
 	}
 
 	if secret := os.Getenv("POLYBASE_AUTH_JWT_SECRET"); secret != "" {
